@@ -1,11 +1,14 @@
 rm(list=ls())
+#==========================================================
+# Input needed:
+outputdir = "~/data/output_rawactigraph" # specify output directory
+separator = "," # Note: replace by "\t" if you are working with tab seperated data
 
-outputdir = "~/data/output_rawactigraph"
+#==========================================================
+# load data
 part2_daysummary_file = paste0(outputdir,"/results/part2_daysummary.csv")
 part2_summary_file = paste0(outputdir,"/results/part2_summary.csv")
-
-# load data
-P2 =read.csv(part2_daysummary_file, stringsAsFactors = FALSE, sep=",")
+P2 =read.csv(part2_daysummary_file, stringsAsFactors = FALSE, sep=separator)
 
 # Change ID to numeric:
 convertID = function(idValues) {
@@ -60,7 +63,7 @@ colnames(Dmean) = c("id","gradient_mean","y_intercept_mean",  "X1","X2","X3","X4
 D = merge(D90, Dmean, by.all="id")
 
 # Add the new variables to the person level output calculated by GGIR part 2:
-P2summary = read.csv(part2_summary_file, stringsAsFactors = FALSE, sep=",")
+P2summary = read.csv(part2_summary_file, stringsAsFactors = FALSE, sep=separator)
 
 # Change ID to numeric
 P2summary$ID2 = convertID(P2summary$filename)

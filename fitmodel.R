@@ -22,14 +22,14 @@ hip = "hip"
 wrist = "wrist"
 id_column_labels = "id" # specify here the name where you store the id values in the filewithlabels
 id_column_part2 = "ID2" # specify here the name where you store the id values in the part2_summary.csv
-
+separator = "," # Note: replace by "\t" if you are working with tab seperated data
 #====================================================
 # load data
-labels = read.csv(filewithlabels, sep=",")
+labels = read.csv(filewithlabels, sep=separator)
 labels$label[which(labels$label == "pa")] = "fa"
 labels = labels[which(as.character(labels$label) %in% c("pp","fa")),] #, "pa"
 labels = droplevels(labels)
-D = read.csv(file=part2_summary_file, sep=",")
+D = read.csv(file=part2_summary_file, sep=separator)
 
 D = D[,c("act90", "gradient_mean", "y_intercept_mean", "ID2", "ID",
          "filename", "wear_dur_def_proto_day", "X1", "X2", "X3", "X4",
