@@ -26,7 +26,8 @@ id_column_part2 = "ID2" # specify here the name where you store the id values in
 #====================================================
 # load data
 labels = read.csv(filewithlabels, sep=",")
-labels = labels[which(as.character(labels$label) %in% c("pp","fa","pa")),] #,
+labels$label[which(labels$label == "pa")] = "fa"
+labels = labels[which(as.character(labels$label) %in% c("pp","fa")),] #, "pa"
 labels = droplevels(labels)
 D = read.csv(file=part2_summary_file, sep=",")
 
@@ -66,9 +67,9 @@ for (location in c(wrist,hip)) {
     S = S[-testind,] # training set
     # Fit model, this where we decide what variables will be used:
     if (location == wrist) {
-      fit <- nnet::multinom(label ~ act90 + gradient_mean + y_intercept_mean, data = S, trace = F) #
+      fit <- nnet::multinom(label ~ gradient_mean + y_intercept_mean, data = S, trace = F) # + act90
     } else if (location == hip) {
-      fit <- nnet::multinom(label ~ act90 + gradient_mean + y_intercept_mean, data = S, trace = F) #+gradient_mean + y_intercept_mean
+      fit <- nnet::multinom(label ~ gradient_mean + y_intercept_mean, data = S, trace = F) #+gradient_mean + y_intercept_mean
     }
     # training performance:
     if (show.training.performance == TRUE) { 
