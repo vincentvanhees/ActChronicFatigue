@@ -113,9 +113,9 @@ for (location in c(wrist,hip)) {
 }
 
 # fit model on all the data:
-final_model_hip <- nnet::multinom(label ~ act90 +gradient_mean + y_intercept_mean,
+final_model_hip <- nnet::multinom(label ~ gradient_mean + y_intercept_mean,
                                   data = MergedData[which(MergedData$loc == hip),], trace = F)
-final_model_wrist <- nnet::multinom(label ~ act90 +gradient_mean + y_intercept_mean, 
+final_model_wrist <- nnet::multinom(label ~ gradient_mean + y_intercept_mean, 
                                     data = MergedData[which(MergedData$loc == wrist),], trace = F)
 
 # you can now save and load these finalmodels with the save() and load() function
