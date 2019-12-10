@@ -7,7 +7,7 @@
 3. Install R and RStudio
 4. Install R package GGIR, e.g. RStudio toolbar: Tools -> Install package -> search for GGIR and click install.
 5. Open [runGGIR.R](/runGGIR.R) in RStudo and update the directories at the top to match you file structure.
-Note that folder paths are separated by / and not by \.
+Note that folder paths are separated by / and not by a \ .
 6. Click on 'Source' button. If all goes well this will results after a while (depends on how many files you are processing) in a new folder structure in the output directory you specified with subfolder 'results' and inside "part2_summary.csv" en "part2_daysummary.csv".
 
 7. Create labels.csv file with one column for id, one column for label (holding character values for "pp" and "fa") and one column loc specifying the body location ("wrist" and "hip").
