@@ -17,3 +17,15 @@ Note that folder paths are separated by / and not by a \ .
 ### To apply previously trained model on new data:
 
 See script [howtoapplymodel.R](howtoapplymodel.R), where step 1 is the same as step 1-6 above.
+
+### Model interpretation
+
+The models are logistic regression models, which can be interpretted as follows:
+
+```
+If the coefficients are -14.1, -3.59 and 0.079, then
+x = -14.1 + (-3.59 * gradient_mean) + (0.079 * y_intercept_mean))
+probability_pp = 1/(1+ exp(-x))
+```
+
+In other words: a stronger negative gradient_mean (more inactive person with less time in high accelerations) will result in higher x, which will reduce the probability of being pp (pervasively passive), the default for this model as can be seen from displaying the inputdata.
