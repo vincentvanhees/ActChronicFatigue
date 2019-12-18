@@ -1,8 +1,9 @@
 rm(list=ls())
 graphics.off()
 show.training.performance = FALSE
-library(nnet)
 library(psych)
+library(ROCR)
+
 #=====================================================
 # Input needed:
 #=====================================================
@@ -23,7 +24,29 @@ wrist = "wrist"
 id_column_labels = "id" # specify here the name where you store the id values in the filewithlabels
 id_column_part2 = "ID2" # specify here the name where you store the id values in the part2_summary.csv
 separator = "," # Note: replace by "\t" if you are working with tab seperated data
+derive.roc.cutoff = TRUE # Optimize cut-off for classification
+
 #====================================================
+# declare function
+derive_threshold = function(fit, data) {
+  # False negatives (missing pervasively active) will be rated twice as costly as false positives
+  # Sensitivity will go up, specificity will go down
+  # https://www.r-bloggers.com/a-small-introduction-to-the-rocr-package/
+  # Note: If cost.fp = 1 and cost.fn =1, then threshold is still optimized, but with equal importance
+  statspredict <- stats::predict(object = fit, newdata = data, type = "response")
+  pred = prediction(statspredict,data$label)
+  opt.cut = function(perf, pred){
+    cut.ind = mapply(FUN=function(x, y, p){
+      d = (x - 0)^2 + (y-1)^2
+      ind = which(d == min(d))
+      c(sensitivity = y[[ind]], specificity = 1-x[[ind]], 
+        cutoff = p[[ind]])
+    }, perf@x.values, perf@y.values, pred@cutoffs)
+  }
+  roc.perf = performance(pred, cost.fp = 1, cost.fn = 2, measure = "tpr", x.measure = "fpr") #, ) #
+  threshold = opt.cut(roc.perf, pred)[3]
+}
+
 # load data
 labels = read.csv(filewithlabels, sep=separator)
 labels$label[which(labels$label == "pa")] = "fa"
@@ -54,12 +77,15 @@ findwinner = function(x) {
   }
   return(winner)
 }
+MergedData$label <- stats::relevel(MergedData$label, ref = fluctuationactive)
+MergedData$label = as.integer(MergedData$label) - 1L
+
 for (location in c(wrist,hip)) {
   cat("\n===============================")
   cnt = 1
   # select subset of one sensor location
   D = MergedData[which(MergedData$loc == location),]
-  D$label <- stats::relevel(D$label, ref = fluctuationactive)
+  
   for (testind in sample(nrow(D))) {
     S = D # create copy, because in the second iteration of the loop we will need the original data again
     # split into training and test set
@@ -67,10 +93,11 @@ for (location in c(wrist,hip)) {
     S = S[-testind,] # training set
     # Fit model, this where we decide what variables will be used:
     if (location == wrist) {
-      fit <- nnet::multinom(label ~ gradient_mean + y_intercept_mean, data = S, trace = F) # + act90
+      fit = glm(label ~ gradient_mean + y_intercept_mean, data = S, family = binomial) # + act90
     } else if (location == hip) {
-      fit <- nnet::multinom(label ~ gradient_mean + y_intercept_mean, data = S, trace = F) #+gradient_mean + y_intercept_mean
+      fit = glm(label ~ gradient_mean + y_intercept_mean, data = S, family = binomial) # + act90
     }
+    
     # training performance:
     if (show.training.performance == TRUE) { 
       pp <- as.data.frame(stats::fitted(fit)) # three probabilities per person
@@ -93,9 +120,18 @@ for (location in c(wrist,hip)) {
       cat(paste0("\ntraining ",location))
       print(table(S$estimate, S$label))
     }
-    # testing performance:
-    pp_testset <- stats::predict(object=fit, newdata=testset)
-    testset$estimate = pp_testset
+    #=============================================================================================
+    # predict class probability with logistic regression model:
+    pp_testset <- stats::predict(object = fit, newdata = testset, type = "response")
+    if (derive.roc.cutoff == TRUE) {
+      # Do roc analysis, to find best threshold to favor sensitivity over specificity.
+      threshold = derive_threshold(fit =fit, data=  S)
+      # Use threshold to get class prediction
+      testset$estimate = ifelse(test = pp_testset < threshold, yes = 0, no = 1) # give more weight to pp
+    } else {
+      # Round to get class prediction:
+      testset$estimate = round(test = pp_testset)
+    }
     if (cnt == 1) {
       output = testset
     } else {
@@ -113,15 +149,21 @@ for (location in c(wrist,hip)) {
 }
 
 # fit model on all the data:
-final_model_hip <- nnet::multinom(label ~ gradient_mean + y_intercept_mean,
-                                  data = MergedData[which(MergedData$loc == hip),], trace = F)
-final_model_wrist <- nnet::multinom(label ~ gradient_mean + y_intercept_mean, 
-                                    data = MergedData[which(MergedData$loc == wrist),], trace = F)
-
+final_model_hip = glm(label ~ gradient_mean + y_intercept_mean, data = MergedData[which(MergedData$loc == hip),], family = binomial)
+final_model_wrist = glm(label ~ gradient_mean + y_intercept_mean, data = MergedData[which(MergedData$loc == wrist),], family = binomial)
+threshold_hip = threshold = 0.5
+if (derive.roc.cutoff == TRUE) {
+  threshold_hip = derive_threshold(fit = final_model_hip, data=  MergedData[which(MergedData$loc == hip),])
+  threshold_wrist = derive_threshold(fit = final_model_wrist, data=  MergedData[which(MergedData$loc == wrist),])
+  cat("\n")
+  cat(paste0("\nThresholds for final models: Hip ",threshold_hip,", Wrist ",threshold_wrist))
+}
 # you can now save and load these finalmodels with the save() and load() function
 # or inspect them with summary()
-save(final_model_hip, file = paste0(mydatadir,"/final_model_hip.Rdata"))
-save(final_model_wrist, file = paste0(mydatadir,"/final_model_wrist.Rdata"))
+save(final_model_hip, threshold_hip, file = paste0(mydatadir,"/final_model_hip.Rdata"))
+save(final_model_wrist, threshold_wrist, file = paste0(mydatadir,"/final_model_wrist.Rdata"))
+
+
 
 
 #====================================================
