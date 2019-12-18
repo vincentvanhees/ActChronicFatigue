@@ -55,12 +55,12 @@ intgra2 = data.frame(matrix(unlist(intgra), nrow=length(intgra), byrow=T))
 colnames(intgra2) = c("gradient", "y_intercept")
 # add to P2
 P2 = cbind(P2, intgra2)
-# Calculate the 90th percentile of the day level variables:
-D90 = aggregate.data.frame(P2[,"act"], by = list(P2$id), FUN = function(x) {quantile(x,0.90, na.rm = TRUE) })
-colnames(D90) = c("id","act90")
+# Calculate the 91.67th percentile of the day level variables
+D9167 = aggregate.data.frame(P2[,"act"], by = list(P2$id), FUN = function(x) {quantile(x,11/12, na.rm = TRUE) })
+colnames(D9167) = c("id","act9167")
 Dmean = aggregate.data.frame(P2[,c("gradient", "y_intercept",  "X1","X2","X3","X4")], by = list(P2$id), FUN = mean)
 colnames(Dmean) = c("id","gradient_mean","y_intercept_mean",  "X1","X2","X3","X4")
-D = merge(D90, Dmean, by.all="id")
+D = merge(D9167, Dmean, by.all="id")
 
 # Add the new variables to the person level output calculated by GGIR part 2:
 P2summary = read.csv(part2_summary_file, stringsAsFactors = FALSE, sep=separator)
@@ -69,7 +69,7 @@ P2summary = read.csv(part2_summary_file, stringsAsFactors = FALSE, sep=separator
 P2summary$ID2 = convertID(P2summary$filename)
 
 # Check whether data already has the expected variables
-existingvars = which(colnames(P2summary) %in% c("id","act90","gradient_mean","y_intercept_mean", "X1","X2","X3","X4"))
+existingvars = which(colnames(P2summary) %in% c("id","act9167","gradient_mean","y_intercept_mean", "X1","X2","X3","X4"))
 if (length(existingvars) > 0) P2summary = P2summary[,-existingvars]
 P2summary_updated = merge(P2summary,D,by.x="ID2",by.y="id")
 

@@ -54,10 +54,10 @@ labels = labels[which(as.character(labels$label) %in% c("pp","fa")),] #, "pa"
 labels = droplevels(labels)
 D = read.csv(file=part2_summary_file, sep=separator)
 
-D = D[,c("act90", "gradient_mean", "y_intercept_mean", "ID2", "ID",
+D = D[,c("act9167", "gradient_mean", "y_intercept_mean", "ID2", "ID",
          "filename", "wear_dur_def_proto_day", "X1", "X2", "X3", "X4",
          "ENMO_fullRecordingMean", "calib_err")]
-D = D[which(D$wear_dur_def_proto_day > 5 & D$calib_err < 0.01),]
+D = D[which(D$wear_dur_def_proto_day > 11 & D$calib_err < 0.01),]
 # Merge data with labels
 NmatchingIDs = length(which(labels[,id_column_labels] %in% D[,id_column_part2] == TRUE))
 if (NmatchingIDs == 0) {
@@ -93,9 +93,11 @@ for (location in c(wrist,hip)) {
     S = S[-testind,] # training set
     # Fit model, this where we decide what variables will be used:
     if (location == wrist) {
-      fit = glm(label ~ gradient_mean + y_intercept_mean, data = S, family = binomial) # + act90
+      fit = glm(label ~ gradient_mean + y_intercept_mean, data = S, family = binomial)
+      # fit = glm(label ~ act9167, data = S, family = binomial)
     } else if (location == hip) {
-      fit = glm(label ~ gradient_mean + y_intercept_mean, data = S, family = binomial) # + act90
+      fit = glm(label ~ gradient_mean + y_intercept_mean, data = S, family = binomial)
+      # fit = glm(label ~ act9167, data = S, family = binomial)
     }
     
     # training performance:
@@ -151,7 +153,11 @@ for (location in c(wrist,hip)) {
 # fit model on all the data:
 final_model_hip = glm(label ~ gradient_mean + y_intercept_mean, data = MergedData[which(MergedData$loc == hip),], family = binomial)
 final_model_wrist = glm(label ~ gradient_mean + y_intercept_mean, data = MergedData[which(MergedData$loc == wrist),], family = binomial)
+# final_model_hip = glm(label ~ act9167, data = MergedData[which(MergedData$loc == hip),], family = binomial)
+# final_model_wrist = glm(label ~ act9167, data = MergedData[which(MergedData$loc == wrist),], family = binomial)
+
 threshold_hip = threshold = 0.5
+
 if (derive.roc.cutoff == TRUE) {
   threshold_hip = derive_threshold(fit = final_model_hip, data=  MergedData[which(MergedData$loc == hip),])
   threshold_wrist = derive_threshold(fit = final_model_wrist, data=  MergedData[which(MergedData$loc == wrist),])
@@ -178,27 +184,27 @@ save(final_model_wrist, threshold_wrist, file = paste0(mydatadir,"/final_model_w
 # hpa = which(MergedData$label == "pa" & MergedData$loc == "hip")
 # wpa = which(MergedData$label == "pa" & MergedData$loc == "wrist")
 # par(mfrow=c(2,2))
-# plot(MergedData$act90[hpp], MergedData$gradient_mean[hpp], type="p", pch=20, col="red",
-#      xlim=range(MergedData$act90),ylim=range(MergedData$gradient_mean), xlab="Act90", ylab = "gradient", main="hip")
-# lines(MergedData$act90[hfa], MergedData$gradient_mean[hfa], type="p", pch=20, col="green")
-# lines(MergedData$act90[hpa], MergedData$gradient_mean[hpa], type="p", pch=20, col="blue")
+# plot(MergedData$act9167[hpp], MergedData$gradient_mean[hpp], type="p", pch=20, col="red",
+#      xlim=range(MergedData$act9167),ylim=range(MergedData$gradient_mean), xlab="act9167", ylab = "gradient", main="hip")
+# lines(MergedData$act9167[hfa], MergedData$gradient_mean[hfa], type="p", pch=20, col="green")
+# lines(MergedData$act9167[hpa], MergedData$gradient_mean[hpa], type="p", pch=20, col="blue")
 # 
-# plot(MergedData$act90[wpp], MergedData$gradient_mean[wpp], type="p", pch=20, col="red",
-#      xlim=range(MergedData$act90),ylim=range(MergedData$gradient_mean), xlab="Act90", ylab = "gradient", main="wrist")
-# lines(MergedData$act90[wfa], MergedData$gradient_mean[wfa], type="p", pch=20, col="green")
-# lines(MergedData$act90[wpa], MergedData$gradient_mean[wpa], type="p", pch=20, col="blue")
+# plot(MergedData$act9167[wpp], MergedData$gradient_mean[wpp], type="p", pch=20, col="red",
+#      xlim=range(MergedData$act9167),ylim=range(MergedData$gradient_mean), xlab="act9167", ylab = "gradient", main="wrist")
+# lines(MergedData$act9167[wfa], MergedData$gradient_mean[wfa], type="p", pch=20, col="green")
+# lines(MergedData$act9167[wpa], MergedData$gradient_mean[wpa], type="p", pch=20, col="blue")
 
-# plot(MergedData$act90[hpp], MergedData$y_intercept_mean[hpp], type="p", pch=20, col="red",
-#      xlim=range(MergedData$act90),ylim=range(MergedData$y_intercept_mean), xlab="Act90", ylab = "intercept", main="hip")
-# lines(MergedData$act90[hfa], MergedData$y_intercept_mean[hfa], type="p", pch=20, col="green")
-# lines(MergedData$act90[hpa], MergedData$y_intercept_mean[hpa], type="p", pch=20, col="blue")
+# plot(MergedData$act9167[hpp], MergedData$y_intercept_mean[hpp], type="p", pch=20, col="red",
+#      xlim=range(MergedData$act9167),ylim=range(MergedData$y_intercept_mean), xlab="act9167", ylab = "intercept", main="hip")
+# lines(MergedData$act9167[hfa], MergedData$y_intercept_mean[hfa], type="p", pch=20, col="green")
+# lines(MergedData$act9167[hpa], MergedData$y_intercept_mean[hpa], type="p", pch=20, col="blue")
 # 
-# plot(MergedData$act90[wpp], MergedData$y_intercept_mean[wpp], type="p", pch=20, col="red",
-#      xlim=range(MergedData$act90),ylim=range(MergedData$y_intercept_mean), xlab="Act90", ylab = "intercept", main="wrist")
-# lines(MergedData$act90[wfa], MergedData$y_intercept_mean[wfa], type="p", pch=20, col="green")
-# lines(MergedData$act90[wpa], MergedData$y_intercept_mean[wpa], type="p", pch=20, col="blue")
+# plot(MergedData$act9167[wpp], MergedData$y_intercept_mean[wpp], type="p", pch=20, col="red",
+#      xlim=range(MergedData$act9167),ylim=range(MergedData$y_intercept_mean), xlab="act9167", ylab = "intercept", main="wrist")
+# lines(MergedData$act9167[wfa], MergedData$y_intercept_mean[wfa], type="p", pch=20, col="green")
+# lines(MergedData$act9167[wpa], MergedData$y_intercept_mean[wpa], type="p", pch=20, col="blue")
 # 
 # plot(MergedData$ENMO_fullRecordingMean[wpp], MergedData$y_intercept_mean[wpp], type="p", pch=20, col="red",
-#      xlim=range(MergedData$act90),ylim=range(MergedData$y_intercept_mean), xlab="Act90", ylab = "intercept", main="wrist")
+#      xlim=range(MergedData$act9167),ylim=range(MergedData$y_intercept_mean), xlab="act9167", ylab = "intercept", main="wrist")
 # lines(MergedData$ENMO_fullRecordingMean[wfa], MergedData$y_intercept_mean[wfa], type="p", pch=20, col="green")
 # lines(MergedData$ENMO_fullRecordingMean[wpa], MergedData$y_intercept_mean[wpa], type="p", pch=20, col="blue")
