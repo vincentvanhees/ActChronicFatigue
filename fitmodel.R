@@ -7,8 +7,8 @@ library(ROCR)
 #=====================================================
 # Input needed:
 #=====================================================
-outputdir = "~/data/output_rawactigraph" # GGIR output directory
-mydatadir = "~/data" # directory where the labels.csv file is stored
+outputdir = "/media/vincent/DATA/actometer_nkcv/output_rawactigraph_nkcv" # GGIR output directory
+mydatadir = "/media/vincent/DATA/actometer_nkcv" # directory where the labels.csv file is stored
 # Specify location of file:
 part2_summary_file = paste0(outputdir,"/results/part2_summary.csv")
 # Specify location of file with the labels
@@ -29,8 +29,9 @@ derive.roc.cutoff = TRUE # Optimize cut-off for classification
 #====================================================
 # declare function
 derive_threshold = function(fit, data) {
-  # False negatives (missing pervasively active) will be rated twice as costly as false positives
-  # Sensitivity will go up, specificity will go down
+  # False negatives (missing pervasively passive) will be rated twice as
+  # costly as false positives (incorrect classifying as pervasively passive)
+  # Sensitivity for pp will go up, specificity will go down
   # https://www.r-bloggers.com/a-small-introduction-to-the-rocr-package/
   # Note: If cost.fp = 1 and cost.fn =1, then threshold is still optimized, but with equal importance
   statspredict <- stats::predict(object = fit, newdata = data, type = "response")
@@ -93,11 +94,11 @@ for (location in c(wrist,hip)) {
     S = S[-testind,] # training set
     # Fit model, this where we decide what variables will be used:
     if (location == wrist) {
-      fit = glm(label ~ gradient_mean + y_intercept_mean, data = S, family = binomial)
-      # fit = glm(label ~ act9167, data = S, family = binomial)
+      # fit = glm(label ~ gradient_mean + y_intercept_mean, data = S, family = binomial)
+      fit = glm(label ~ act9167, data = S, family = binomial)
     } else if (location == hip) {
-      fit = glm(label ~ gradient_mean + y_intercept_mean, data = S, family = binomial)
-      # fit = glm(label ~ act9167, data = S, family = binomial)
+      # fit = glm(label ~ gradient_mean + y_intercept_mean, data = S, family = binomial)
+      fit = glm(label ~ act9167, data = S, family = binomial)
     }
     
     # training performance:
@@ -151,10 +152,10 @@ for (location in c(wrist,hip)) {
 }
 
 # fit model on all the data:
-final_model_hip = glm(label ~ gradient_mean + y_intercept_mean, data = MergedData[which(MergedData$loc == hip),], family = binomial)
-final_model_wrist = glm(label ~ gradient_mean + y_intercept_mean, data = MergedData[which(MergedData$loc == wrist),], family = binomial)
-# final_model_hip = glm(label ~ act9167, data = MergedData[which(MergedData$loc == hip),], family = binomial)
-# final_model_wrist = glm(label ~ act9167, data = MergedData[which(MergedData$loc == wrist),], family = binomial)
+# final_model_hip = glm(label ~ gradient_mean + y_intercept_mean, data = MergedData[which(MergedData$loc == hip),], family = binomial)
+# final_model_wrist = glm(label ~ gradient_mean + y_intercept_mean, data = MergedData[which(MergedData$loc == wrist),], family = binomial)
+final_model_hip = glm(label ~ act9167, data = MergedData[which(MergedData$loc == hip),], family = binomial)
+final_model_wrist = glm(label ~ act9167, data = MergedData[which(MergedData$loc == wrist),], family = binomial)
 
 threshold_hip = threshold = 0.5
 
