@@ -15,10 +15,10 @@ for (i in 1:length(ffnames)) {
 # INPUT NEEDED:
 
 # Locatie data:
-datadir = "~/data/rawactigraph"
+datadir = "/media/vincent/DATA/actometer_nkcv/rawactigraph_nkcv" #~/data/rawactigraph"
 
 # Locatie van waar je de resultaten wilt hebben (mag niet een subfolder zijn van data folder):
-outputdir = "~/data"
+outputdir = "/media/vincent/DATA/actometer_nkcv"
 
 
 #==================================================================
@@ -38,7 +38,7 @@ g.shell.GGIR(#=======================================
              idloc=1, #id location (1 = file header, 2 = filename)
              print.filename=TRUE,
              storefolderstructure = TRUE,
-             do.parallel = FALSE,
+             do.parallel = TRUE,
              chunksize=0.7,
              do.cal=TRUE,
              desiredtz = "Europe/Amsterdam",
