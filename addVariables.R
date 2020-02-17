@@ -1,7 +1,7 @@
 rm(list=ls())
 #==========================================================
 # Input needed:
-outputdir = "~/data/output_rawactigraph" # specify output directory
+outputdir = "/media/vincent/DATA/actometer_nkcv/output_rawactigraph_nkcv" # specify output directory
 separator = "," # Note: replace by "\t" if you are working with tab seperated data
 
 #==========================================================
