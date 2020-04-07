@@ -21,12 +21,22 @@ convertID = function(idValues) {
 P2$id = convertID(P2$filename)
 
 # select valid days only
-P2 = P2[which(P2$N.valid.hours >=16),]
+P2 = P2[which(P2$N.valid.hours >=20),]
 
 # select subset of potentially relevant variables:
-P2 = P2[,c("id", "mean_ENMO_mg_0.24hr", "X.0.50._ENMO_mg_0.24hr",
-           "X.50.100._ENMO_mg_0.24hr",  "X.100.150._ENMO_mg_0.24hr",
-           "X.150.200._ENMO_mg_0.24hr")]
+P2 = P2[,c("id", "mean_BFEN_mg_9.21hr", "X.0.50._BFEN_mg_9.21hr",
+           "X.50.100._BFEN_mg_9.21hr",  "X.100.150._BFEN_mg_9.21hr",
+           "X.150.200._BFEN_mg_9.21hr")]
+# P2 = P2[,c("id", "mean_ENMO_mg_0.24hr", "X.0.50._ENMO_mg_0.24hr",
+#            "X.50.100._ENMO_mg_0.24hr",  "X.100.150._ENMO_mg_0.24hr",
+#            "X.150.200._ENMO_mg_0.24hr")]
+# P2 = P2[,c("id", "mean_ENMO_mg_9.21hr", "X.0.50._ENMO_mg_9.21hr",
+#            "X.50.100._ENMO_mg_9.21hr",  "X.100.150._ENMO_mg_9.21hr",
+#            "X.150.200._ENMO_mg_9.21hr")]
+# P2 = P2[,c("id", "mean_BFEN_mg_0.24hr", "X.0.50._BFEN_mg_0.24hr",
+#            "X.50.100._BFEN_mg_0.24hr",  "X.100.150._BFEN_mg_0.24hr",
+#            "X.150.200._BFEN_mg_0.24hr")]
+
 colnames(P2) = c("id","act","X1","X2","X3","X4")
 
 # calculate slope through intensity curve

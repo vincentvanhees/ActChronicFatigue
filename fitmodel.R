@@ -44,21 +44,26 @@ derive_threshold = function(fit, data) {
         cutoff = p[[ind]])
     }, perf@x.values, perf@y.values, pred@cutoffs)
   }
-  roc.perf = performance(pred, cost.fp = 1, cost.fn = 2, measure = "tpr", x.measure = "fpr") #, ) #
+  roc.perf = performance(pred, cost.fp = 1, cost.fn = 3, measure = "tpr", x.measure = "fpr") #, ) #
   threshold = opt.cut(roc.perf, pred)[3]
 }
 
 # load data
 labels = read.csv(filewithlabels, sep=separator)
+
+
 labels$label[which(labels$label == "pa")] = "fa"
 labels = labels[which(as.character(labels$label) %in% c("pp","fa")),] #, "pa"
 labels = droplevels(labels)
 D = read.csv(file=part2_summary_file, sep=separator)
 
+
 D = D[,c("act9167", "gradient_mean", "y_intercept_mean", "ID2", "ID",
          "filename", "wear_dur_def_proto_day", "X1", "X2", "X3", "X4",
-         "ENMO_fullRecordingMean", "calib_err")]
-D = D[which(D$wear_dur_def_proto_day > 11 & D$calib_err < 0.01),]
+         "BFEN_fullRecordingMean", "calib_err")]
+D = D[which(D$wear_dur_def_proto_day > 12 & D$calib_err < 0.01),]
+
+
 # Merge data with labels
 NmatchingIDs = length(which(labels[,id_column_labels] %in% D[,id_column_part2] == TRUE))
 if (NmatchingIDs == 0) {
@@ -67,6 +72,8 @@ if (NmatchingIDs == 0) {
   print(paste0("format of id in part2_summary.csv: ",  D[1,id_column_part2]))
 }
 MergedData = merge(labels,D,by.x=id_column_labels,by.y=id_column_part2)
+
+# MergedData = MergedData[!duplicated(MergedData),]
 
 findwinner = function(x) {
   y = x[c(fluctuationactive,pervasivepassive,pervasiveactive)]
@@ -148,7 +155,7 @@ for (location in c(wrist,hip)) {
   output$result = FALSE
   output$result[which(output$estimate == output$label)] = TRUE
   cat("\nIDs corresponding to errors:\n")
-  cat(output$id[which(output$result == FALSE)])
+  cat(sort(output$id[which(output$result == FALSE)]))
 }
 
 # fit model on all the data:
@@ -171,7 +178,10 @@ save(final_model_hip, threshold_hip, file = paste0(mydatadir,"/final_model_hip.R
 save(final_model_wrist, threshold_wrist, file = paste0(mydatadir,"/final_model_wrist.Rdata"))
 
 
-
+data2store = MergedData[which(MergedData$loc=="wrist"),c("id","act9167","wear_dur_def_proto_day","BFEN_fullRecordingMean")]
+colnames(data2store) = c("id","percentile9167_acceleration","accelerometer_worn_duration_days","average_acceleration")
+write.csv(data2store,
+          file = paste0(mydatadir, "/actigraph_summary_wrist.csv") , row.names = F)
 
 #====================================================
 # Explorative plots
