@@ -20,7 +20,8 @@ problematic_hip_id = c(61174, 61121, 61025, 61405, 61330, 61105, 61328, 61249, 6
 
 mydatadir = "/media/vincent/DATA/actometer_nkcv" # directory where the labels.csv file is stored
 datfiles = paste0(mydatadir,"/dat_eat_files_18March2020/transfer_399775_files_4c8b2f3f/dat")
-GGIRfiles = paste0(mydatadir,"/output_rawactigraph_nkcv/meta/basic")
+# GGIRfiles = paste0(mydatadir,"/output_rawactigraph_nkcv/meta/basic")
+GGIRfiles = paste0(mydatadir,"/output_rawactigraph_nkcv/meta/ms2.out")
 
 filewithlabels = paste0(mydatadir,"/labels.csv") # specify file location
 labels = read.csv(filewithlabels, sep=",")
@@ -31,10 +32,10 @@ pdf(file = paste0(mydatadir,"/timeseries_comparison_actometer_actigraph_wrist.pd
 for (i in 1:length(fnames)) {
   id = unlist(strsplit(basename(fnames[i]),"[.]dat"))
   if (as.numeric(id) %in% problematic_wrist_id) {
-    print("incorrect")
+    # print("incorrect")
     performance = "incorrect"
   } else {
-    print("correct")
+    # print("correct")
     performance = "correct"
   }
   ss = labels[labels$id==id,]
@@ -47,10 +48,11 @@ for (i in 1:length(fnames)) {
     loc=""
   }
   if (length(S) > 0 & loc == "wrist") {
-    print(paste0(performance," ",id," ",loc))
+    # print(paste0(performance," ",id," ",loc))
     # Load Actigraph data
     load(gnames[S[1]])
-    AG = M$metashort
+    # AG = M$metashort
+    AG = IMP$metashort
     AG$timestamp = iso8601chartime2POSIX(AG$timestamp, tz= "Europe/Amsterdam")
     # AG$BFEN[which(AG$BFEN<0.1)] = 0
     # Aggregate per five minute to ease comparison
@@ -110,6 +112,6 @@ for (i in 1:length(fnames)) {
       ccf(actometer,actigraph) #,main=paste0("Cross correlation fucntion")
       
     }
-  }
+  } 
 }
 dev.off()
