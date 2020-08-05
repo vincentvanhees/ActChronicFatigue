@@ -6,13 +6,15 @@
 2. Place the exported .csv files in a new data folder that does not contain non-accelerometer files or epoch level accelerometer files.
 3. Install R and RStudio
 4. Install R package GGIR, e.g. RStudio toolbar: Tools -> Install package -> search for GGIR and click install.
-5. Open [runGGIR.R](/runGGIR.R) in RStudo and update the directories at the top to match you file structure.
+5. Create a file with the waking times, and convert this to a specific format with R script [load_and_convert_times.R](/load_and_convert_times.R)
+6. Open [runGGIR.R](/runGGIR.R) in RStudo and update the directories at the top to match you file structure.
 Note that folder paths are separated by / and not by a \ .
-6. Click on 'Source' button. If all goes well this will results after a while (depends on how many files you are processing) in a new folder structure in the output directory you specified with subfolder 'results' and inside "part2_summary.csv" en "part2_daysummary.csv".
+7. Click on 'Source' button. If all goes well this will results after a while (depends on how many files you are processing) in a new folder structure in the output directory you specified with subfolder 'results' and inside "part2_summary.csv" en "part2_daysummary.csv".
 
-7. Create labels.csv file with one column for id, one column for label (holding character values for "pp" and "fa") and one column loc specifying the body location ("wrist" and "hip").
-8. Run script [addVariables.R](/addVariables.R) after updating the info at the top to match your situation.
-9. Run script [fitmodel.R](/fitmodel.R) after updating the info at the top to match your situation.
+8. Create labels.csv file with one column for id, one column for label (holding character values for "pp" and "fa") and one column loc specifying the body location ("wrist" and "hip").
+
+9. Run script [addVariables.R](/addVariables.R) after updating the info at the top to match your situation.
+10. Run script [fitmodel.R](/fitmodel.R) after updating the info at the top to match your situation.
 
 ### To apply previously trained model on new data:
 
@@ -23,9 +25,9 @@ See script [howtoapplymodel.R](howtoapplymodel.R), where step 1 is the same as s
 The models are logistic regression models, which can be interpretted as follows:
 
 ```
-If the coefficients are -14.1, -3.59 and 0.079, then
-x = -14.1 + (-3.59 * gradient_mean) + (0.079 * y_intercept_mean))
+If the coefficients are 4.75861402 and -0.05916747, then
+x = 4.75861402 + (-0.05916747 * act9167 )
 probability_pp = 1/(1+ exp(-x))
 ```
 
-In other words: a stronger negative gradient_mean (more inactive person with less time in high accelerations) will result in higher x, which will reduce the probability of being pp (pervasively passive), the default for this model as can be seen from displaying the inputdata.
+In other words: a lower value of act9167 (more inactive person) will result in higher x, which will increase the probability of being pp (pervasively passive), while a higher value of act9167 (more active person) will result in a lower value of x and result in a lower probability of being pp (pervasively passive).
