@@ -2,7 +2,7 @@ rm(list=ls())
 
 # Step 1: process raw accelerometer data with runGGIR.R
 
-# Step 2: apply addVariables_v4.R
+# Step 2: apply addVariables.R
 
 # Step 3: Load the resulting part2_summary.csv bestand
 
