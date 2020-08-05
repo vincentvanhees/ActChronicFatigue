@@ -61,7 +61,7 @@ D = read.csv(file=part2_summary_file, sep=separator)
 D = D[,c("act9167", "gradient_mean", "y_intercept_mean", "ID2", #"ID",
          "filename", "wear_dur_def_proto_day", "X1", "X2", "X3", "X4",
          "ENMO_fullRecordingMean", "calib_err")]
-D = D[which(D$wear_dur_def_proto_day > 12 & D$calib_err < 0.01),]
+D = D[which(D$wear_dur_def_proto_day > 5 & D$calib_err < 0.02),]
 
 # Merge data with labels
 NmatchingIDs = length(which(labels[,id_column_labels] %in% D[,id_column_part2] == TRUE))
@@ -72,11 +72,9 @@ if (NmatchingIDs == 0) {
 }
 MergedData = merge(labels,D,by.x=id_column_labels,by.y=id_column_part2)
 
-# MergedData = MergedData[!duplicated(MergedData),]
-
 findwinner = function(x) {
   y = x[c(fluctuationactive,pervasivepassive,pervasiveactive)]
-  if (sort(y)[2] > 0.45) {
+  if (sort(y)[2] > 0.5) {
     winner = paste0(names(sort(y)[2:3]), collapse="") # call it a combined class
   } else {
     win = which.max(y)
@@ -84,10 +82,6 @@ findwinner = function(x) {
   }
   return(winner)
 }
-
-
-# MergedData = MergedData[-which(MergedData$ID %in% c(60942, 61104)),]
-
 
 MergedData$label2 = MergedData$label
 MergedData$label <- stats::relevel(MergedData$label, ref = fluctuationactive)
@@ -111,13 +105,10 @@ for (location in c(wrist,hip)) {
     
     # Fit model, this where we decide what variables will be used:
     if (location == wrist) {
-      # fit = glm(label ~ gradient_mean + y_intercept_mean, data = S, family = binomial)
       fit = glm(label ~ act9167, data = S, family = binomial)
     } else if (location == hip) {
-      # fit = glm(label ~ gradient_mean + y_intercept_mean, data = S, family = binomial)
       fit = glm(label ~ act9167, data = S, family = binomial)
     }
-    
     # training performance:
     if (show.training.performance == TRUE) { 
       pp <- as.data.frame(stats::fitted(fit)) # three probabilities per person
@@ -172,7 +163,6 @@ for (location in c(wrist,hip)) {
 # final_model_hip = glm(label ~ gradient_mean + y_intercept_mean, data = MergedData[which(MergedData$loc == hip),], family = binomial)
 # final_model_wrist = glm(label ~ gradient_mean + y_intercept_mean, data = MergedData[which(MergedData$loc == wrist),], family = binomial)
 
-
 MergedData_hip = MergedData[which(MergedData$loc == hip),]
 final_model_hip = glm(label ~ act9167, data = MergedData_hip, family = binomial)
 MergedData_wrist = MergedData[which(MergedData$loc == wrist),]
@@ -200,46 +190,44 @@ write.csv(data2store,
           file = paste0(mydatadir, "/actigraph_summary_wrist.csv") , row.names = F)
 
 #====================================================
-# Explorative plots
-
+# Exploration plots
 
 x11()
-plot(MergedData_wrist$calib_err, MergedData_wrist$pred, type="p", pch=20)
+plot(MergedData_wrist$calib_err, MergedData_wrist$pred - MergedData_wrist$label, type="p", pch=20)
 
 x11()
 boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type="p", pch=20)
 
 
-kkkk
-x11()
-hpp = which(MergedData$label == "pp" & MergedData$loc == "hip")
-wpp = which(MergedData$label == "pp" & MergedData$loc == "wrist")
-hfa = which(MergedData$label == "fa" & MergedData$loc == "hip")
-wfa = which(MergedData$label == "fa" & MergedData$loc == "wrist")
-hpa = which(MergedData$label == "pa" & MergedData$loc == "hip")
-wpa = which(MergedData$label == "pa" & MergedData$loc == "wrist")
-par(mfrow=c(2,2))
-plot(MergedData$act9167[hpp], MergedData$gradient_mean[hpp], type="p", pch=20, col="red",
-     xlim=range(MergedData$act9167),ylim=range(MergedData$gradient_mean), xlab="act9167", ylab = "gradient", main="hip")
-lines(MergedData$act9167[hfa], MergedData$gradient_mean[hfa], type="p", pch=20, col="green")
-lines(MergedData$act9167[hpa], MergedData$gradient_mean[hpa], type="p", pch=20, col="blue")
-
-plot(MergedData$act9167[wpp], MergedData$gradient_mean[wpp], type="p", pch=20, col="red",
-     xlim=range(MergedData$act9167),ylim=range(MergedData$gradient_mean), xlab="act9167", ylab = "gradient", main="wrist")
-lines(MergedData$act9167[wfa], MergedData$gradient_mean[wfa], type="p", pch=20, col="green")
-lines(MergedData$act9167[wpa], MergedData$gradient_mean[wpa], type="p", pch=20, col="blue")
-
-plot(MergedData$act9167[hpp], MergedData$y_intercept_mean[hpp], type="p", pch=20, col="red",
-     xlim=range(MergedData$act9167),ylim=range(MergedData$y_intercept_mean), xlab="act9167", ylab = "intercept", main="hip")
-lines(MergedData$act9167[hfa], MergedData$y_intercept_mean[hfa], type="p", pch=20, col="green")
-lines(MergedData$act9167[hpa], MergedData$y_intercept_mean[hpa], type="p", pch=20, col="blue")
-
-plot(MergedData$act9167[wpp], MergedData$y_intercept_mean[wpp], type="p", pch=20, col="red",
-     xlim=range(MergedData$act9167),ylim=range(MergedData$y_intercept_mean), xlab="act9167", ylab = "intercept", main="wrist")
-lines(MergedData$act9167[wfa], MergedData$y_intercept_mean[wfa], type="p", pch=20, col="green")
-lines(MergedData$act9167[wpa], MergedData$y_intercept_mean[wpa], type="p", pch=20, col="blue")
-
-plot(MergedData$ENMO_fullRecordingMean[wpp], MergedData$y_intercept_mean[wpp], type="p", pch=20, col="red",
-     xlim=range(MergedData$act9167),ylim=range(MergedData$y_intercept_mean), xlab="act9167", ylab = "intercept", main="wrist")
-lines(MergedData$ENMO_fullRecordingMean[wfa], MergedData$y_intercept_mean[wfa], type="p", pch=20, col="green")
-lines(MergedData$ENMO_fullRecordingMean[wpa], MergedData$y_intercept_mean[wpa], type="p", pch=20, col="blue")
+# x11()
+# hpp = which(MergedData$label == "pp" & MergedData$loc == "hip")
+# wpp = which(MergedData$label == "pp" & MergedData$loc == "wrist")
+# hfa = which(MergedData$label == "fa" & MergedData$loc == "hip")
+# wfa = which(MergedData$label == "fa" & MergedData$loc == "wrist")
+# hpa = which(MergedData$label == "pa" & MergedData$loc == "hip")
+# wpa = which(MergedData$label == "pa" & MergedData$loc == "wrist")
+# par(mfrow=c(2,2))
+# plot(MergedData$act9167[hpp], MergedData$gradient_mean[hpp], type="p", pch=20, col="red",
+#      xlim=range(MergedData$act9167),ylim=range(MergedData$gradient_mean), xlab="act9167", ylab = "gradient", main="hip")
+# lines(MergedData$act9167[hfa], MergedData$gradient_mean[hfa], type="p", pch=20, col="green")
+# lines(MergedData$act9167[hpa], MergedData$gradient_mean[hpa], type="p", pch=20, col="blue")
+# 
+# plot(MergedData$act9167[wpp], MergedData$gradient_mean[wpp], type="p", pch=20, col="red",
+#      xlim=range(MergedData$act9167),ylim=range(MergedData$gradient_mean), xlab="act9167", ylab = "gradient", main="wrist")
+# lines(MergedData$act9167[wfa], MergedData$gradient_mean[wfa], type="p", pch=20, col="green")
+# lines(MergedData$act9167[wpa], MergedData$gradient_mean[wpa], type="p", pch=20, col="blue")
+# 
+# plot(MergedData$act9167[hpp], MergedData$y_intercept_mean[hpp], type="p", pch=20, col="red",
+#      xlim=range(MergedData$act9167),ylim=range(MergedData$y_intercept_mean), xlab="act9167", ylab = "intercept", main="hip")
+# lines(MergedData$act9167[hfa], MergedData$y_intercept_mean[hfa], type="p", pch=20, col="green")
+# lines(MergedData$act9167[hpa], MergedData$y_intercept_mean[hpa], type="p", pch=20, col="blue")
+# 
+# plot(MergedData$act9167[wpp], MergedData$y_intercept_mean[wpp], type="p", pch=20, col="red",
+#      xlim=range(MergedData$act9167),ylim=range(MergedData$y_intercept_mean), xlab="act9167", ylab = "intercept", main="wrist")
+# lines(MergedData$act9167[wfa], MergedData$y_intercept_mean[wfa], type="p", pch=20, col="green")
+# lines(MergedData$act9167[wpa], MergedData$y_intercept_mean[wpa], type="p", pch=20, col="blue")
+# 
+# plot(MergedData$ENMO_fullRecordingMean[wpp], MergedData$y_intercept_mean[wpp], type="p", pch=20, col="red",
+#      xlim=range(MergedData$act9167),ylim=range(MergedData$y_intercept_mean), xlab="act9167", ylab = "intercept", main="wrist")
+# lines(MergedData$ENMO_fullRecordingMean[wfa], MergedData$y_intercept_mean[wfa], type="p", pch=20, col="green")
+# lines(MergedData$ENMO_fullRecordingMean[wpa], MergedData$y_intercept_mean[wpa], type="p", pch=20, col="blue")

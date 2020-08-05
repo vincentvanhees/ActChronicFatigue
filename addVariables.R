@@ -21,32 +21,21 @@ convertID = function(idValues) {
 P2$ID = convertID(P2$filename)
 
 # select valid days only
-P2 = P2[which(P2$N.valid.hours >=20),]
-# kkkk
+P2 = P2[which((P2$N_valid_hours_start.endhr / P2$N_hours_start.endhr) >= 0.66),] #& P2$N_hours_start.endhr >= 6
+
 # select subset of potentially relevant variables:
 
-# P2 = P2[,c("ID", "mean_BFEN_mg_start.endhr", "X.0.50._BFEN_mg_start.endhr",
-#            "X.50.100._BFEN_mg_start.endhr",  "X.100.150._BFEN_mg_start.endhr",
-#            "X.150.200._BFEN_mg_start.endhr")]
+P2 = P2[,c("ID", "mean_BFEN_mg_start.endhr", "X.0.50._BFEN_mg_start.endhr",
+           "X.50.100._BFEN_mg_start.endhr",  "X.100.150._BFEN_mg_start.endhr",
+           "X.150.200._BFEN_mg_start.endhr")]
 
-P2 = P2[,c("ID", "mean_ENMO_mg_start.endhr", "X.0.50._ENMO_mg_start.endhr",
-           "X.50.100._ENMO_mg_start.endhr",  "X.100.150._ENMO_mg_start.endhr",
-           "X.150.200._ENMO_mg_start.endhr")]
-
-# P2 = P2[,c("id", "mean_BFEN_mg_9.21hr", "X.0.50._BFEN_mg_9.21hr",
-#            "X.50.100._BFEN_mg_9.21hr",  "X.100.150._BFEN_mg_9.21hr",
-#            "X.150.200._BFEN_mg_9.21hr")]
-# P2 = P2[,c("id", "mean_ENMO_mg_0.24hr", "X.0.50._ENMO_mg_0.24hr",
-#            "X.50.100._ENMO_mg_0.24hr",  "X.100.150._ENMO_mg_0.24hr",
-#            "X.150.200._ENMO_mg_0.24hr")]
-# P2 = P2[,c("id", "mean_ENMO_mg_9.21hr", "X.0.50._ENMO_mg_9.21hr",
-#            "X.50.100._ENMO_mg_9.21hr",  "X.100.150._ENMO_mg_9.21hr",
-#            "X.150.200._ENMO_mg_9.21hr")]
-# P2 = P2[,c("id", "mean_BFEN_mg_0.24hr", "X.0.50._BFEN_mg_0.24hr",
-#            "X.50.100._BFEN_mg_0.24hr",  "X.100.150._BFEN_mg_0.24hr",
-#            "X.150.200._BFEN_mg_0.24hr")]
+# P2 = P2[,c("ID", "mean_ENMO_mg_start.endhr", "X.0.50._ENMO_mg_start.endhr",
+#            "X.50.100._ENMO_mg_start.endhr",  "X.100.150._ENMO_mg_start.endhr",
+#            "X.150.200._ENMO_mg_start.endhr")]
 
 colnames(P2) = c("ID","act","X1","X2","X3","X4")
+
+P2 = P2[-which(is.na(P2$act) == TRUE),]
 
 # calculate slope through intensity curve
 getgradient = function(y) {
@@ -94,8 +83,5 @@ P2summary$ID2 = convertID(P2summary$filename)
 existingvars = which(colnames(P2summary) %in% c("ID","act9167","gradient_mean","y_intercept_mean", "X1","X2","X3","X4"))
 if (length(existingvars) > 0) P2summary = P2summary[,-existingvars]
 P2summary_updated = merge(P2summary,D,by.x="ID2",by.y="ID")
-
 # Save changes
-if (nrow(P2summary_updated) == nrow(P2summary)) {
-  write.csv(P2summary_updated,file=part2_summary_file,row.names = FALSE)
-}
+write.csv(P2summary_updated,file=part2_summary_file,row.names = FALSE)

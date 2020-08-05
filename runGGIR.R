@@ -20,23 +20,24 @@ datadir = "/media/vincent/DATA/actometer_nkcv/rawactigraph_nkcv" #~/data/rawacti
 # Locatie van waar je de resultaten wilt hebben (mag niet een subfolder zijn van data folder):
 outputdir = "/media/vincent/DATA/actometer_nkcv"
 
-activitylog = "/media/vincent/DATA/actometer_nkcv/new_info_Manon_25June2020/Actometer_tijden_volledig3.csv"
+activitylog = "/media/vincent/DATA/actometer_nkcv/actometer_tijden/Actometer_tijden_volledig3.csv"
 #==================================================================
 g.shell.GGIR(#=======================================
              # INPUT NEEDED:
              #-------------------------------
              # General parameters
              #-------------------------------
-             mode=c(1,2), #specify above
+             mode=c(2), #specify above
              datadir=datadir, #specify above
              outputdir=outputdir, #specify above
              f0=c(), #specify above
              f1=c(), #specify above
-             overwrite = T, #overwrite previous milestone data?
+             overwrite = F, #overwrite previous milestone data?
              do.report=c(2), #for what parts does and report need to be generated? (option: 2, 4 and 5)
              do.imp=TRUE, # Do imputation? (recommended)
              idloc=5, #id location (1 = file header, 2 = filename)
              print.filename=TRUE,
+             do.imp=TRUE,
              storefolderstructure = TRUE,
              do.parallel = T,
              do.bfen=TRUE,
@@ -44,12 +45,13 @@ g.shell.GGIR(#=======================================
              lb=0.8,
              chunksize=0.8,
              do.cal=TRUE,
+             minloadcrit = 3 * 24,
              desiredtz = "Europe/Amsterdam",
              strategy = 1, #Strategy (see tutorial for explanation)
              ndayswindow=7, #only relevant when strategy = 3
              hrs.del.start = 0, # Only relevant when strategy = 2. How many HOURS need to be ignored at the START of the measurement?
              hrs.del.end = 0, # Only relevant when strategy = 2. How many HOURS need to be ignored at the END of the measurement?
-             maxdur = 14, # How many DAYS of measurement do you maximumally expect?
+             maxdur = 18, # How many DAYS of measurement do you maximumally expect?
              includedaycrit = 16, # number of minimum valid hours in a day to attempt physical activity analysis
              winhr = c(5), # size of M5 and L5 (5 hours by default)
              qlevels = c(c(1380/1440),c(1410/1440)), #quantiles to calculate, set value at c() if you do not want quantiles
