@@ -180,8 +180,8 @@ if (derive.roc.cutoff == TRUE) {
 }
 # you can now save and load these finalmodels with the save() and load() function
 # or inspect them with summary()
-save(final_model_hip, threshold_hip, file = paste0(mydatadir,"/final_model_hip.Rdata"))
-save(final_model_wrist, threshold_wrist, file = paste0(mydatadir,"/final_model_wrist.Rdata"))
+save(final_model_hip, threshold_hip, file = "final_model_hip.Rdata")
+save(final_model_wrist, threshold_wrist, file = "final_model_wrist.Rdata")
 
 
 data2store = MergedData[which(MergedData$loc=="wrist"),c("ID","act9167","wear_dur_def_proto_day","ENMO_fullRecordingMean")]
