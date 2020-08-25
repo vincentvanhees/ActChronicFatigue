@@ -6,19 +6,23 @@ activitylog ="/media/vincent/DATA/actometer_nkcv/actometer_tijden/Actometer_tijd
 
 #=========================================
 
-# TO DO: Add QC on output from activity log, GGIR, addVariables
-# TO DO: Plost classification for most recently processed recording
-# TO DO: Make option to choose hip or wrist
+# TO DO: 
+# - Add QC on output from activity log, GGIR, addVariables
+# - Show classification for most recently processed recording
+# - Make option to choose hip or wrist
+# - Make it possible to avoid using an activitylog
+# - Also show other descriptives
+# - Turn code into installable package
 
-# Installeer laatste versie van code
-if ("actometer_experiments" %in% rownames(installed.packages()) == FALSE) {
-  if ("devtools" %in% rownames(installed.packages()) == FALSE) {
-    install.packages("devtools")
-  }
-  library("devtools")
-  install_github("vincentvanhees/actometer_experiments")
-}
-setwd("actometer_experiments/.")
+# Install code if not available:
+# if ("actometer_experiments" %in% rownames(installed.packages()) == FALSE) {
+#   if ("devtools" %in% rownames(installed.packages()) == FALSE) {
+#     install.packages("devtools")
+#   }
+#   library("devtools")
+#   install_github("vincentvanhees/actometer_experiments")
+# }
+setwd(".")
 source("runGGIR.R")
 source("convert_diary.R")
 source("addVariables.R")
@@ -62,5 +66,4 @@ mypredictions = stats::predict(object=final_model_hip, newdata=part2_summary)
 
 # Step 9: Save predictions
 write.csv(mypredictions, file = paste0(outputdir,"/results/mypredictions.csv"))
-
 
