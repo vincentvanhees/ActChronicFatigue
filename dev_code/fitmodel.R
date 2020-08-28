@@ -10,7 +10,7 @@ library(ROCR)
 outputdir = "/media/vincent/DATA/actometer_nkcv/output_rawactigraph_nkcv" # GGIR output directory
 mydatadir = "/media/vincent/DATA/actometer_nkcv" # directory where the labels.csv file is stored
 # Specify location of file:
-part2_summary_file = paste0(outputdir,"/results/part2_summary.csv")
+part5_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),pattern = "part5_personsummary_WW_", value = T)
 # Specify location of file with the labels
 # This file needs to have the columns names: id, label, loc (loc refers to body location)
 filewithlabels = paste0(mydatadir,"/labels.csv") # specify file location
@@ -22,7 +22,7 @@ fluctuationactive = "fa"
 hip = "hip"
 wrist = "wrist"
 id_column_labels = "ID" # specify here the name where you store the id values in the filewithlabels
-id_column_part2 = "ID2" # specify here the name where you store the id values in the part2_summary.csv
+id_column_part5 = "ID2" # specify here the name where you store the id values in the part2_summary.csv
 separator = "," # Note: replace by "\t" if you are working with tab seperated data
 derive.roc.cutoff = TRUE # Optimize cut-off for classification
 
@@ -39,7 +39,7 @@ derive_threshold = function(fit, data) {
   opt.cut = function(perf, pred){
     cut.ind = mapply(FUN=function(x, y, p){
       d = (x - 0)^2 + (y-1)^2
-      ind = which(d == min(d))
+      ind = which(d == min(d))[1]
       c(sensitivity = y[[ind]], specificity = 1-x[[ind]], 
         cutoff = p[[ind]])
     }, perf@x.values, perf@y.values, pred@cutoffs)
@@ -55,22 +55,21 @@ labels = read.csv(filewithlabels, sep=separator, stringsAsFactors = TRUE)
 labels$label[which(labels$label == "pa")] = "fa"
 labels = labels[which(as.character(labels$label) %in% c("pp","fa")),] #, "pa"
 labels = droplevels(labels)
-D = read.csv(file=part2_summary_file, sep=separator)
+D = read.csv(file=part5_summary_file, sep=separator)
 
-
-D = D[,c("act9167", "gradient_mean", "y_intercept_mean", "ID2", #"ID",
-         "filename", "wear_dur_def_proto_day", "X1", "X2", "X3", "X4",
-         "ENMO_fullRecordingMean", "calib_err")]
-D = D[which(D$wear_dur_def_proto_day > 5 & D$calib_err < 0.02),]
+# "gradient_mean", "y_intercept_mean", "X1", "X2", "X3", "X4",
+D = D[,c("act9167", "ID2", "filename", "Nvaliddays",
+         "nonwear_perc_day_spt_pla", "ACC_day_mg_pla")]
+D = D[which(D$nonwear_perc_day_spt <= 33 & D$Nvaliddays > 10),] #& D$calib_err < 0.02
 
 # Merge data with labels
-NmatchingIDs = length(which(labels[,id_column_labels] %in% D[,id_column_part2] == TRUE))
+NmatchingIDs = length(which(labels[,id_column_labels] %in% D[,id_column_part5] == TRUE))
 if (NmatchingIDs == 0) {
   print("No matching id could be found, please check that correct column is specified")
   print(paste0("format of id in labels: ", labels[1,id_column_labels]))
   print(paste0("format of id in part2_summary.csv: ",  D[1,id_column_part2]))
 }
-MergedData = merge(labels,D,by.x=id_column_labels,by.y=id_column_part2)
+MergedData = merge(labels,D,by.x=id_column_labels,by.y=id_column_part5)
 
 findwinner = function(x) {
   y = x[c(fluctuationactive,pervasivepassive,pervasiveactive)]
@@ -90,8 +89,9 @@ MergedData$label = as.integer(MergedData$label) - 1L
 labelkey = unique(MergedData[,c("label","label2")])
 colnames(labelkey) = c("value","label")
 print(labelkey)
-MergedData[,-which(colnames(MergedData) == "label2")]
+MergedData = MergedData[,-which(colnames(MergedData) == "label2")]
 MergedData =  MergedData[!is.na(MergedData$act9167),]
+# MergedData = MergedData[-which(MergedData$ID == 61207),]
 for (location in c(wrist,hip)) {
   cat("\n===============================")
   cnt = 1
@@ -107,7 +107,7 @@ for (location in c(wrist,hip)) {
     if (location == wrist) {
       fit = glm(label ~ act9167, data = S, family = binomial)
     } else if (location == hip) {
-      fit = glm(label ~ act9167, data = S, family = binomial)
+      fit = glm(label ~ act9167, data = S, family = binomial) # + ACC_day_mg_pla
     }
     # training performance:
     if (show.training.performance == TRUE) { 
@@ -183,8 +183,8 @@ if (derive.roc.cutoff == TRUE) {
 save(final_model_hip, threshold_hip, file = "final_model_hip.Rdata")
 save(final_model_wrist, threshold_wrist, file = "final_model_wrist.Rdata")
 
-
-data2store = MergedData[which(MergedData$loc=="wrist"),c("ID","act9167","wear_dur_def_proto_day","ENMO_fullRecordingMean")]
+data2store = MergedData[which(MergedData$loc=="wrist"),
+                        c("ID", "act9167", "nonwear_perc_day_spt_pla", "ACC_day_mg_pla")]
 colnames(data2store) = c("ID","percentile9167_acceleration","accelerometer_worn_duration_days","average_acceleration")
 write.csv(data2store,
           file = paste0(mydatadir, "/actigraph_summary_wrist.csv") , row.names = F)
@@ -193,7 +193,7 @@ write.csv(data2store,
 # Exploration plots
 
 x11()
-plot(MergedData_wrist$calib_err, MergedData_wrist$pred - MergedData_wrist$label, type="p", pch=20)
+plot(MergedData_wrist$act9167, MergedData_wrist$pred - MergedData_wrist$label, type="p", pch=20)
 
 x11()
 boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type="p", pch=20)

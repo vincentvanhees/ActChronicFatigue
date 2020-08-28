@@ -2,36 +2,39 @@
 #'
 #' @param datadir ...
 #' @param outputdir ...
-#' @param activitylog ...
 #' @param mode ...
+#' @param do.report ...
+#' @param overwrite ...
 #' @return no object is returned, GGIR writes all its outputs to files
 #' @export
 
-runGGIR = function(datadir=c(), outputdir =c(), activitylog=c(), mode = c()) {
+runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
+                   overwrite=FALSE) {
 
-  activitylog = paste0(unlist(strsplit(activitylog,"[.]cs"))[1],"2.csv")
+  # activitylog = paste0(unlist(strsplit(activitylog,"[.]cs"))[1],"2.csv")
   GGIR::g.shell.GGIR(#=======================================
                # INPUT NEEDED:
                #-------------------------------
                # General parameters
                #-------------------------------
-               mode=mode, #specify above
-               datadir=datadir, #specify above
-               outputdir=outputdir, #specify above
-               f0=c(), #specify above
-               f1=c(), #specify above
-               overwrite = F, #overwrite previous milestone data?
-               do.report=c(2), #for what parts does and report need to be generated? (option: 2, 4 and 5)
-               do.imp=TRUE, # Do imputation? (recommended)
-               idloc=5, #id location (1 = file header, 2 = filename)
-               print.filename=TRUE,
-               do.imp=TRUE,
+               mode = mode, #specify above
+               datadir = datadir, #specify above
+               outputdir = outputdir, #specify above
+               f0 = c(), #specify above
+               f1 = c(), #specify above
+               overwrite = overwrite, #overwrite previous milestone data?
+               do.report = do.report, #for what parts does and report need to be generated? (option: 2, 4 and 5)
+               do.imp = TRUE, # Do imputation? (recommended)
+               idloc = 2, #id location (1 = file header, 2 = filename)
+               print.filename = TRUE,
+               do.imp = TRUE,
                storefolderstructure = TRUE,
-               do.parallel = T,
-               do.bfen=TRUE,
+               do.parallel = TRUE,
+               do.bfen = TRUE,
+               acc.metric = "BFEN",
                hb = 10,
-               lb=0.8,
-               chunksize=0.8,
+               lb = 0.8,
+               chunksize = 0.8,
                do.cal=TRUE,
                minloadcrit = 3 * 24,
                desiredtz = "Europe/Amsterdam",
@@ -44,12 +47,14 @@ runGGIR = function(datadir=c(), outputdir =c(), activitylog=c(), mode = c()) {
                winhr = c(5), # size of M5 and L5 (5 hours by default)
                qlevels = c(c(1380/1440),c(1410/1440)), #quantiles to calculate, set value at c() if you do not want quantiles
                # qwindow=c(0,9,21,24), #window over which to calculate quantiles
-               qwindow = activitylog,
+               qwindow = c(0, 24), #activitylog,
+               nnights= 18,
                ilevels = c(seq(0,300,by=50),8000), #acceleration values (metric ENMO) from which a frequency distribution needs to be derived, set value at c() if you do not want quantiles
-               mvpathreshold =c(100), #MVPA (moderate and vigorous physical activity threshold
+               mvpathreshold = c(100), #MVPA (moderate and vigorous physical activity threshold
                bout.metric = 4,
-               visualreport=FALSE,
+               visualreport = FALSE,
+               timewindow = "WW",
                dofirstpage = FALSE, #first page of pdf-report with simple summary histograms
-               viewingwindow=1) #viewingwindow of visual report: 1 centres at day and 2 centers at night
+               viewingwindow = 1) #viewingwindow of visual report: 1 centres at day and 2 centers at night
 }
   

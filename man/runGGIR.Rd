@@ -4,16 +4,24 @@
 \alias{runGGIR}
 \title{runGGIR}
 \usage{
-runGGIR(datadir = c(), outputdir = c(), activitylog = c(), mode = c())
+runGGIR(
+  datadir = c(),
+  outputdir = c(),
+  mode = c(),
+  do.report = c(),
+  overwrite = FALSE
+)
 }
 \arguments{
 \item{datadir}{...}
 
 \item{outputdir}{...}
 
-\item{activitylog}{...}
-
 \item{mode}{...}
+
+\item{do.report}{...}
+
+\item{overwrite}{...}
 }
 \value{
 no object is returned, GGIR writes all its outputs to files
