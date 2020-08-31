@@ -1,24 +1,22 @@
 ## Actometer behavioral scoring from wrist- or hip-worn Actigraph data
 
-### To train a new model based on existing training data:
-
-1. Use ActiLife software to export the raw Actigraph data to .csv format
-2. Place the exported .csv files in a new data folder that does not contain non-accelerometer files or epoch level accelerometer files.
-3. Install R and RStudio
-4. Install R package GGIR, e.g. RStudio toolbar: Tools -> Install package -> search for GGIR and click install.
-5. Create a file with the waking times, and convert this to a specific format with R script [load_and_convert_times.R](/load_and_convert_times.R)
-6. Open [runGGIR.R](/runGGIR.R) in RStudo and update the directories at the top to match you file structure.
-Note that folder paths are separated by / and not by a \ .
-7. Click on 'Source' button. If all goes well this will results after a while (depends on how many files you are processing) in a new folder structure in the output directory you specified with subfolder 'results' and inside "part2_summary.csv" en "part2_daysummary.csv".
-
-8. Create labels.csv file with one column for id, one column for label (holding character values for "pp" and "fa") and one column loc specifying the body location ("wrist" and "hip").
-
-9. Run script [addVariables.R](/addVariables.R) after updating the info at the top to match your situation.
-10. Run script [fitmodel.R](/fitmodel.R) after updating the info at the top to match your situation.
 
 ### To apply previously trained model on new data:
 
-See script [howtoapplymodel.R](howtoapplymodel.R), where step 1 is the same as step 1-6 above.
+1. Use ActiLife software to export the raw Actigraph data to .gt3x format
+2. Install R and RStudio
+3. Op runActChronicFatigue.R from this repository and click the Source button in RStudio.
+
+- The first time you do the software will be installed, which may take a while. The second time you do this you will be asked (in Dutch) whether you want to install the software again. 
+- Next, the software will ask you to specify the locations of your data.
+- Once that is done the software will continue with processing the data.
+
+### To train a new model based on existing training data:
+
+1. Follow steps above
+2. Create a file with the waking times, and convert this to a specific format with R script [load_and_convert_times.R](/dev_code/load_and_convert_times.R)
+3. Create labels.csv file with one column for id, one column for label (holding character values for "pp" and "fa") and one column loc specifying the body location ("wrist" and "hip").
+4. Run script [fitmodel.R](/dev_code/fitmodel.R) after updating the info at the top to match your situation.
 
 ### Model interpretation
 

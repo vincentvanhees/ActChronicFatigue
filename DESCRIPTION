@@ -9,7 +9,7 @@ Maintainer: Vincent T van Hees <v.vanhees@accelting.com>
 Description: Process accelerometer data with GGIR and then classify acitivy level for population with chronic fagitue.
 URL: https://github.com/wadpac/sleepsight-analytics-pipeline
 License: Apache License version 2.0 | file LICENSE
-Suggests: devtools, roxygen2, GGIR, DescTools, Rfast
+Suggests: devtools, roxygen2, GGIR, DescTools, Rfast, easycsv
 Imports: data.table, read.gt3x
 Depends: stats, utils, R (>= 3.5.0), grDevices, graphics
 Remotes: THLfi/read.gt3x
