@@ -7,7 +7,7 @@ library(ROCR)
 #=====================================================
 # Input needed:
 #=====================================================
-outputdir = "/media/vincent/DATA/actometer_nkcv/output_rawactigraph_nkcv" # GGIR output directory
+outputdir = "/media/vincent/DATA/actometer_nkcv/output_nkcv_wrist" # GGIR output directory
 mydatadir = "/media/vincent/DATA/actometer_nkcv" # directory where the labels.csv file is stored
 # Specify location of file:
 part5_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),pattern = "part5_personsummary_WW_", value = T)
@@ -58,16 +58,17 @@ labels = droplevels(labels)
 D = read.csv(file=part5_summary_file, sep=separator)
 
 # "gradient_mean", "y_intercept_mean", "X1", "X2", "X3", "X4",
-D = D[,c("act9167", "ID2", "filename", "Nvaliddays",
+D = D[,c("act9167", "ID2", "filename", "Nvaliddays","Ndays",
          "nonwear_perc_day_spt_pla", "ACC_day_mg_pla")]
-D = D[which(D$nonwear_perc_day_spt <= 33 & D$Nvaliddays > 10),] #& D$calib_err < 0.02
+
+D = D[which(D$nonwear_perc_day_spt <= 33 & D$Ndays > 11),] #& D$calib_err < 0.02 #& D$Nvaliddays > 10
 
 # Merge data with labels
 NmatchingIDs = length(which(labels[,id_column_labels] %in% D[,id_column_part5] == TRUE))
 if (NmatchingIDs == 0) {
   print("No matching id could be found, please check that correct column is specified")
   print(paste0("format of id in labels: ", labels[1,id_column_labels]))
-  print(paste0("format of id in part2_summary.csv: ",  D[1,id_column_part2]))
+  print(paste0("format of id in part2_summary.csv: ",  D[1,id_column_part5]))
 }
 MergedData = merge(labels,D,by.x=id_column_labels,by.y=id_column_part5)
 
@@ -92,7 +93,7 @@ print(labelkey)
 MergedData = MergedData[,-which(colnames(MergedData) == "label2")]
 MergedData =  MergedData[!is.na(MergedData$act9167),]
 # MergedData = MergedData[-which(MergedData$ID == 61207),]
-for (location in c(wrist,hip)) {
+for (location in c(wrist)) { #,hip
   cat("\n===============================")
   cnt = 1
   # select subset of one sensor location
@@ -105,9 +106,9 @@ for (location in c(wrist,hip)) {
     
     # Fit model, this where we decide what variables will be used:
     if (location == wrist) {
-      fit = glm(label ~ act9167, data = S, family = binomial)
+      fit = glm(label ~ act9167 + ACC_day_mg_pla, data = S, family = binomial)
     } else if (location == hip) {
-      fit = glm(label ~ act9167, data = S, family = binomial) # + ACC_day_mg_pla
+      # fit = glm(label ~ act9167 + ACC_day_mg_pla, data = S, family = binomial) # + ACC_day_mg_pla
     }
     # training performance:
     if (show.training.performance == TRUE) { 
@@ -159,28 +160,19 @@ for (location in c(wrist,hip)) {
   cat(sort(output$ID[which(output$result == FALSE)]))
 }
 
-# fit model on all the data:
-# final_model_hip = glm(label ~ gradient_mean + y_intercept_mean, data = MergedData[which(MergedData$loc == hip),], family = binomial)
-# final_model_wrist = glm(label ~ gradient_mean + y_intercept_mean, data = MergedData[which(MergedData$loc == wrist),], family = binomial)
-
-MergedData_hip = MergedData[which(MergedData$loc == hip),]
-final_model_hip = glm(label ~ act9167, data = MergedData_hip, family = binomial)
 MergedData_wrist = MergedData[which(MergedData$loc == wrist),]
 final_model_wrist = glm(label ~ act9167, data = MergedData_wrist , family = binomial)
-MergedData_hip$pred = stats::predict(object = final_model_hip, newdata = MergedData_hip, type = "response")
 MergedData_wrist$pred = stats::predict(object = final_model_wrist, newdata = MergedData_wrist, type = "response")
 
-threshold_wrist = threshold_hip = threshold = 0.5
+threshold_wrist = threshold = 0.5
 
 if (derive.roc.cutoff == TRUE) {
-  threshold_hip = derive_threshold(fit = final_model_hip, data=  MergedData_hip)
   threshold_wrist = derive_threshold(fit = final_model_wrist, data=  MergedData_wrist)
   cat("\n")
-  cat(paste0("\nThresholds for final models: Hip ",threshold_hip,", Wrist ",threshold_wrist))
+  cat(paste0("\nThresholds for final models: Wrist ",threshold_wrist))
 }
 # you can now save and load these finalmodels with the save() and load() function
 # or inspect them with summary()
-save(final_model_hip, threshold_hip, file = "inst/extdata/final_model_hip.Rdata")
 save(final_model_wrist, threshold_wrist, file = "inst/extdata/final_model_wrist.Rdata")
 
 data2store = MergedData[which(MergedData$loc=="wrist"),
@@ -231,3 +223,4 @@ boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type="p", pch=20)
 #      xlim=range(MergedData$act9167),ylim=range(MergedData$y_intercept_mean), xlab="act9167", ylab = "intercept", main="wrist")
 # lines(MergedData$ENMO_fullRecordingMean[wfa], MergedData$y_intercept_mean[wfa], type="p", pch=20, col="green")
 # lines(MergedData$ENMO_fullRecordingMean[wpa], MergedData$y_intercept_mean[wpa], type="p", pch=20, col="blue")
+

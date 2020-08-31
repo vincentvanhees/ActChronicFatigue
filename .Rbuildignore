@@ -1,4 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 dev_code/*
-howtoapplymodel.R
+actChronicFatigue.R
+log_ActChronicFatigue.RData

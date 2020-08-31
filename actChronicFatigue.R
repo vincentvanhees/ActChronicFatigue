@@ -39,12 +39,12 @@ if (development.mode == TRUE) {
 }
 
 
-datalocaties = optain_folder_paths() # Optain folder paths from user
+datalocaties = optain_folder_paths() # Obtain folder paths from user
 gt3xdir = datalocaties$gt3xdir
 datadir = datalocaties$datadir
 outputdir = datalocaties$outputdir
 
-cat("Bestands locaties:\n")
+cat("Bestand locaties:\n")
 cat(paste0("\nLocatie ",length(dir(datalocaties$gt3xdir))," gt3x bestanden = ",datalocaties$gt3xdir))
 cat(paste0("\nLocatie ",length(dir(datalocaties$datadir))," csv bestanden = ",datalocaties$datadir))
 cat(paste0("\nLocatie resultaten =  ",datalocaties$outputdir,"\n"))
@@ -60,8 +60,8 @@ if (length(dir(datalocaties$gt3xdir)) == 0 & length(dir(datalocaties$datadir)) =
 if (do.gt3x.conversion ==  TRUE) {
   gt3x_files_to_convert = dir(gt3xdir, full.names = T)
   if (length(gt3x_files_to_convert ) > 0) {
-    cat("\nStart conversion of gt3x files...")
     for (gt3xfile in gt3x_files_to_convert ) {
+      cat(paste0("\nConverteer ",basename(gt3xfile)," -> .csv"))
       gt3x_to_csv(path = gt3xfile, outpath =datadir, gzip=T)
     }
   }
@@ -72,8 +72,8 @@ if (do.gt3x.conversion ==  TRUE) {
 #=============================================================================
 # Start processing of raw accelerometer data with GGIR
 cat("\nStart analyse met GGIR...")
-runGGIR(datadir=datadir, outputdir = outputdir, mode = 2:5,
-        do.report=c(2,4,5), overwrite=FALSE)
+runGGIR(datadir=datadir, outputdir = outputdir, mode = c(),
+        do.report=c(5), overwrite=FALSE, do.visual = FALSE, visualreport=FALSE)
 
 #=============================================================================
 # Add extra variables, specifically needed for classification
@@ -90,7 +90,7 @@ part5_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
 part5_summary = read.csv(file=part5_summary_file, sep=",")
 
 # If all went well this part2_summary object will have a column act90, gradient_mean, towards the end.
-kkkk
+
 #=============================================================================
 # Load the trained model
 modelfile = "inst/extdata/final_model_wrist.Rdata"
@@ -115,11 +115,22 @@ part5_summary = cbind(part5_summary, prop_perv_passive)
 # Save predictions
 write.csv(part5_summary, file = part5_summary_file)
 
+# Extract additional information from part 2:
+part2_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
+                          pattern = "part2_summary", value = T)
+part2_summary = read.csv(file=part2_summary_file, sep=",")
+part2_summary$ID = as.numeric(sapply(part2_summary$ID, FUN=function(x) unlist(strsplit(x," "))[1]))
+part2_summary = part2_summary[,c("ID", "ENMO_fullRecordingMean")]
+colnames(part2_summary) = c("ID","Activity_zscore")
+part2_summary$Activity_zscore = round((part2_summary$Activity - 23.64) / 15.5, digits=1)
+part5_summary = merge(part5_summary,part2_summary, by.x = "ID2", by.y = "ID")
+
 cat("Klassificaties voor meest recente tien metingen: ")
-most_recent_recordings = which(order(as.Date(Sys.time()) - as.Date(part5_summary$calendar_date), decreasing = T) <= 10)
+most_recent_recordings = which(order(as.Date(Sys.time()) - 
+                                       as.Date(part5_summary$calendar_date), decreasing = T) <= 10)
 part5_summary = part5_summary[order(as.Date(part5_summary$calendar_date)),]
 recent_recording = part5_summary[most_recent_recordings,
-                                 c("ID2", "calendar_date", "prop_perv_passive")]
+                                 c("ID2", "calendar_date", "prop_perv_passive", "Activity_zscore")]
 
 
 recent_recording$prop_perv_passive = round(recent_recording$prop_perv_passive* 100)
@@ -127,5 +138,16 @@ recent_recording$classification = "not pervasively passive"
 pp = which(recent_recording$prop_perv_passive >= 50)
 if (length(pp) > 0) recent_recording$classification[pp] = "pervasively passive"
 
-colnames(recent_recording) = c("ID", "Datum eerste meetdag", "Kans op pervasive passive (%)",  "Klassificatie")
+# # add feedback
+# recent_recording$feedback = ""
+# ppbutnot = which(recent_recording$Activity_zscore > 0 & recent_recording$classification == "pervasively passive")
+# notbutpp = which(recent_recording$Activity_zscore < 1 & recent_recording$classification == "not pervasively passive")
+# if (length(ppbutnot) > 0) recent_recording$feedback[ppbutnot] = "mogelijk niet pervasively passive"
+# if (length(notbutpp) > 0) recent_recording$feedback[notbutpp] = "mogelijk toch wel pervasively passive"
+
+# recent_recording$prop_perv_passive = 100 - recent_recording$prop_perv_passive
+
+colnames(recent_recording) = c("ID", "Start meeting", "Kans op perv. passive (%)",
+                               "Klassificatie","Activiteit (z-score)") #,"feedback")
+cat("\n")
 print(recent_recording)

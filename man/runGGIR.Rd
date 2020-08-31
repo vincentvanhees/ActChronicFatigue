@@ -9,7 +9,9 @@ runGGIR(
   outputdir = c(),
   mode = c(),
   do.report = c(),
-  overwrite = FALSE
+  overwrite = FALSE,
+  do.visual = FALSE,
+  visualreport = FALSE
 )
 }
 \arguments{
@@ -22,6 +24,10 @@ runGGIR(
 \item{do.report}{...}
 
 \item{overwrite}{...}
+
+\item{do.visual}{...}
+
+\item{visualreport}{...}
 }
 \value{
 no object is returned, GGIR writes all its outputs to files

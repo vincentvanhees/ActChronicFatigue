@@ -19,11 +19,11 @@ optain_folder_paths = function() {
         }
       }
       Q4 = menu(c("Ja", "Nee"), title=paste0("Is ",datadir," nog steeds de locatie van de csv bestanden? Zo nee, specificeer de nieuwe locatie in het volgende scherm"))
-      if (Q3 == 2) {
+      if (Q4 == 2) {
         datadir = easycsv::choose_dir()
       }
       Q5 = menu(c("Ja", "Nee"), title=paste0("Is ",outputdir," nog steeds de locatie waar je de resultaten wilt hebben? Zo nee, specificeer de nieuwe locatie in het volgende scherm"))
-      if (Q3 == 2) {
+      if (Q5 == 2) {
         datadir = easycsv::choose_dir()
       }
     }
