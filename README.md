@@ -5,9 +5,10 @@
 
 1. Use ActiLife software to export the raw Actigraph data to .gt3x format
 2. Install R and RStudio
-3. Op runActChronicFatigue.R from this repository and click the Source button in RStudio.
+3. Store [ActChronicFatigue.R](/ActChronicFatigue.R) on your computer.
+3. Open ActChronicFatigue.R and click the [Source] button in RStudio.
 
-- The first time you do the software will be installed, which may take a while. The second time you do this you will be asked (in Dutch) whether you want to install the software again. 
+- The first time you do all software will be installed, which may take a while. The second time you do this you will be asked (in Dutch) whether you want to install the software again. Select No.
 - Next, the software will ask you to specify the locations of your data.
 - Once that is done the software will continue with processing the data.
 

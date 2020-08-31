@@ -27,7 +27,7 @@ addVariables5 = function(outputdir=c()) {
   }
   P5$ID = convertID(P5$filename)
   # select valid days only
-  P5 = P5[which(P5$nonwear_perc_day_spt < 33.33),]
+  P5 = P5[which(P5$nonwear_perc_day_spt < 33.33 & P5$dur_spt_sleep_min > 4),]
   # select subset of potentially relevant variables:
   P5 = P5[,c("ID", "ACC_day_mg")]
   colnames(P5) = c("ID","act")
