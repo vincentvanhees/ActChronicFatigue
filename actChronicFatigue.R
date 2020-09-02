@@ -10,8 +10,6 @@ development.mode = TRUE
 
 #=========================================
 # Install code if not available:
-
-
 if (development.mode == TRUE) {
   roxygen2::roxygenise()
   do.gt3x.conversion = FALSE
@@ -24,7 +22,9 @@ if (development.mode == TRUE) {
   do.gt3x.conversion = TRUE
   install_again = FALSE
   if ("ActChronicFatigue" %in% rownames(installed.packages()) == TRUE) {
+    Q1b = 2
     Q1 = menu(c("Ja", "Nee"), title="Wil je de software opnieuw installeren?")
+    Q1b = menu(c("Ja", "Nee"), title="Wil je ook all dependencies opnieuw installeren?")
     if (Q1 == 1) {
       install_again = TRUE
     }
@@ -34,10 +34,13 @@ if (development.mode == TRUE) {
       install.packages("devtools")
     }
     library("devtools")
-    install_github("vincentvanhees/ActChronicFatigue", dependencies=TRUE)
+    if (Q1b == 1) {
+      install_github("vincentvanhees/ActChronicFatigue", dependencies=TRUE)
+    } else {
+      install_github("vincentvanhees/ActChronicFatigue", dependencies=FALSE)
+    }
   }
 }
-
 
 datalocaties = optain_folder_paths() # Obtain folder paths from user
 gt3xdir = datalocaties$gt3xdir
@@ -52,8 +55,6 @@ cat(paste0("\nLocatie resultaten =  ",datalocaties$outputdir,"\n"))
 if (length(dir(datalocaties$gt3xdir)) == 0 & length(dir(datalocaties$datadir)) == 0) {
   stop("\nGeen data gevonden. Controleer data folders.")
 }
-
-
 
 #=============================================================================
 # Converteer all gt3x bestanden naar csv bestanden en plaats die in datadir
@@ -115,39 +116,8 @@ part5_summary = cbind(part5_summary, prop_perv_passive)
 # Save predictions
 write.csv(part5_summary, file = part5_summary_file)
 
-# Extract additional information from part 2:
-part2_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
-                          pattern = "part2_summary", value = T)
-part2_summary = read.csv(file=part2_summary_file, sep=",")
-part2_summary$ID = as.numeric(sapply(part2_summary$ID, FUN=function(x) unlist(strsplit(x," "))[1]))
-part2_summary = part2_summary[,c("ID", "ENMO_fullRecordingMean")]
-colnames(part2_summary) = c("ID","Activity_zscore")
-part2_summary$Activity_zscore = round((part2_summary$Activity - 23.64) / 15.5, digits=1)
-part5_summary = merge(part5_summary,part2_summary, by.x = "ID2", by.y = "ID")
-
-cat("Klassificaties voor meest recente tien metingen: ")
-most_recent_recordings = which(order(as.Date(Sys.time()) - 
-                                       as.Date(part5_summary$calendar_date), decreasing = T) <= 10)
-part5_summary = part5_summary[order(as.Date(part5_summary$calendar_date)),]
-recent_recording = part5_summary[most_recent_recordings,
-                                 c("ID2", "calendar_date", "prop_perv_passive", "Activity_zscore")]
+#=============================================================================
+# Summarise and show on screen
+summarise(outputdir, part5_summary, Nmostrecent = 10)
 
 
-recent_recording$prop_perv_passive = round(recent_recording$prop_perv_passive* 100)
-recent_recording$classification = "not pervasively passive"
-pp = which(recent_recording$prop_perv_passive >= 50)
-if (length(pp) > 0) recent_recording$classification[pp] = "pervasively passive"
-
-# # add feedback
-# recent_recording$feedback = ""
-# ppbutnot = which(recent_recording$Activity_zscore > 0 & recent_recording$classification == "pervasively passive")
-# notbutpp = which(recent_recording$Activity_zscore < 1 & recent_recording$classification == "not pervasively passive")
-# if (length(ppbutnot) > 0) recent_recording$feedback[ppbutnot] = "mogelijk niet pervasively passive"
-# if (length(notbutpp) > 0) recent_recording$feedback[notbutpp] = "mogelijk toch wel pervasively passive"
-
-# recent_recording$prop_perv_passive = 100 - recent_recording$prop_perv_passive
-
-colnames(recent_recording) = c("ID", "Start meeting", "Kans op perv. passive (%)",
-                               "Klassificatie","Activiteit (z-score)") #,"feedback")
-cat("\n")
-print(recent_recording)
