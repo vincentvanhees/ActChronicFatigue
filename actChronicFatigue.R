@@ -1,12 +1,8 @@
 rm(list=ls())
 
-# Ask user to select directories
-# Store choices
-# Next time, ask user to reload choices from previous time
+# Klik op [Source] hier rechtsboven om het programa te starten.
 
-
-
-development.mode = TRUE
+development.mode = FALSE
 
 #=========================================
 # Install code if not available:
@@ -41,8 +37,8 @@ if (development.mode == TRUE) {
     }
   }
 }
-
-datalocaties = optain_folder_paths() # Obtain folder paths from user
+library(ActChronicFatigue)
+datalocaties = ActChronicFatigue::optain_folder_paths() # Obtain folder paths from user
 gt3xdir = datalocaties$gt3xdir
 datadir = datalocaties$datadir
 outputdir = datalocaties$outputdir
@@ -63,7 +59,7 @@ if (do.gt3x.conversion ==  TRUE) {
   if (length(gt3x_files_to_convert ) > 0) {
     for (gt3xfile in gt3x_files_to_convert ) {
       cat(paste0("\nConverteer ",basename(gt3xfile)," -> .csv"))
-      gt3x_to_csv(path = gt3xfile, outpath =datadir, gzip=T)
+      ActChronicFatigue::gt3x_to_csv(path = gt3xfile, outpath =datadir, gzip=T)
     }
   }
 }
@@ -73,15 +69,16 @@ if (do.gt3x.conversion ==  TRUE) {
 #=============================================================================
 # Start processing of raw accelerometer data with GGIR
 cat("\nStart analyse met GGIR...")
-runGGIR(datadir=datadir, outputdir = outputdir, mode = c(),
-        do.report=c(5), overwrite=FALSE, do.visual = FALSE, visualreport=FALSE)
+ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:5),
+        do.report=c(2,4,5), overwrite=FALSE, do.visual = FALSE, visualreport=FALSE,
+        acc.metric = "BFEN")
 
 #=============================================================================
 # Add extra variables, specifically needed for classification
 cat("\nExpand GGIR part5 output with extra variables...")
 tmp = unlist(strsplit(datadir,"/|\")"))
 outputdir = paste0(outputdir,"/output_",tmp[length(tmp)])
-addVariables5(outputdir=outputdir)
+ActChronicFatigue::addVariables5(outputdir=outputdir)
 
 #=============================================================================
 # Load the resulting part5_personsummary.csv bestand
@@ -113,11 +110,17 @@ part5_summary = cbind(part5_summary, prop_perv_passive)
 # EV$pp[which(EV$label == "pp")] = 1
 # x11();plot(EV[,c("pp","prop_perv_passive")],type="p", pch=20)
 
-# Save predictions
-write.csv(part5_summary, file = part5_summary_file)
 
 #=============================================================================
 # Summarise and show on screen
-summarise(outputdir, part5_summary, Nmostrecent = 10)
+ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10)
 
-
+#=============================================================================
+# Add BFEN predictions
+cat("\nAanvullende analyses...")
+ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5),
+        do.report=c(5), overwrite=TRUE, do.visual = FALSE, visualreport=TRUE,
+        acc.metric = "ENMO")
+part5_summary = read.csv(file=part5_summary_file, sep=",")
+part5_summary = cbind(part5_summary, prop_perv_passive) # voeg BFEN predictions toe
+write.csv(part5_summary, file = part5_summary_file)

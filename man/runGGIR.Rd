@@ -11,7 +11,8 @@ runGGIR(
   do.report = c(),
   overwrite = FALSE,
   do.visual = FALSE,
-  visualreport = FALSE
+  visualreport = FALSE,
+  acc.metric = "BFEN"
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ runGGIR(
 \item{do.visual}{...}
 
 \item{visualreport}{...}
+
+\item{acc.metric}{...}
 }
 \value{
 no object is returned, GGIR writes all its outputs to files

@@ -7,12 +7,13 @@
 #' @param overwrite ...
 #' @param do.visual ...
 #' @param visualreport ...
+#' @param acc.metric ...
 #' @return no object is returned, GGIR writes all its outputs to files
 #' @export
 
 runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                    overwrite=FALSE, do.visual=FALSE,
-                   visualreport=FALSE) {
+                   visualreport=FALSE, acc.metric = "BFEN") {
 
   # activitylog = paste0(unlist(strsplit(activitylog,"[.]cs"))[1],"2.csv")
   GGIR::g.shell.GGIR(#=======================================
@@ -54,10 +55,10 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                nnights= 18,
                do.visual = do.visual,
                ilevels = c(seq(0,300,by=50),8000), #acceleration values (metric ENMO) from which a frequency distribution needs to be derived, set value at c() if you do not want quantiles
-               mvpathreshold = c(50), #MVPA (moderate and vigorous physical activity threshold
-               threshold.lig=15,
-               threshold.mod=50,
-               threshold.vig=150,
+               mvpathreshold = c(100), #MVPA (moderate and vigorous physical activity threshold
+               threshold.lig=40,
+               threshold.mod=100,
+               threshold.vig=400,
                bout.metric = 4,
                visualreport = visualreport,
                timewindow = "WW",
