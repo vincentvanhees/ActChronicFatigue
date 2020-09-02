@@ -58,7 +58,12 @@ cat(paste0("\nLocatie ",length(dir(datalocaties$gt3xdir))," gt3x bestanden = ",d
 cat(paste0("\nLocatie ",length(dir(datalocaties$datadir))," csv bestanden = ",datalocaties$datadir))
 cat(paste0("\nLocatie resultaten =  ",datalocaties$outputdir,"\n"))
 
-
+Qsnelheid = menu(c("Ja", "Nee"), title="Gebruik je een moderne snelle laptop?")
+if (Qsnelheid == 1) {
+  chunksize == 1
+} else {
+  chunksize == 0.5
+}
 
 if (length(dir(datalocaties$gt3xdir)) == 0 & length(dir(datalocaties$datadir)) == 0) {
   cat("\n")
@@ -80,13 +85,14 @@ if (do.gt3x.conversion ==  TRUE) {
 #=============================================================================
 # If sleeplog exists convert sleeplog to expected format
 
+
 #=============================================================================
 # Start processing of raw accelerometer data with GGIR
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nStart analyse met GGIR...\n")
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:4),
                            do.report=c(2,4), overwrite=FALSE, do.visual = FALSE,
-                           visualreport=FALSE, acc.metric = "BFEN")
+                           visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize)
 
 # always overwrite part 5 to be sure BFEN is used
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5), 

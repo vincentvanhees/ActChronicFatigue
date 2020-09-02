@@ -12,7 +12,8 @@ runGGIR(
   overwrite = FALSE,
   do.visual = FALSE,
   visualreport = FALSE,
-  acc.metric = "BFEN"
+  acc.metric = "BFEN",
+  chunksize = 1
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ runGGIR(
 \item{visualreport}{...}
 
 \item{acc.metric}{...}
+
+\item{chunksize}{...}
 }
 \value{
 no object is returned, GGIR writes all its outputs to files

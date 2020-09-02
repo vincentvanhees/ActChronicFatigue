@@ -8,12 +8,13 @@
 #' @param do.visual ...
 #' @param visualreport ...
 #' @param acc.metric ...
+#' @param chunksize ...
 #' @return no object is returned, GGIR writes all its outputs to files
 #' @export
 
 runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                    overwrite=FALSE, do.visual=FALSE,
-                   visualreport=FALSE, acc.metric = "BFEN") {
+                   visualreport=FALSE, acc.metric = "BFEN", chunksize = 1) {
 
   # activitylog = paste0(unlist(strsplit(activitylog,"[.]cs"))[1],"2.csv")
   GGIR::g.shell.GGIR(#=======================================
@@ -38,7 +39,7 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                acc.metric = "BFEN",
                hb = 10,
                lb = 0.8,
-               chunksize = 0.8,
+               chunksize = chunksize,
                do.cal=TRUE,
                minloadcrit = 3 * 24,
                desiredtz = "Europe/Amsterdam",
