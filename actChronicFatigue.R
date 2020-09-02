@@ -20,9 +20,9 @@ if (development.mode == TRUE) {
   if ("ActChronicFatigue" %in% rownames(installed.packages()) == TRUE) {
     Q1b = 2
     Q1 = menu(c("Ja", "Nee"), title="Wil je de software opnieuw installeren?")
-    Q1b = menu(c("Ja", "Nee"), title="Wil je ook all dependencies opnieuw installeren?")
     if (Q1 == 1) {
       install_again = TRUE
+      Q1b = menu(c("Ja", "Nee"), title="Wil je ook all dependencies opnieuw installeren?")
     }
   }
   if ("ActChronicFatigue" %in% rownames(installed.packages()) == FALSE | install_again == TRUE) {
@@ -30,7 +30,11 @@ if (development.mode == TRUE) {
       install.packages("devtools")
     }
     library("devtools")
-    if (install_again == TRUE) remove.package("ActChronicFatigue")
+    if (install_again == TRUE) {
+      if("ActChronicFatigue" %in% (.packages())){
+        detach("package:ActChronicFatigue", unload=TRUE)
+      }
+    }
     if (Q1b == 1) {
       install_github("vincentvanhees/ActChronicFatigue", dependencies=TRUE)
     } else {
@@ -40,14 +44,19 @@ if (development.mode == TRUE) {
 }
 library(ActChronicFatigue)
 datalocaties = ActChronicFatigue::optain_folder_paths() # Obtain folder paths from user
-gt3xdir = datalocaties$gt3xdir
-datadir = datalocaties$datadir
-outputdir = datalocaties$outputdir
+replaceslash = function(x) {
+  return(gsub(replacement = "/", pattern = "\\\\",x=x))
+}
+gt3xdir = replaceslash(datalocaties$gt3xdir)
+datadir = replaceslash(datalocaties$datadir)
+outputdir = replaceslash(datalocaties$outputdir)
 
 cat("Bestand locaties:\n")
 cat(paste0("\nLocatie ",length(dir(datalocaties$gt3xdir))," gt3x bestanden = ",datalocaties$gt3xdir))
 cat(paste0("\nLocatie ",length(dir(datalocaties$datadir))," csv bestanden = ",datalocaties$datadir))
 cat(paste0("\nLocatie resultaten =  ",datalocaties$outputdir,"\n"))
+
+
 
 if (length(dir(datalocaties$gt3xdir)) == 0 & length(dir(datalocaties$datadir)) == 0) {
   stop("\nGeen data gevonden. Controleer data folders.")
@@ -75,25 +84,28 @@ ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:5)
         acc.metric = "BFEN")
 
 #=============================================================================
+cat("\nKlassficeer of de meting(en) pervasively passive zijn of niet...")
+
 # Add extra variables, specifically needed for classification
-cat("\nExpand GGIR part5 output with extra variables...")
 tmp = unlist(strsplit(datadir,"/|\")"))
+outputdir_backup = outputdir
 outputdir = paste0(outputdir,"/output_",tmp[length(tmp)])
 ActChronicFatigue::addVariables5(outputdir=outputdir)
 
-#=============================================================================
 # Load the resulting part5_personsummary.csv bestand
-cat("\nApply pre-trained model to the data...")
 part5_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                           pattern = "part5_personsummary_WW_", value = T)
 part5_summary = read.csv(file=part5_summary_file, sep=",")
 
 # If all went well this part2_summary object will have a column act90, gradient_mean, towards the end.
 
-#=============================================================================
 # Load the trained model
-modelfile = "inst/extdata/final_model_wrist.Rdata"
-load(modelfile)
+if (development.mode == TRUE) {
+  load("extdata/final_model_wrist.Rdata")
+} else {
+  load(system.file("extdata/final_model_wrist.Rdata", package = "ActChronicFatigue"))
+}
+
 # Make predictions by applying the model
 prop_perv_passive = stats::predict(object=final_model_wrist, newdata=part5_summary, type="response")
 part5_summary = cbind(part5_summary, prop_perv_passive)
@@ -114,14 +126,17 @@ part5_summary = cbind(part5_summary, prop_perv_passive)
 
 #=============================================================================
 # Summarise and show on screen
+cat("\n Samenvatting van resultaten")
+
 ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10)
 
 #=============================================================================
 # Add BFEN predictions
-cat("\nAanvullende analyses...")
-ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5),
-        do.report=c(5), overwrite=TRUE, do.visual = FALSE, visualreport=TRUE,
+cat("\nBezig met aanvullende analyses...")
+ActChronicFatigue::runGGIR(datadir = datadir, outputdir = outputdir_backup, mode = c(5),
+        do.report = c(5), overwrite = TRUE, do.visual = FALSE, visualreport=TRUE,
         acc.metric = "ENMO")
 part5_summary = read.csv(file=part5_summary_file, sep=",")
 part5_summary = cbind(part5_summary, prop_perv_passive) # voeg BFEN predictions toe
 write.csv(part5_summary, file = part5_summary_file)
+cat("\nBezig met aanvullende analyses...")
