@@ -10,25 +10,31 @@ optain_folder_paths = function() {
     gt3xdir = gt3xdir
     datadir = datadir
     outputdir = outputdir
+    cat(paste0(rep('_',options()$width),collapse=''))
     Q1 = menu(c("Ja", "Nee"), title=paste0("Wil je de bestandspaden opnieuwe instellen?"))
     if (Q1 == 1) {
+      cat(paste0(rep('_',options()$width),collapse=''))
       Q2 = menu(c("Ja", "Nee"), title=paste0("Gebruik je gt3x data?"))
       if (Q2 == 2) {
+        cat(paste0(rep('_',options()$width),collapse=''))
         Q3 = menu(c("Ja", "Nee"), title=paste0("Is ",gt3xdir," nog steeds de locatie van de gt3x bestanden? Zo nee, specificeer de nieuwe locatie in het volgende scherm"))
         if (Q3 == 2) {
           gt3xdir = easycsv::choose_dir()
         }
       }
+      cat(paste0(rep('_',options()$width),collapse=''))
       Q4 = menu(c("Ja", "Nee"), title=paste0("Is ",datadir," nog steeds de locatie van de csv bestanden? Zo nee, specificeer de nieuwe locatie in het volgende scherm"))
       if (Q4 == 2) {
         datadir = easycsv::choose_dir()
       }
+      cat(paste0(rep('_',options()$width),collapse=''))
       Q5 = menu(c("Ja", "Nee"), title=paste0("Is ",outputdir," nog steeds de locatie waar je de resultaten wilt hebben? Zo nee, specificeer de nieuwe locatie in het volgende scherm"))
       if (Q5 == 2) {
         datadir = easycsv::choose_dir()
       }
     }
   } else {
+    cat(paste0(rep('_',options()$width),collapse=''))
     readline("Geef aan waar de gt3x bestanden opgeslagen zijn. Klik eerst [enter] om verder te gaan.")  
     gt3xdir = easycsv::choose_dir()
     readline("Geef aan waar de csv bestanden opgeslagen zijn. Klik eerst [enter] om verder te gaan.")  

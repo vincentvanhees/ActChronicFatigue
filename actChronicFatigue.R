@@ -19,9 +19,11 @@ if (development.mode == TRUE) {
   install_again = FALSE
   if ("ActChronicFatigue" %in% rownames(installed.packages()) == TRUE) {
     Q1b = 2
+    cat(paste0(rep('_',options()$width),collapse=''))
     Q1 = menu(c("Ja", "Nee"), title="Wil je de software opnieuw installeren?")
     if (Q1 == 1) {
       install_again = TRUE
+      cat(paste0(rep('_',options()$width),collapse=''))
       Q1b = menu(c("Ja", "Nee"), title="Wil je ook all dependencies opnieuw installeren?")
     }
   }
@@ -50,7 +52,7 @@ replaceslash = function(x) {
 gt3xdir = replaceslash(datalocaties$gt3xdir)
 datadir = replaceslash(datalocaties$datadir)
 outputdir = replaceslash(datalocaties$outputdir)
-
+cat(paste0(rep('_',options()$width),collapse=''))
 cat("Bestand locaties:\n")
 cat(paste0("\nLocatie ",length(dir(datalocaties$gt3xdir))," gt3x bestanden = ",datalocaties$gt3xdir))
 cat(paste0("\nLocatie ",length(dir(datalocaties$datadir))," csv bestanden = ",datalocaties$datadir))
@@ -59,6 +61,7 @@ cat(paste0("\nLocatie resultaten =  ",datalocaties$outputdir,"\n"))
 
 
 if (length(dir(datalocaties$gt3xdir)) == 0 & length(dir(datalocaties$datadir)) == 0) {
+  cat("\n")
   stop("\nGeen data gevonden. Controleer data folders.")
 }
 
@@ -68,6 +71,7 @@ if (do.gt3x.conversion ==  TRUE) {
   gt3x_files_to_convert = dir(gt3xdir, full.names = T)
   if (length(gt3x_files_to_convert ) > 0) {
     for (gt3xfile in gt3x_files_to_convert ) {
+      cat(paste0(rep('_',options()$width),collapse=''))
       cat(paste0("\nConverteer ",basename(gt3xfile)," -> .csv"))
       ActChronicFatigue::gt3x_to_csv(path = gt3xfile, outpath =datadir, gzip=T)
     }
@@ -78,13 +82,20 @@ if (do.gt3x.conversion ==  TRUE) {
 
 #=============================================================================
 # Start processing of raw accelerometer data with GGIR
-cat("\nStart analyse met GGIR...")
-ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:5),
-        do.report=c(2,4,5), overwrite=FALSE, do.visual = FALSE, visualreport=FALSE,
-        acc.metric = "BFEN")
+cat(paste0(rep('_',options()$width),collapse=''))
+cat("\nStart analyse met GGIR...\n")
+ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:4),
+                           do.report=c(2,4), overwrite=FALSE, do.visual = FALSE,
+                           visualreport=FALSE, acc.metric = "BFEN")
+
+# always overwrite part 5 to be sure BFEN is used
+ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5), 
+                           do.report=c(5), overwrite=TRUE, do.visual = FALSE,
+                           visualreport=FALSE, acc.metric = "BFEN")
 
 #=============================================================================
-cat("\nKlassficeer of de meting(en) pervasively passive zijn of niet...")
+cat(paste0(rep('_',options()$width),collapse=''))
+cat("\nKlassficeer of de meting(en) pervasively passive zijn of niet...\n")
 
 # Add extra variables, specifically needed for classification
 tmp = unlist(strsplit(datadir,"/|\")"))
@@ -126,17 +137,19 @@ part5_summary = cbind(part5_summary, prop_perv_passive)
 
 #=============================================================================
 # Summarise and show on screen
-cat("\n Samenvatting van resultaten")
+
+cat("\n Samenvatting van resultaten\n")
 
 ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10)
 
 #=============================================================================
 # Add BFEN predictions
-cat("\nBezig met aanvullende analyses...")
+cat(paste0(rep('_',options()$width),collapse=''))
+cat("\nBezig met aanvullende analyses...\n")
 ActChronicFatigue::runGGIR(datadir = datadir, outputdir = outputdir_backup, mode = c(5),
-        do.report = c(5), overwrite = TRUE, do.visual = FALSE, visualreport=TRUE,
-        acc.metric = "ENMO")
+                           do.report = c(5), overwrite = TRUE, do.visual = FALSE, visualreport=TRUE,
+                           acc.metric = "ENMO")
 part5_summary = read.csv(file=part5_summary_file, sep=",")
 part5_summary = cbind(part5_summary, prop_perv_passive) # voeg BFEN predictions toe
 write.csv(part5_summary, file = part5_summary_file)
-cat("\nBezig met aanvullende analyses...")
+cat(paste0("\nAanvullende  staan in ",outputdir))
