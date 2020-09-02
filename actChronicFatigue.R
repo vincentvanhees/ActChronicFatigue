@@ -30,6 +30,7 @@ if (development.mode == TRUE) {
       install.packages("devtools")
     }
     library("devtools")
+    if (install_again == TRUE) remove.package("ActChronicFatigue")
     if (Q1b == 1) {
       install_github("vincentvanhees/ActChronicFatigue", dependencies=TRUE)
     } else {
