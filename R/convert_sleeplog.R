@@ -4,7 +4,6 @@
 #' @return no object is returned, only a new file is created in the same folder as the activitylog
 #' @export
 #' @importFrom utils write.csv
-#' @importFrom readxl read_excel
 #'
 convert_sleeplog = function(sleeplog = c()) {
   if (file.exists(sleeplog) == TRUE) {
