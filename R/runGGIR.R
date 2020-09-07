@@ -26,7 +26,7 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
     f0 = f1 = c()
   }
   if (length(loglocation) > 0) {
-    SLEEPLOG = read.csv(test)
+    SLEEPLOG = read.csv(loglocation)
     nnights = round((ncol(SLEEPLOG) - 1) / 2)
   } else {
     nnights = 18
