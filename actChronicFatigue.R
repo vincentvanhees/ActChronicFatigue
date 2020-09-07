@@ -1,10 +1,10 @@
 rm(list=ls())
 
 # Klik op [Source] hier rechtsboven om het programa te starten.
-sleeplog = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx"
+
 development.mode = FALSE
 
-# test = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx2.csv"
+
 
 #=========================================
 # Install code if not available:
@@ -97,22 +97,18 @@ if (do.gt3x.conversion ==  TRUE) {
 }
 #=============================================================================
 # If sleeplog exists convert sleeplog to expected format
-sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog)
-
+# sleeplog = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx"
+# sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog)
+sleeplogfile = c()
 #=============================================================================
 # Start processing of raw accelerometer data with GGIR
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nStart analyse met GGIR...\n")
-ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(4),
-                           do.report = c(4), overwrite=TRUE, do.visual = FALSE,
+ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(2:4),
+                           do.report = c(2,4), overwrite=FALSE, do.visual = FALSE,
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
-                           loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=FALSE)
-# ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(2),
-#         do.report=c(2), overwrite=TRUE, do.visual = FALSE,
-#         visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
-#         loglocation = sleeplogfile,
-#         do.parallel=FALSE, testbatch = TRUE)
-kkk
+                           loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE)
+
 # always overwrite part 5 to be sure BFEN is used
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5), 
                            do.report=c(5), overwrite=TRUE, do.visual = FALSE,
@@ -129,6 +125,8 @@ outputdir_backup = outputdir
 outputdir = paste0(outputdir,"/output_",tmp[length(tmp)])
 ActChronicFatigue::addVariables5(outputdir=outputdir)
 
+
+# kkkk
 # Load the resulting part5_personsummary.csv bestand
 part5_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                           pattern = "part5_personsummary_WW_", value = T)
@@ -163,15 +161,14 @@ part5_summary = cbind(part5_summary, prop_perv_passive)
 
 #=============================================================================
 # Summarise and show on screen
-
 cat("\n Samenvatting van resultaten\n")
-
 SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10)
 
 recent_results_file = paste0(outputdir,"/results/samenvatting_",
                              as.character(as.Date(Sys.time())),".csv")
 write.csv(recent_recording, file = recent_results_file, row.names = FALSE)
 cat(paste0("\nSamenvatting van resultaten is ook opgeslagen in", recent_results_file, "\n"))
+
 #=============================================================================
 # Reprocess with ENMO
 cat(paste0(rep('_',options()$width),collapse=''))
