@@ -61,7 +61,7 @@ D = read.csv(file=part5_summary_file, sep=separator)
 D = D[,c("act9167", "ID2", "filename", "Nvaliddays","Ndays",
          "nonwear_perc_day_spt_pla", "ACC_day_mg_pla")]
 
-D = D[which(D$nonwear_perc_day_spt <= 33 & D$Ndays > 11),] #& D$calib_err < 0.02 #& D$Nvaliddays > 10
+D = D[which(D$nonwear_perc_day_spt <= 33 & D$Ndays > 12),] #& D$calib_err < 0.02 #& D$Nvaliddays > 10
 
 # Merge data with labels
 NmatchingIDs = length(which(labels[,id_column_labels] %in% D[,id_column_part5] == TRUE))
@@ -106,7 +106,7 @@ for (location in c(wrist)) { #,hip
     
     # Fit model, this where we decide what variables will be used:
     if (location == wrist) {
-      fit = glm(label ~ act9167 + ACC_day_mg_pla, data = S, family = binomial)
+      fit = glm(label ~ act9167, data = S, family = binomial) #+ ACC_day_mg_pla
     } else if (location == hip) {
       # fit = glm(label ~ act9167 + ACC_day_mg_pla, data = S, family = binomial) # + ACC_day_mg_pla
     }
