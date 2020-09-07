@@ -45,6 +45,14 @@ convert_sleeplog = function(sleeplog = c()) {
     #---------------------------------------------------------------------------
     outputfile = paste0(unlist(strsplit(sleeplog,"[.]cs"))[1],"2.csv")
     colnames(D)[1] = "ID"
+    
+    dup = duplicated(D$ID)
+    if (length(dup) > 0) {
+      warning("\nEr zijn twee metingen voor dezelfde persoon. Negeer beiden metignen.")
+      D = D[-which(D$ID == D$ID[dup]),]
+    }
+    
+    
     write.csv(D, file = outputfile, row.names = FALSE)
   } else {
     if (length(sleeplog) != 0) {
