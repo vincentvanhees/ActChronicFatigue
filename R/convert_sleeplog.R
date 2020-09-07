@@ -47,6 +47,9 @@ convert_sleeplog = function(sleeplog = c()) {
     colnames(D)[1] = "ID"
     write.csv(D, file = outputfile, row.names = FALSE)
   } else {
+    if (length(sleeplog) != 0) {
+      warning(paste0("\nBestand ",sleeplog, " bestaat niet. Conversie niet mogelijk."))
+    }
     outputfile = c()
   }
   return(outputfile)

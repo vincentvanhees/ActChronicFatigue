@@ -4,9 +4,10 @@ rm(list=ls())
 sleeplog = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx"
 development.mode = FALSE
 
-verbose.install = FALSE
+
 #=========================================
 # Install code if not available:
+verbose.install = FALSE
 if (development.mode == TRUE) {
   roxygen2::roxygenise()
   do.gt3x.conversion = FALSE
@@ -23,8 +24,8 @@ if (development.mode == TRUE) {
 } else { # install code from GitHub
   do.gt3x.conversion = TRUE
   install_again = FALSE
+  Q1b = 1
   if ("ActChronicFatigue" %in% rownames(installed.packages()) == TRUE) {
-    Q1b = 2
     cat(paste0(rep('_',options()$width),collapse=''))
     Q1 = menu(c("Ja", "Nee"), title="Wil je de software opnieuw installeren?")
     if (Q1 == 1) {
@@ -53,6 +54,9 @@ if (development.mode == TRUE) {
   }
 }
 library(ActChronicFatigue)
+
+#=========================================
+# Obtain data locations
 datalocaties = ActChronicFatigue::optain_folder_paths() # Obtain folder paths from user
 replaceslash = function(x) {
   return(gsub(replacement = "/", pattern = "\\\\",x=x))
@@ -98,15 +102,15 @@ sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog)
 # Start processing of raw accelerometer data with GGIR
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nStart analyse met GGIR...\n")
+ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(4),
+                           do.report = c(4), overwrite=TRUE, do.visual = FALSE,
+                           visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
+                           loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=FALSE)
 # ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(2),
-#                            do.report=c(2), overwrite=TRUE, do.visual = FALSE,
-#                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
-#                            loglocation = sleeplogfile)
-runGGIR(datadir=datadir, outputdir = outputdir, mode = c(2),
-        do.report=c(2), overwrite=TRUE, do.visual = FALSE,
-        visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
-        loglocation = sleeplogfile,
-        do.parallel=FALSE, testbatch = TRUE)
+#         do.report=c(2), overwrite=TRUE, do.visual = FALSE,
+#         visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
+#         loglocation = sleeplogfile,
+#         do.parallel=FALSE, testbatch = TRUE)
 kkk
 # always overwrite part 5 to be sure BFEN is used
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5), 
@@ -116,7 +120,7 @@ ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5),
 
 #=============================================================================
 cat(paste0(rep('_',options()$width),collapse=''))
-cat("\nKlassficeer of de meting(en) pervasively passive zijn of niet...\n")
+cat("\nKlassficeer of de persoon al dan niet pervasively passive is ...\n")
 
 # Add extra variables, specifically needed for classification
 tmp = unlist(strsplit(datadir,"/|\")"))
@@ -161,16 +165,22 @@ part5_summary = cbind(part5_summary, prop_perv_passive)
 
 cat("\n Samenvatting van resultaten\n")
 
-ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10)
+SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10)
 
+recent_results_file = paste0(outputdir,"/results/samenvatting_",
+                             as.character(as.Date(Sys.time())),".csv")
+write.csv(recent_recording, file = recent_results_file, row.names = FALSE)
+cat(paste0("\nSamenvatting van resultaten is ook opgeslagen in", recent_results_file, "\n"))
 #=============================================================================
-# Add BFEN predictions
+# Reprocess with ENMO
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nBezig met aanvullende analyses...\n")
 ActChronicFatigue::runGGIR(datadir = datadir, outputdir = outputdir_backup, mode = c(5),
                            do.report = c(5), overwrite = TRUE, do.visual = FALSE, visualreport=TRUE,
                            acc.metric = "ENMO", loglocation = sleeplogfile)
 part5_summary = read.csv(file=part5_summary_file, sep=",")
+# Add BFEN predictions
 part5_summary = cbind(part5_summary, prop_perv_passive) # voeg BFEN predictions toe
+# Store
 write.csv(part5_summary, file = part5_summary_file)
-cat(paste0("\nAanvullende  staan in ",outputdir))
+cat(paste0("\nAanvullende resultaten staan in ",outputdir))
