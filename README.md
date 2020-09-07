@@ -3,21 +3,25 @@
 
 ### To apply previously trained model on new data:
 
-1. Use ActiLife software to export the raw Actigraph data to .gt3x format
-2. Install R and RStudio
+1. Use ActiLife software to export the raw Actigraph data to .gt3x format. Skip this step you are an accelerometer brand that is not Actigraph.
+2. Install R and RStudio. If they are installed, check that they are the latest version.
 3. Store [ActChronicFatigue.R](/ActChronicFatigue.R) on your computer.
-3. Open ActChronicFatigue.R and click the [Source] button in RStudio.
+4. Open ActChronicFatigue.R in RStudio.
+5. Click the [Source] button in RStudio.
+6. Follow the instructions in the console.
 
 - The first time you do all software will be installed, which may take a while. The second time you do this you will be asked (in Dutch) whether you want to install the software again. Select No.
 - Next, the software will ask you to specify the locations of your data.
-- Once that is done the software will continue with processing the data.
+- Once that is done the software will continue with processing the data, and classifying the data.
+- A summary of the findings will be printed to the screen and also stored in the output directory.
+
+Note: The software assumes that the participant ID is stored in the filename before the first space.
 
 ### To train a new model based on existing training data:
 
 1. Follow steps above
-2. Create a file with the waking times, and convert this to a specific format with R script [load_and_convert_times.R](/dev_code/load_and_convert_times.R)
-3. Create labels.csv file with one column for id, one column for label (holding character values for "pp" and "fa") and one column loc specifying the body location ("wrist" and "hip").
-4. Run script [fitmodel.R](/dev_code/fitmodel.R) after updating the info at the top to match your situation.
+2. Create labels.csv file with one column for id, one column for label (holding character values for "pp" and "fa") and one column loc specifying the body location ("wrist" and "hip").
+3. Run script [fitmodel.R](/dev_code/fitmodel.R) after updating the info at the top to match your situation.
 
 ### Model interpretation
 
