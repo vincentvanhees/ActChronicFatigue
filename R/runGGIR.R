@@ -19,7 +19,7 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                    overwrite=FALSE, do.visual=FALSE,
                    visualreport=FALSE, acc.metric = "BFEN", chunksize = 1,
                    loglocation = c(), do.parallel = TRUE, testbatch = FALSE) {
-  if (testbatch == TRUE {
+  if (testbatch == TRUE) {
     f0 = 1
     f1 = 2
   } else {
