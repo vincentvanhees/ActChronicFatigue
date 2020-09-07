@@ -4,7 +4,7 @@ rm(list=ls())
 sleeplog = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx"
 development.mode = FALSE
 
-test = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx2.csv"
+# test = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx2.csv"
 
 #=========================================
 # Install code if not available:
