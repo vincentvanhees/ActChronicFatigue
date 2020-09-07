@@ -48,8 +48,8 @@ if (development.mode == TRUE) {
     } else {
       depe = FALSE
     }
-    install_github("wadpac/GGIR", ref="issue313_qwindow", dependencies=depe, verbose = verbose.install)
-    install_github("vincentvanhees/ActChronicFatigue", dependencies=depe, verbose = verbose.install)
+    install_github("vincentvanhees/ActChronicFatigue", dependencies=depe, 
+                   verbose = verbose.install, force = depe)
   }
 }
 library(ActChronicFatigue)
@@ -106,7 +106,7 @@ runGGIR(datadir=datadir, outputdir = outputdir, mode = c(2),
         do.report=c(2), overwrite=TRUE, do.visual = FALSE,
         visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
         loglocation = sleeplogfile,
-        do.parallel=FALSE)
+        do.parallel=FALSE, testbatch = TRUE)
 kkk
 # always overwrite part 5 to be sure BFEN is used
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5), 

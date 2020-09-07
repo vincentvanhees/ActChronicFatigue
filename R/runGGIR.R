@@ -11,14 +11,20 @@
 #' @param chunksize ...
 #' @param loglocation ...
 #' @param do.parallel ...
+#' @param testbatch ...
 #' @return no object is returned, GGIR writes all its outputs to files
 #' @export
 
 runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                    overwrite=FALSE, do.visual=FALSE,
                    visualreport=FALSE, acc.metric = "BFEN", chunksize = 1,
-                   loglocation = c(), do.parallel = TRUE) {
-
+                   loglocation = c(), do.parallel = TRUE, testbatch = FALSE) {
+  if (testbatch == TRUE {
+    f0 = 1
+    f1 = 2
+  } else {
+    f0 = f1 = c()
+  }
   # activitylog = paste0(unlist(strsplit(activitylog,"[.]cs"))[1],"2.csv")
   GGIR::g.shell.GGIR(#=======================================
                # INPUT NEEDED:
@@ -28,8 +34,8 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                mode = mode, #specify above
                datadir = datadir, #specify above
                outputdir = outputdir, #specify above
-               f0 = c(), #specify above
-               f1 = c(), #specify above
+               f0 = f0, #specify above
+               f1 = f1, #specify above
                overwrite = overwrite, #overwrite previous milestone data?
                do.report = do.report, #for what parts does and report need to be generated? (option: 2, 4 and 5)
                do.imp = TRUE, # Do imputation? (recommended)
