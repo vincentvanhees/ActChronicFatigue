@@ -13,7 +13,9 @@ runGGIR(
   do.visual = FALSE,
   visualreport = FALSE,
   acc.metric = "BFEN",
-  chunksize = 1
+  chunksize = 1,
+  loglocation = c(),
+  do.parallel = TRUE
 )
 }
 \arguments{
@@ -34,6 +36,10 @@ runGGIR(
 \item{acc.metric}{...}
 
 \item{chunksize}{...}
+
+\item{loglocation}{...}
+
+\item{do.parallel}{...}
 }
 \value{
 no object is returned, GGIR writes all its outputs to files

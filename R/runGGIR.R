@@ -9,12 +9,15 @@
 #' @param visualreport ...
 #' @param acc.metric ...
 #' @param chunksize ...
+#' @param loglocation ...
+#' @param do.parallel ...
 #' @return no object is returned, GGIR writes all its outputs to files
 #' @export
 
 runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                    overwrite=FALSE, do.visual=FALSE,
-                   visualreport=FALSE, acc.metric = "BFEN", chunksize = 1) {
+                   visualreport=FALSE, acc.metric = "BFEN", chunksize = 1,
+                   loglocation = c(), do.parallel = TRUE) {
 
   # activitylog = paste0(unlist(strsplit(activitylog,"[.]cs"))[1],"2.csv")
   GGIR::g.shell.GGIR(#=======================================
@@ -30,11 +33,11 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                overwrite = overwrite, #overwrite previous milestone data?
                do.report = do.report, #for what parts does and report need to be generated? (option: 2, 4 and 5)
                do.imp = TRUE, # Do imputation? (recommended)
-               idloc = 2, #id location (1 = file header, 2 = filename)
+               idloc = 5, #id location (1 = file header, 2 = filename)
                print.filename = TRUE,
                do.imp = TRUE,
                storefolderstructure = TRUE,
-               do.parallel = TRUE,
+               do.parallel = do.parallel,
                do.bfen = TRUE,
                acc.metric = "BFEN",
                hb = 10,
@@ -54,6 +57,7 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                # qwindow=c(0,9,21,24), #window over which to calculate quantiles
                qwindow = c(0, 24), #activitylog,
                nnights= 18,
+               loglocation = loglocation,
                do.visual = do.visual,
                ilevels = c(seq(0,300,by=50),8000), #acceleration values (metric ENMO) from which a frequency distribution needs to be derived, set value at c() if you do not want quantiles
                mvpathreshold = c(100), #MVPA (moderate and vigorous physical activity threshold

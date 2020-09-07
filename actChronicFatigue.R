@@ -1,15 +1,21 @@
 rm(list=ls())
 
 # Klik op [Source] hier rechtsboven om het programa te starten.
-
+sleeplog = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx"
 development.mode = FALSE
 
+verbose.install = FALSE
 #=========================================
 # Install code if not available:
 if (development.mode == TRUE) {
   roxygen2::roxygenise()
   do.gt3x.conversion = FALSE
   locationRcode = "/home/vincent/projects/ActChronicFatigue/R" 
+  ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
+  for (i in 1:length(ffnames)) {
+    source(paste(locationRcode,"/",ffnames[i],sep=""))
+  }
+  locationRcode = "/home/vincent/GGIR/R" 
   ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
   for (i in 1:length(ffnames)) {
     source(paste(locationRcode,"/",ffnames[i],sep=""))
@@ -29,7 +35,7 @@ if (development.mode == TRUE) {
   }
   if ("ActChronicFatigue" %in% rownames(installed.packages()) == FALSE | install_again == TRUE) {
     if ("devtools" %in% rownames(installed.packages()) == FALSE) {
-      install.packages("devtools")
+      install.packages("devtools", verbose = verbose.install)
     }
     library("devtools")
     if (install_again == TRUE) {
@@ -38,10 +44,12 @@ if (development.mode == TRUE) {
       }
     }
     if (Q1b == 1) {
-      install_github("vincentvanhees/ActChronicFatigue", dependencies=TRUE)
+      depe = TRUE
     } else {
-      install_github("vincentvanhees/ActChronicFatigue", dependencies=FALSE)
+      depe = FALSE
     }
+    install_github("wadpac/GGIR", ref="issue313_qwindow", dependencies=depe, verbose = verbose.install)
+    install_github("vincentvanhees/ActChronicFatigue", dependencies=depe, verbose = verbose.install)
   }
 }
 library(ActChronicFatigue)
@@ -53,16 +61,16 @@ gt3xdir = replaceslash(datalocaties$gt3xdir)
 datadir = replaceslash(datalocaties$datadir)
 outputdir = replaceslash(datalocaties$outputdir)
 cat(paste0(rep('_',options()$width),collapse=''))
-cat("Bestand locaties:\n")
+cat("\nBestand locaties:\n")
 cat(paste0("\nLocatie ",length(dir(datalocaties$gt3xdir))," gt3x bestanden = ",datalocaties$gt3xdir))
 cat(paste0("\nLocatie ",length(dir(datalocaties$datadir))," csv bestanden = ",datalocaties$datadir))
 cat(paste0("\nLocatie resultaten =  ",datalocaties$outputdir,"\n"))
 
-Qsnelheid = menu(c("Ja", "Nee"), title="Gebruik je een moderne snelle laptop?")
+Qsnelheid = menu(c("Ja", "Nee"), title="\nGebruik je een moderne snelle laptop?")
 if (Qsnelheid == 1) {
-  chunksize == 1
+  chunksize = 1
 } else {
-  chunksize == 0.5
+  chunksize = 0.5
 }
 
 if (length(dir(datalocaties$gt3xdir)) == 0 & length(dir(datalocaties$datadir)) == 0) {
@@ -84,20 +92,27 @@ if (do.gt3x.conversion ==  TRUE) {
 }
 #=============================================================================
 # If sleeplog exists convert sleeplog to expected format
-
+sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog)
 
 #=============================================================================
 # Start processing of raw accelerometer data with GGIR
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nStart analyse met GGIR...\n")
-ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:4),
-                           do.report=c(2,4), overwrite=FALSE, do.visual = FALSE,
-                           visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize)
-
+# ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(2),
+#                            do.report=c(2), overwrite=TRUE, do.visual = FALSE,
+#                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
+#                            loglocation = sleeplogfile)
+runGGIR(datadir=datadir, outputdir = outputdir, mode = c(2),
+        do.report=c(2), overwrite=TRUE, do.visual = FALSE,
+        visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
+        loglocation = sleeplogfile,
+        do.parallel=FALSE)
+kkk
 # always overwrite part 5 to be sure BFEN is used
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5), 
                            do.report=c(5), overwrite=TRUE, do.visual = FALSE,
-                           visualreport=FALSE, acc.metric = "BFEN")
+                           visualreport=FALSE, acc.metric = "BFEN",
+                           loglocation = sleeplogfile)
 
 #=============================================================================
 cat(paste0(rep('_',options()$width),collapse=''))
@@ -154,7 +169,7 @@ cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nBezig met aanvullende analyses...\n")
 ActChronicFatigue::runGGIR(datadir = datadir, outputdir = outputdir_backup, mode = c(5),
                            do.report = c(5), overwrite = TRUE, do.visual = FALSE, visualreport=TRUE,
-                           acc.metric = "ENMO")
+                           acc.metric = "ENMO", loglocation = sleeplogfile)
 part5_summary = read.csv(file=part5_summary_file, sep=",")
 part5_summary = cbind(part5_summary, prop_perv_passive) # voeg BFEN predictions toe
 write.csv(part5_summary, file = part5_summary_file)
