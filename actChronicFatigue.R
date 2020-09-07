@@ -166,7 +166,7 @@ SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10)
 
 recent_results_file = paste0(outputdir,"/results/samenvatting_",
                              as.character(as.Date(Sys.time())),".csv")
-write.csv(recent_recording, file = recent_results_file, row.names = FALSE)
+write.csv(SUM, file = recent_results_file, row.names = FALSE)
 cat(paste0("\nSamenvatting van resultaten is ook opgeslagen in", recent_results_file, "\n"))
 
 #=============================================================================
@@ -180,5 +180,5 @@ part5_summary = read.csv(file=part5_summary_file, sep=",")
 # Add BFEN predictions
 part5_summary = cbind(part5_summary, prop_perv_passive) # voeg BFEN predictions toe
 # Store
-write.csv(part5_summary, file = part5_summary_file)
+write.csv(part5_summary, file = part5_summary_file, row.names = F)
 cat(paste0("\nAanvullende resultaten staan in ",outputdir))
