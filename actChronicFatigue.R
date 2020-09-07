@@ -4,10 +4,11 @@ rm(list=ls())
 sleeplog = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx"
 development.mode = FALSE
 
+test = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx2.csv"
 
 #=========================================
 # Install code if not available:
-verbose.install = FALSE
+verbose.install = TRUE
 if (development.mode == TRUE) {
   roxygen2::roxygenise()
   do.gt3x.conversion = FALSE
@@ -52,8 +53,8 @@ if (development.mode == TRUE) {
     install_github("vincentvanhees/ActChronicFatigue", dependencies=depe, 
                    verbose = verbose.install, force = depe)
   }
+  library(ActChronicFatigue)
 }
-library(ActChronicFatigue)
 
 #=========================================
 # Obtain data locations

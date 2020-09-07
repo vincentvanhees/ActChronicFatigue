@@ -15,7 +15,8 @@ runGGIR(
   acc.metric = "BFEN",
   chunksize = 1,
   loglocation = c(),
-  do.parallel = TRUE
+  do.parallel = TRUE,
+  testbatch = FALSE
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ runGGIR(
 \item{loglocation}{...}
 
 \item{do.parallel}{...}
+
+\item{testbatch}{...}
 }
 \value{
 no object is returned, GGIR writes all its outputs to files

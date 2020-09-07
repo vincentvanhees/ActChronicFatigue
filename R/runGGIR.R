@@ -25,6 +25,12 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
   } else {
     f0 = f1 = c()
   }
+  if (length(loglocation) > 0) {
+    SLEEPLOG = read.csv(loglocation)
+    nnights = ncol(SLEEPLOG) - 1
+  } else {
+    nnights = 18
+  }
   # activitylog = paste0(unlist(strsplit(activitylog,"[.]cs"))[1],"2.csv")
   GGIR::g.shell.GGIR(#=======================================
                # INPUT NEEDED:
@@ -63,7 +69,7 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                qlevels = c(c(1380/1440),c(1410/1440)), #quantiles to calculate, set value at c() if you do not want quantiles
                # qwindow=c(0,9,21,24), #window over which to calculate quantiles
                qwindow = c(0, 24), #activitylog,
-               nnights= 18,
+               nnights= nnights,
                loglocation = loglocation,
                do.visual = do.visual,
                ilevels = c(seq(0,300,by=50),8000), #acceleration values (metric ENMO) from which a frequency distribution needs to be derived, set value at c() if you do not want quantiles
