@@ -4,8 +4,6 @@ rm(list=ls())
 
 development.mode = FALSE
 
-
-
 #=========================================
 # Install code if not available:
 verbose.install = TRUE
@@ -28,11 +26,11 @@ if (development.mode == TRUE) {
   Q1b = 1
   if ("ActChronicFatigue" %in% rownames(installed.packages()) == TRUE) {
     cat(paste0(rep('_',options()$width),collapse=''))
-    Q1 = menu(c("Ja", "Nee"), title="Wil je de software opnieuw installeren?")
+    Q1 = menu(c("Ja", "Nee"), title="\nWil je de software opnieuw installeren?")
     if (Q1 == 1) {
       install_again = TRUE
       cat(paste0(rep('_',options()$width),collapse=''))
-      Q1b = menu(c("Ja", "Nee"), title="Wil je ook all dependencies opnieuw installeren?")
+      Q1b = menu(c("Ja", "Nee"), title="\nWil je ook all dependencies opnieuw installeren?")
     }
   }
   if ("ActChronicFatigue" %in% rownames(installed.packages()) == FALSE | install_again == TRUE) {
@@ -71,12 +69,7 @@ cat(paste0("\nLocatie ",length(dir(datalocaties$gt3xdir))," gt3x bestanden = ",d
 cat(paste0("\nLocatie ",length(dir(datalocaties$datadir))," csv bestanden = ",datalocaties$datadir))
 cat(paste0("\nLocatie resultaten =  ",datalocaties$outputdir,"\n"))
 
-Qsnelheid = menu(c("Ja", "Nee"), title="\nGebruik je een moderne snelle laptop?")
-if (Qsnelheid == 1) {
-  chunksize = 1
-} else {
-  chunksize = 0.5
-}
+chunksize = 0.5
 
 if (length(dir(datalocaties$gt3xdir)) == 0 & length(dir(datalocaties$datadir)) == 0) {
   cat("\n")
@@ -100,11 +93,24 @@ if (do.gt3x.conversion ==  TRUE) {
 # sleeplog = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx"
 # sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog)
 sleeplogfile = c()
+
+filenames = dir(datadir, full.names = FALSE)
+if (length(filenames) == 0) {
+  stop(paste0("\nGeen data bestanden gevonden in ", datadir))
+} else {
+  cat("\nStart met verwerken van volgende bestand(en):\n")
+  print(filenames)
+  Q3 = menu(c("Ja", "Nee"), title=paste0("\nDoorgaan?"))
+  if (Q3 == 2) {
+    stop("\nProgramma gestopt door gebruiker")
+  }
+}
+
 #=============================================================================
 # Start processing of raw accelerometer data with GGIR
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nStart analyse met GGIR...\n")
-ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(2:4),
+ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:4),
                            do.report = c(2,4), overwrite=FALSE, do.visual = FALSE,
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
                            loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE)
@@ -117,7 +123,7 @@ ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5),
 
 #=============================================================================
 cat(paste0(rep('_',options()$width),collapse=''))
-cat("\nKlassficeer of de persoon al dan niet pervasively passive is ...\n")
+cat("\nKlassficeer of de persoon al dan niet laag actief is ...\n")
 
 # Add extra variables, specifically needed for classification
 tmp = unlist(strsplit(datadir,"/|\")"))
@@ -126,7 +132,6 @@ outputdir = paste0(outputdir,"/output_",tmp[length(tmp)])
 ActChronicFatigue::addVariables5(outputdir=outputdir)
 
 
-# kkkk
 # Load the resulting part5_personsummary.csv bestand
 part5_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                           pattern = "part5_personsummary_WW_", value = T)
