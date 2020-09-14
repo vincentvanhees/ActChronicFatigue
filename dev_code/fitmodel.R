@@ -59,10 +59,9 @@ D = read.csv(file=part5_summary_file, sep=separator)
 
 # "gradient_mean", "y_intercept_mean", "X1", "X2", "X3", "X4",
 D = D[,c("act9167", "ID2", "filename", "Nvaliddays","Ndays",
-         "nonwear_perc_day_spt_pla", "ACC_day_mg_pla")]
+         "nonwear_perc_day_spt_pla", "ACC_day_mg_pla", "nonwear_perc_day_pla")]
 
-D = D[which(D$nonwear_perc_day_spt <= 33 & D$Ndays > 12),] #& D$calib_err < 0.02 #& D$Nvaliddays > 10
-
+D = D[which(D$nonwear_perc_day_spt_pla <= 33 & D$Ndays >= 12),] #& D$calib_err < 0.02 #& D$Nvaliddays > 10
 # Merge data with labels
 NmatchingIDs = length(which(labels[,id_column_labels] %in% D[,id_column_part5] == TRUE))
 if (NmatchingIDs == 0) {
@@ -106,7 +105,7 @@ for (location in c(wrist)) { #,hip
     
     # Fit model, this where we decide what variables will be used:
     if (location == wrist) {
-      fit = glm(label ~ act9167, data = S, family = binomial) #+ ACC_day_mg_pla
+      fit = glm(label ~ act9167, data = S, family = binomial) #
     } else if (location == hip) {
       # fit = glm(label ~ act9167 + ACC_day_mg_pla, data = S, family = binomial) # + ACC_day_mg_pla
     }
@@ -190,6 +189,8 @@ plot(MergedData_wrist$act9167, MergedData_wrist$pred - MergedData_wrist$label, t
 x11()
 boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type="p", pch=20)
 
+print("Misclassified:")
+print(MergedData_wrist[which(MergedData_wrist$ID%in% sort(output$ID[which(output$result == FALSE)]) == TRUE),])
 
 # x11()
 # hpp = which(MergedData$label == "pp" & MergedData$loc == "hip")
