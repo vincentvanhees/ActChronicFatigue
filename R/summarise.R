@@ -42,9 +42,9 @@ summarise = function(outputdir, part5_summary, Nmostrecent = 10){
   recent_recording$wakeup_pla = round(recent_recording$wakeup_pla - 24, digits=2)
   
   recent_recording$prop_perv_passive = round(recent_recording$prop_perv_passive* 100)
-  recent_recording$classification = "not pervasively passive"
+  recent_recording$classification = "normaal of hoog actief"
   pp = which(recent_recording$prop_perv_passive >= 50)
-  if (length(pp) > 0) recent_recording$classification[pp] = "pervasively passive"
+  if (length(pp) > 0) recent_recording$classification[pp] = "laag actief"
   
   # # add feedback
   # recent_recording$feedback = ""
@@ -55,7 +55,7 @@ summarise = function(outputdir, part5_summary, Nmostrecent = 10){
   
   # recent_recording$prop_perv_passive = 100 - recent_recording$prop_perv_passive
   
-  colnames(recent_recording) = c("ID", "Start meeting", "Kans op perv. passive (%)",
+  colnames(recent_recording) = c("ID", "Start meeting", "Kans op laag actief (%)",
                                  "Activiteit (z-score)",
                                  "Gem. slaap binnen slaapperioden (uren)", "Gem. duur slaapperioden (uren)", 
                                  "Slaap efficiency binnen slaapperioden (%)", "Gemiddelde slaap start t.o.v. middernacht", 
