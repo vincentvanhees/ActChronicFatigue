@@ -2,7 +2,7 @@ rm(list=ls())
 
 # Klik op [Source] hier rechtsboven om het programa te starten.
 
-development.mode = FALSE
+development.mode = TRUE
 
 #=========================================
 # Install code if not available:
@@ -110,16 +110,16 @@ if (length(filenames) == 0) {
 # Start processing of raw accelerometer data with GGIR
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nStart analyse met GGIR...\n")
-ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:4),
-                           do.report = c(2,4), overwrite=FALSE, do.visual = FALSE,
-                           visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
-                           loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE)
-
-# always overwrite part 5 to be sure BFEN is used
-ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5), 
-                           do.report=c(5), overwrite=TRUE, do.visual = FALSE,
-                           visualreport=FALSE, acc.metric = "BFEN",
-                           loglocation = sleeplogfile)
+# ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:4),
+#                            do.report = c(2,4), overwrite=FALSE, do.visual = FALSE,
+#                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
+#                            loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE)
+# 
+# # always overwrite part 5 to be sure BFEN is used
+# ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5), 
+#                            do.report=c(5), overwrite=TRUE, do.visual = FALSE,
+#                            visualreport=FALSE, acc.metric = "BFEN",
+#                            loglocation = sleeplogfile)
 
 #=============================================================================
 cat(paste0(rep('_',options()$width),collapse=''))
@@ -141,7 +141,7 @@ part5_summary = read.csv(file=part5_summary_file, sep=",")
 
 # Load the trained model
 if (development.mode == TRUE) {
-  load("extdata/final_model_wrist.Rdata")
+  load("./inst/extdata/final_model_wrist.Rdata")
 } else {
   load(system.file("extdata/final_model_wrist.Rdata", package = "ActChronicFatigue"))
 }
@@ -149,6 +149,10 @@ if (development.mode == TRUE) {
 # Make predictions by applying the model
 prop_perv_passive = stats::predict(object=final_model_wrist, newdata=part5_summary, type="response")
 part5_summary = cbind(part5_summary, prop_perv_passive)
+
+CF = coef(final_model_wrist)
+model_threshold = -CF[1]/CF[2]
+
 
 # Note that we assumed that all data in part2_summary comes from accelerometer
 # worn on the hip, because that is what the model was trained for.
@@ -167,13 +171,14 @@ part5_summary = cbind(part5_summary, prop_perv_passive)
 #=============================================================================
 # Summarise and show on screen
 cat("\n Samenvatting van resultaten\n")
-SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10)
+SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10,
+                                   model_threshold=model_threshold)
 
 recent_results_file = paste0(outputdir,"/results/samenvatting_",
                              as.character(as.Date(Sys.time())),".csv")
 write.csv(SUM, file = recent_results_file, row.names = FALSE)
 cat(paste0("\nSamenvatting van resultaten is ook opgeslagen in", recent_results_file, "\n"))
-
+kkk
 #=============================================================================
 # Reprocess with ENMO
 cat(paste0(rep('_',options()$width),collapse=''))
