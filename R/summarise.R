@@ -81,6 +81,26 @@ summarise = function(outputdir, part5_summary, Nmostrecent = 10,
   }
   for (ID in unique(recent_recording$ID)) {
     P5D = part5_daysummary[which(part5_daysummary$ID == ID),]
+    #---------------------------------------------
+    # add empty rows for missing days
+    P5D$calendar_date = as.Date(P5D$calendar_date, "%d-%m-%Y")
+    dates = P5D$calendar_date
+    dates_theoretical = seq(min(dates), max(dates), by = 1)
+    missing_dates = dates_theoretical[which(dates_theoretical %in% dates == FALSE)]
+    if (length(missing_dates) > 0) {
+      newvalues = (nrow(P5D)+1):(nrow(P5D)+length(missing_dates))
+      P5D[newvalues,] = NA
+      P5D$calendar_date[newvalues] = format(as.Date(missing_dates), "%Y-%m-%d")
+      P5D$weekday[newvalues] = weekdays(missing_dates)
+      P5D = P5D[order(P5D$calendar_date),]
+      if (length(which(P5D$weekday[newvalues] %in% days)) > 0) {
+        for (ki in 1:length(days)) {
+          P5D$weekday = gsub(x = P5D$weekday,
+                             pattern = days[ki], replacement = dagen[ki])
+        }
+      }
+    }
+    
     P5P = part5_summary[which(part5_summary$ID == ID),]
     pdf(file = paste0(outputdir, "/results/report_",ID,".pdf"), paper = "a4")
     par(mfrow=c(2,1), las = 3)
