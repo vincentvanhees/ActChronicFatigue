@@ -2,7 +2,7 @@ rm(list=ls())
 
 # Klik op [Source] hier rechtsboven om het programa te starten.
 
-development.mode = TRUE
+development.mode = FALSE
 
 #=========================================
 # Install code if not available:
@@ -110,16 +110,16 @@ if (length(filenames) == 0) {
 # Start processing of raw accelerometer data with GGIR
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nStart analyse met GGIR...\n")
-# ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:4),
-#                            do.report = c(2,4), overwrite=FALSE, do.visual = FALSE,
-#                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
-#                            loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE)
-# 
-# # always overwrite part 5 to be sure BFEN is used
-# ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5), 
-#                            do.report=c(5), overwrite=TRUE, do.visual = FALSE,
-#                            visualreport=FALSE, acc.metric = "BFEN",
-#                            loglocation = sleeplogfile)
+ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:4),
+                           do.report = c(2,4), overwrite=FALSE, do.visual = FALSE,
+                           visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
+                           loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE)
+
+# always overwrite part 5 to be sure BFEN is used
+ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5),
+                           do.report=c(5), overwrite=TRUE, do.visual = FALSE,
+                           visualreport=FALSE, acc.metric = "BFEN",
+                           loglocation = sleeplogfile)
 
 #=============================================================================
 cat(paste0(rep('_',options()$width),collapse=''))
@@ -155,7 +155,7 @@ model_threshold = -CF[1]/CF[2]
 
 
 # Note that we assumed that all data in part2_summary comes from accelerometer
-# worn on the hip, because that is what the model was trained for.
+# worn on the wrist, because that is what the model was trained for.
 # If all went well object prop_perv_passive will have the predictions.
 
 # Check that estimate is matches with labels in our traininge data
@@ -167,18 +167,6 @@ model_threshold = -CF[1]/CF[2]
 # EV$pp[which(EV$label == "pp")] = 1
 # x11();plot(EV[,c("pp","prop_perv_passive")],type="p", pch=20)
 
-
-#=============================================================================
-# Summarise and show on screen
-cat("\n Samenvatting van resultaten\n")
-SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10,
-                                   model_threshold=model_threshold)
-
-recent_results_file = paste0(outputdir,"/results/samenvatting_",
-                             as.character(as.Date(Sys.time())),".csv")
-write.csv(SUM, file = recent_results_file, row.names = FALSE)
-cat(paste0("\nSamenvatting van resultaten is ook opgeslagen in", recent_results_file, "\n"))
-kkk
 #=============================================================================
 # Reprocess with ENMO
 cat(paste0(rep('_',options()$width),collapse=''))
@@ -192,3 +180,15 @@ part5_summary = cbind(part5_summary, prop_perv_passive) # voeg BFEN predictions 
 # Store
 write.csv(part5_summary, file = part5_summary_file, row.names = F)
 cat(paste0("\nAanvullende resultaten staan in ",outputdir))
+
+
+#=============================================================================
+# Summarise and show on screen
+cat("\n Samenvatting van resultaten\n")
+SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10,
+                                   model_threshold=model_threshold)
+
+recent_results_file = paste0(outputdir,"/results/samenvatting_",
+                             as.character(as.Date(Sys.time())),".csv")
+write.csv(SUM, file = recent_results_file, row.names = FALSE)
+cat(paste0("\nSamenvatting van resultaten is ook opgeslagen in", recent_results_file, "\n"))

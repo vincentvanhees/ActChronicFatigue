@@ -46,24 +46,20 @@ summarise = function(outputdir, part5_summary, Nmostrecent = 10,
   recent_recording$wakeup_pla = round(recent_recording$wakeup_pla - 24, digits=2)
   
   recent_recording$prop_perv_passive = round(recent_recording$prop_perv_passive* 100)
-  recent_recording$classification = "normaal of hoog actief"
+  recent_recording$classification = "Normaal Actief"
   pp = which(recent_recording$prop_perv_passive >= 50)
-  if (length(pp) > 0) recent_recording$classification[pp] = "laag actief"
+  if (length(pp) > 0) recent_recording$classification[pp] = "Laag Actief"
   
-  # # add feedback
-  # recent_recording$feedback = ""
-  # ppbutnot = which(recent_recording$Activity_zscore > 0 & recent_recording$classification == "pervasively passive")
-  # notbutpp = which(recent_recording$Activity_zscore < 1 & recent_recording$classification == "not pervasively passive")
-  # if (length(ppbutnot) > 0) recent_recording$feedback[ppbutnot] = "mogelijk niet pervasively passive"
-  # if (length(notbutpp) > 0) recent_recording$feedback[notbutpp] = "mogelijk toch wel pervasively passive"
   
-  # recent_recording$prop_perv_passive = 100 - recent_recording$prop_perv_passive
-  
-  colnames(recent_recording) = c("ID", "Start meeting", "Kans op laag actief (%)",
-                                 "Activiteit (z-score)",
-                                 "Gem. slaap binnen slaapperioden (uren)", "Gem. duur slaapperioden (uren)", 
+  colnames(recent_recording) = c("ID", "Datum start meeting", "Kans op laag actief (%)",
+                                 "Gemiddelde beweging t.o.v. referentie groep (z-score)",
+                                 "Uren slaap per nacht", "Gem. duur slaapperioden (uren)", 
                                  "Slaap efficiency binnen slaapperioden (%)", "Gemiddelde slaap start t.o.v. middernacht", 
                                  "Gemiddelde slaap einde t.o.v. middernacht", "Klassificatie") #,"feedback")
+  
+  varnames = c("Datum start meeting", "Klassificatie", "Kans op laag actief (%)",
+               "Gemiddelde beweging t.o.v. referentie groep (z-score)")
+  
   recent_recording = recent_recording[,c(1:4,10,5:9)]
   cat("\n")
   print(recent_recording)
@@ -100,19 +96,91 @@ summarise = function(outputdir, part5_summary, Nmostrecent = 10,
         }
       }
     }
-    
+    # Now shorten weekday
+    dagen_kort = c("ma", "di", "wo", "do", "vr", "za", "zo")
+    dagen = c("maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag")
+    for (ki in 1:length(days)) {
+      P5D$weekday = gsub(x = P5D$weekday,
+                         pattern = dagen[ki], replacement = dagen_kort[ki]) 
+    }
+    # Extract person summary for part 5
     P5P = part5_summary[which(part5_summary$ID == ID),]
-    pdf(file = paste0(outputdir, "/results/report_",ID,".pdf"), paper = "a4")
-    par(mfrow=c(2,1), las = 3)
-    plot(P5D$ACC_day_mg, type = "b", pch=20, 
-         main=paste0("ID ", ID), xlab = "", ylab="Beweging per dag", bty="l", axes=FALSE)
-    axis(side=1, at=1:nrow(P5D), labels=P5D$weekday, cex.axis=0.7)
-    abline(h = model_threshold, col="red")
     
+    
+    pdf(file = paste0(outputdir, "/results/report_",ID,".pdf"), paper = "a4r")
+    # par(mfrow=c(4, 1), las = 3, oma = rep(0.1,4), mar=c(5, 5, 3, 0.1), omi=rep(0.1, 4))
+    par(mfrow=c(3,1), mar=c(4, 4, 3, 0.5),oma=c(0,0,0,0))  # las = 3
+    # Key facts
+    keystats = t(recent_recording[which(recent_recording$ID == ID), varnames])
+    colnames(keystats)[1] = paste0("ID: ", ID)
+    # plot(0:1,0:1, axes=F, col="white", xlab="",ylab="", 
+    #      main = "")
+    CX = 1.1
+    CXdays = 1.1
+    relprop = as.numeric(keystats[3])
+    if (keystats[2] != "Laag Actief") relprop = 100 - relprop
+    
+    titel = paste0("ID ",ID," | ", keystats[1]," | ",
+                   keystats[2], " (kans = ", relprop, "%) | ",
+                   "z-score gem. beweging ", keystats[4])
+    
+    # paste0("ID: ", ID," --- Datum start meeting: ",keystats[1])
+    # FNT = 2
+    # text(x = 0.95, y = 0.9, labels = paste0("ID: ", ID),
+    #      pos = 2, col="black", cex = CX, font = FNT )
+    # text(x = 0.95, y = 0.65, labels = paste0(rownames(keystats)[1], ": ", keystats[1]),
+    #      pos = 2, col="black", cex = CX, font = FNT )
+    # 
+    # text(x = 0.95, y = 0.4, labels = paste0(rownames(keystats)[2], ": ", keystats[2], " (kans = ", relprop, "%)"),
+    #      pos = 2, col="black", cex = CX, font = FNT )
+    # text(x = 0.95, y = 0.15, labels = paste0(rownames(keystats)[4], ": ", keystats[4]),
+    #      pos = 2, col="black", cex = CX, font  =FNT )
+    CL = 1.1
+    CXdots = 1.5
+    #========================================
+    # Plot activity time series
+    plot(P5D$ACC_day_mg, type = "b", pch=20, ylim = range(c(model_threshold * 2, P5D$ACC_day_mg), na.rm = T),
+         main=titel, xlab = "", ylab="Beweging per dag", bty="l", axes=FALSE, cex.main=1.5, cex.lab=CL, cex= CXdots)
+    axis(side=1, at=1:nrow(P5D), labels=P5D$weekday, cex.axis=CXdays)
+    abline(h = model_threshold, col="black", lty=2, lwd=1.3)
+    # par(mar=c(4, 4, 3, 0.5)) 
+    #========================================
+    # Slaap waak tijden
+    sleeponset_ts = P5D$sleeponset_ts # c("22:00", "23:20", "01:10")
+    wakeup_ts = P5D$wakeup_ts # c("6:55", "8:30", "10:40")
+    WV = which(is.na(wakeup_ts) == FALSE & is.na(sleeponset_ts) == FALSE)
+    sleeponset_ts = as.POSIXlt(sleeponset_ts[WV],format="%H:%M")
+    wakeup_ts = as.POSIXlt(wakeup_ts[WV],format="%H:%M")
+    for (j in 1:length(wakeup_ts)) {
+      if (sleeponset_ts[j] < as.POSIXlt("18:00", format="%H:%M")) {
+        sleeponset_ts[j] = sleeponset_ts[j] + (24 * 3600)
+      }
+      if (wakeup_ts[j] < sleeponset_ts[j] | 
+          (wakeup_ts[j] > as.POSIXlt("00:00", format="%H:%M")) & (wakeup_ts[j] < as.POSIXlt("12:00", format="%H:%M"))) {
+        wakeup_ts[j] = wakeup_ts[j] + (24 * 3600)
+      }
+      
+    }
+    YLIM = c(as.POSIXlt("12:00", format="%H:%M"), (as.POSIXlt("18:00", format="%H:%M") + 24*3600))
+    timeaxis = c(as.numeric(YLIM[1]) + (c(0, 6, 12, 18, 24, 30) * (3600)))
+    timeaxislabels = format(as.POSIXlt(timeaxis, origin="1970-1-1"), "%H:%M")
+    plot(WV, wakeup_ts, type = "p", pch=20, xlab = "",  ylab = "",
+         ylim=as.numeric(YLIM), axes=FALSE, main="Slaap- en waak-tijden van langste slaap periode", cex.lab=CL, cex=CXdots)
+    abline(h = as.numeric(as.POSIXlt("24:00", format="%H:%M")), col="black", lty=2 )
+    abline(h = as.numeric(as.POSIXlt("24:00", format="%H:%M"))-(6*3600), col="black", lty=2 )
+    abline(h = as.numeric(as.POSIXlt("24:00", format="%H:%M"))+(6*3600), col="black", lty=2 )
+    abline(h = as.numeric(as.POSIXlt("24:00", format="%H:%M"))+(12*3600), col="black", lty=2 )
+    axis(side=1, at=1:nrow(P5D), labels=P5D$weekday, cex.axis=CXdays)
+    par(las=1)
+    axis(side = 2, at = timeaxis, labels = as.character(timeaxislabels), cex.axis=1.0)
+    lines(WV, sleeponset_ts, type = "p", pch=20, cex=CXdots)
+    
+    #========================================
+    # Plot sleep duration
     A = P5D[,c("dur_spt_sleep_min", "dur_spt_min")] / 60
     A[,2] = A[,2] - A[,1]
-    barplot(t(as.matrix(A)), space=rep(0, nrow(A)), ylab="slaaplengte (uren)",
-              names.arg = P5D$weekday)
+    barplot(t(as.matrix(A)), space=rep(0, nrow(A)), ylab="Slaapduur (uren)",
+            names.arg = P5D$weekday, cex.names=CXdays, cex.lab=CL)
     
     dev.off()
   }
