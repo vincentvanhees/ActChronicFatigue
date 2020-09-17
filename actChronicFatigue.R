@@ -110,16 +110,16 @@ if (length(filenames) == 0) {
 # Start processing of raw accelerometer data with GGIR
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nStart analyse met GGIR...\n")
-ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:4),
+ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:5),
                            do.report = c(2,4), overwrite=FALSE, do.visual = FALSE,
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
                            loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE)
 
 # always overwrite part 5 to be sure BFEN is used
-ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5),
-                           do.report=c(5), overwrite=TRUE, do.visual = FALSE,
-                           visualreport=FALSE, acc.metric = "BFEN",
-                           loglocation = sleeplogfile)
+# ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5),
+#                            do.report=c(5), overwrite=TRUE, do.visual = FALSE,
+#                            visualreport=FALSE, acc.metric = "BFEN",
+#                            loglocation = sleeplogfile)
 
 #=============================================================================
 cat(paste0(rep('_',options()$width),collapse=''))
@@ -167,19 +167,6 @@ model_threshold = -CF[1]/CF[2]
 # EV$pp[which(EV$label == "pp")] = 1
 # x11();plot(EV[,c("pp","prop_perv_passive")],type="p", pch=20)
 
-#=============================================================================
-# Reprocess with ENMO
-cat(paste0(rep('_',options()$width),collapse=''))
-cat("\nBezig met aanvullende analyses...\n")
-ActChronicFatigue::runGGIR(datadir = datadir, outputdir = outputdir_backup, mode = c(5),
-                           do.report = c(5), overwrite = TRUE, do.visual = FALSE, visualreport=TRUE,
-                           acc.metric = "ENMO", loglocation = sleeplogfile)
-part5_summary = read.csv(file=part5_summary_file, sep=",")
-# Add BFEN predictions
-part5_summary = cbind(part5_summary, prop_perv_passive) # voeg BFEN predictions toe
-# Store
-write.csv(part5_summary, file = part5_summary_file, row.names = F)
-cat(paste0("\nAanvullende resultaten staan in ",outputdir))
 
 
 #=============================================================================
@@ -188,7 +175,9 @@ cat("\n Samenvatting van resultaten\n")
 SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10,
                                    model_threshold=model_threshold)
 
+
 recent_results_file = paste0(outputdir,"/results/samenvatting_",
                              as.character(as.Date(Sys.time())),".csv")
 write.csv(SUM, file = recent_results_file, row.names = FALSE)
+cat(paste0("\nAanvullende resultaten staan in ",outputdir))
 cat(paste0("\nSamenvatting van resultaten is ook opgeslagen in", recent_results_file, "\n"))
