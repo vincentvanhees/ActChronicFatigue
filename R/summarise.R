@@ -92,6 +92,9 @@ summarise = function(outputdir, part5_summary, Nmostrecent = 10,
         }
       }
     }
+    
+    P5D$calendar_date = format(as.Date(P5D$calendar_date), "%d")
+    
     # Now shorten weekday
     dagen_kort = c("ma", "di", "wo", "do", "vr", "za", "zo")
     dagen = c("maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag")
@@ -117,51 +120,65 @@ summarise = function(outputdir, part5_summary, Nmostrecent = 10,
                    "beweging (z-score) = ", keystats[4])
     CL = 1.1
     CXdots = 1.5
+    
     #========================================
     # Plot activity time series
     plot(P5D$ACC_day_mg, type = "b", pch=20, ylim = range(c(model_threshold * 2, P5D$ACC_day_mg), na.rm = T),
          main=titel, xlab = "", ylab="Beweging per dag", bty="l", axes=FALSE, cex.main=1.5, cex.lab=CL, cex= CXdots)
-    axis(side=1, at=1:nrow(P5D), labels=P5D$weekday, cex.axis=CXdays)
+    axis(side=1, at=1:nrow(P5D), labels=paste0(P5D$weekday," ",P5D$calendar_date), cex.axis=CXdays)
     abline(h = model_threshold, col="black", lty=2, lwd=1.3)
     text(x = 0.8, y = model_threshold + 5, labels="grenswaarde laag actief", pos = 4)
     # par(mar=c(4, 4, 3, 0.5)) 
-    #========================================
-    # Slaap waak tijden
-    sleeponset_ts = P5D$sleeponset_ts # c("22:00", "23:20", "01:10")
-    wakeup_ts = P5D$wakeup_ts # c("6:55", "8:30", "10:40")
-    WV = which(is.na(wakeup_ts) == FALSE & is.na(sleeponset_ts) == FALSE)
-    sleeponset_ts = as.POSIXlt(sleeponset_ts[WV],format="%H:%M")
-    wakeup_ts = as.POSIXlt(wakeup_ts[WV],format="%H:%M")
-    for (j in 1:length(wakeup_ts)) {
-      if (sleeponset_ts[j] < as.POSIXlt("18:00", format="%H:%M")) {
-        sleeponset_ts[j] = sleeponset_ts[j] + (24 * 3600)
-      }
-      if (wakeup_ts[j] < sleeponset_ts[j] | 
-          (wakeup_ts[j] > as.POSIXlt("00:00", format="%H:%M")) & (wakeup_ts[j] < as.POSIXlt("12:00", format="%H:%M"))) {
-        wakeup_ts[j] = wakeup_ts[j] + (24 * 3600)
-      }
-      
-    }
-    YLIM = c(as.POSIXlt("12:00", format="%H:%M"), (as.POSIXlt("18:00", format="%H:%M") + 24*3600))
-    timeaxis = c(as.numeric(YLIM[1]) + (c(0, 6, 12, 18, 24, 30) * (3600)))
-    timeaxislabels = format(as.POSIXlt(timeaxis, origin="1970-1-1"), "%H:%M")
-    plot(WV, wakeup_ts, type = "p", pch=20, xlab = "",  ylab = "",
-         ylim=as.numeric(YLIM), axes=FALSE, main="Slaap- en waak-tijden", cex.lab=CL, cex=CXdots)
-    abline(h = as.numeric(as.POSIXlt("24:00", format="%H:%M")), col="black", lty=2 )
-    abline(h = as.numeric(as.POSIXlt("24:00", format="%H:%M"))-(6*3600), col="black", lty=2 )
-    abline(h = as.numeric(as.POSIXlt("24:00", format="%H:%M"))+(6*3600), col="black", lty=2 )
-    abline(h = as.numeric(as.POSIXlt("24:00", format="%H:%M"))+(12*3600), col="black", lty=2 )
-    axis(side=1, at=1:nrow(P5D), labels=P5D$weekday, cex.axis=CXdays)
-    par(las=1)
-    axis(side = 2, at = timeaxis, labels = as.character(timeaxislabels), cex.axis=1.0)
-    lines(WV, sleeponset_ts, type = "p", pch=20, cex=CXdots)
+    # #========================================
+    # # Slaap waak tijden
+    # sleeponset_ts = P5D$sleeponset_ts # c("22:00", "23:20", "01:10")
+    # wakeup_ts = P5D$wakeup_ts # c("6:55", "8:30", "10:40")
+    # WV = which(is.na(wakeup_ts) == FALSE & is.na(sleeponset_ts) == FALSE)
+    # sleeponset_ts = as.POSIXlt(sleeponset_ts[WV],format="%H:%M")
+    # wakeup_ts = as.POSIXlt(wakeup_ts[WV],format="%H:%M")
+    # for (j in 1:length(wakeup_ts)) {
+    #   if (sleeponset_ts[j] < as.POSIXlt("18:00", format="%H:%M")) {
+    #     sleeponset_ts[j] = sleeponset_ts[j] + (24 * 3600)
+    #   }
+    #   if (wakeup_ts[j] < sleeponset_ts[j] | 
+    #       (wakeup_ts[j] > as.POSIXlt("00:00", format="%H:%M")) & (wakeup_ts[j] < as.POSIXlt("12:00", format="%H:%M"))) {
+    #     wakeup_ts[j] = wakeup_ts[j] + (24 * 3600)
+    #   }
+    #   
+    # }
+    # YLIM = c(as.POSIXlt("12:00", format="%H:%M"), (as.POSIXlt("18:00", format="%H:%M") + 24*3600))
+    # timeaxis = c(as.numeric(YLIM[1]) + (c(0, 6, 12, 18, 24, 30) * (3600)))
+    # timeaxislabels = format(as.POSIXlt(timeaxis, origin="1970-1-1"), "%H:%M")
+    # plot(WV, wakeup_ts, type = "p", pch=20, xlab = "",  ylab = "",
+    #      ylim=as.numeric(YLIM), axes=FALSE, main="Slaap- en waak-tijden", cex.lab=CL, cex=CXdots)
+    # abline(h = as.numeric(as.POSIXlt("24:00", format="%H:%M")), col="black", lty=2 )
+    # abline(h = as.numeric(as.POSIXlt("24:00", format="%H:%M"))-(6*3600), col="black", lty=2 )
+    # abline(h = as.numeric(as.POSIXlt("24:00", format="%H:%M"))+(6*3600), col="black", lty=2 )
+    # abline(h = as.numeric(as.POSIXlt("24:00", format="%H:%M"))+(12*3600), col="black", lty=2 )
+    # axis(side=1, at=1:nrow(P5D), labels=P5D$weekday, cex.axis=CXdays)
+    # par(las=1)
+    # axis(side = 2, at = timeaxis, labels = as.character(timeaxislabels), cex.axis=1.0)
+    # lines(WV, sleeponset_ts, type = "p", pch=20, cex=CXdots)
     
     #========================================
     # Plot sleep duration
     A = P5D[,c("dur_spt_sleep_min", "dur_spt_min")] / 60
+    maxvalue = max(A[,2], na.rm = T)
     A[,2] = A[,2] - A[,1]
-    barplot(t(as.matrix(A)), space=rep(0, nrow(A)), ylab="Tijd in uren",
-            names.arg = P5D$weekday, cex.names=CXdays, cex.lab=CL, main="Slaap (donker) en Wakker zijn tijdens de nacht (licht)")
+    brpos = barplot(t(as.matrix(A)), space=rep(0, nrow(A)), ylab="Tijd in uren", ylim=c(0, maxvalue + 1.5),cex.axis = 0.9,
+            names.arg = P5D$weekday, cex.names=CXdays, cex.lab=CL,
+            main="Slaap (donker grijs), Wakker na start slaap (licht grijs) en Slaap efficientie % na start slaap (nummers)")
+    
+    text(brpos, rowSums(A)+1, labels = round(100*(A[,1] / (rowSums(A))), digits = 0))
+    
+    #========================================
+    # Niet gedragen tijd
+    A = P5D[,c("nonwear_perc_day", "nonwear_perc_spt")]
+    barplot(t(as.matrix(A)),  ylab="Percentage (%)", beside=TRUE, space=c(0,0.2),#rep(1, nrow(A)),
+            names.arg = P5D$weekday, cex.names=CXdays, cex.lab=CL,
+            main="Percentage van tijd beweegmeter niet gedragen", legend.text = c("overdag", "nacht"),
+            args.legend=list(ncol=2), ylim=c(0,100))
+    
     
     dev.off()
   }

@@ -2,7 +2,7 @@ rm(list=ls())
 
 # Klik op [Source] hier rechtsboven om het programa te starten.
 
-development.mode = FALSE
+development.mode = TRUE
 
 #=========================================
 # Install code if not available:
@@ -111,7 +111,7 @@ if (length(filenames) == 0) {
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nStart analyse met GGIR...\n")
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:5),
-                           do.report = c(2,4), overwrite=FALSE, do.visual = FALSE,
+                           do.report = c(2, 4, 5), overwrite=FALSE, do.visual = FALSE,
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
                            loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE)
 
@@ -172,9 +172,13 @@ model_threshold = -CF[1]/CF[2]
 #=============================================================================
 # Summarise and show on screen
 cat("\n Samenvatting van resultaten\n")
-SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10,
-                                   model_threshold=model_threshold)
-
+if (development.mode == TRUE) {
+  source("~/projects/ActChronicFatigue/R/summarise.R")
+  SUM = summarise(outputdir, part5_summary, Nmostrecent = 10,
+                                     model_threshold=model_threshold)
+  # SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10,
+  #                                    model_threshold=model_threshold)
+}
 
 recent_results_file = paste0(outputdir,"/results/samenvatting_",
                              as.character(as.Date(Sys.time())),".csv")
