@@ -1,21 +1,20 @@
-#' optain_folder_paths
+#' obtain_folder_paths
 #'
 #' @return no object is returned, GGIR writes all its outputs to files
 #' @importFrom utils menu
 #' @export
-optain_folder_paths = function() {
+obtain_folder_paths = function() {
   datalocaties = "log_ActChronicFatigue.RData"
   if (file.exists(datalocaties) == TRUE) {
-    D = load(datalocaties)
-    gt3xdir = gt3xdir
-    datadir = datadir
-    outputdir = outputdir
+    gt3xdir = dagboekdir = datadir = outputdir = ""
+    load(datalocaties)
+    
     cat(paste0(rep('_',options()$width),collapse=''))
     Q1 = menu(c("Ja", "Nee"), title=paste0("\nWil je de bestandspaden opnieuwe instellen?"))
     if (Q1 == 1) {
       cat(paste0(rep('_',options()$width),collapse=''))
       Q2 = menu(c("Ja", "Nee"), title=paste0("\nGebruik je gt3x data?"))
-      if (Q2 == 2) {
+      if (Q2 == 1) {
         cat(paste0(rep('_',options()$width),collapse=''))
         Q3 = menu(c("Ja", "Nee"), title=paste0("\nIs ",gt3xdir," nog steeds de locatie van de gt3x bestanden? Zo nee, specificeer de nieuwe locatie in het volgende scherm"))
         if (Q3 == 2) {
@@ -32,6 +31,17 @@ optain_folder_paths = function() {
       if (Q5 == 2) {
         datadir = easycsv::choose_dir()
       }
+      
+      cat(paste0(rep('_',options()$width),collapse=''))
+      Q6 = menu(c("Ja", "Nee"), title=paste0("\nGebruik je een slaapdagboek?"))
+      if (Q6 == 1) {
+        cat(paste0(rep('_',options()$width),collapse=''))
+        Q7 = menu(c("Ja", "Nee"), title=paste0("\nIs ",dagboekdir," nog steeds de locatie van het slaapdagboek? Zo nee, specificeer de nieuwe locatie in het volgende scherm"))
+        if (Q7 == 2) {
+          dagboekdir = file.choose() #easycsv::choose_dir()
+        }
+      }
+      
     }
   } else {
     cat(paste0(rep('_',options()$width),collapse=''))
@@ -41,8 +51,12 @@ optain_folder_paths = function() {
     datadir = easycsv::choose_dir()
     readline("\nGeef aan waar de resultaten opgeslagen mogen worden. Klik eerst [enter] om verder te gaan.")  
     outputdir = easycsv::choose_dir()
+    readline("\nGeef aan in welk bestand het slaapdagboek (.xlsx) is opgeslagen. Klik eerst [enter] om verder te gaan.")  
+    dagboekdir = file.choose()
+    
+    
   }
   
-  save(gt3xdir, datadir, outputdir, file = datalocaties)
-  invisible(list(gt3xdir=gt3xdir, datadir=datadir,outputdir=outputdir))
+  save(gt3xdir, datadir, outputdir,  dagboekdir, file = datalocaties)
+  invisible(list(gt3xdir=gt3xdir, datadir=datadir,outputdir=outputdir,  dagboekdir= dagboekdir))
 }

@@ -34,7 +34,7 @@ for (i in 1:nrow(LB)) {
                          (floor(S-floor(S)) * 60) * 3600)
     v3 = which(nchar(SEC) == 1)
     if (length(v3) > 0) SEC[v3] = paste0("0",SEC[v3])
-kkk
+
     LB[i,2:ncol(LB)[NAT2]] = paste0(HRS,":",MIN,":",SEC)
   }
 }

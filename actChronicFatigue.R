@@ -3,13 +3,22 @@ rm(list=ls())
 # Klik op [Source] hier rechtsboven om het programa te starten.
 
 development.mode = TRUE
+# sleeplog = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx"
+
+
+# TO DO:
+# - Kies slaaplog boek als onderdeel van filepath keuze
+# - Schrijf tutorial
+#  - Make sure non-wear is visible
+# - turn of sourcing of local version of summarise function (at bottom)
+
 
 #=========================================
 # Install code if not available:
 verbose.install = TRUE
 if (development.mode == TRUE) {
   roxygen2::roxygenise()
-  do.gt3x.conversion = FALSE
+  do.gt3x.conversion = TRUE
   locationRcode = "/home/vincent/projects/ActChronicFatigue/R" 
   ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
   for (i in 1:length(ffnames)) {
@@ -37,6 +46,12 @@ if (development.mode == TRUE) {
     if ("devtools" %in% rownames(installed.packages()) == FALSE) {
       install.packages("devtools", verbose = verbose.install)
     }
+    if (do.gt3x.conversion == TRUE) {
+      # On Ubuntue, possibly need to do :
+      # sudo apt install libgsl-dev
+      install_github("THLfi/read.gt3x", dependencies=TRUE, 
+                     verbose = FALSE, force = FALSE)
+    }
     library("devtools")
     if (install_again == TRUE) {
       if("ActChronicFatigue" %in% (.packages())){
@@ -50,19 +65,21 @@ if (development.mode == TRUE) {
     }
     install_github("vincentvanhees/ActChronicFatigue", dependencies=depe, 
                    verbose = verbose.install, force = depe)
+   
   }
   library(ActChronicFatigue)
 }
 
 #=========================================
 # Obtain data locations
-datalocaties = ActChronicFatigue::optain_folder_paths() # Obtain folder paths from user
+datalocaties = ActChronicFatigue::obtain_folder_paths() # Obtain folder paths from user
 replaceslash = function(x) {
   return(gsub(replacement = "/", pattern = "\\\\",x=x))
 }
 gt3xdir = replaceslash(datalocaties$gt3xdir)
 datadir = replaceslash(datalocaties$datadir)
 outputdir = replaceslash(datalocaties$outputdir)
+sleeplog = replaceslash(datalocaties$dagboekdir)
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nBestand locaties:\n")
 cat(paste0("\nLocatie ",length(dir(datalocaties$gt3xdir))," gt3x bestanden = ",datalocaties$gt3xdir))
@@ -90,9 +107,9 @@ if (do.gt3x.conversion ==  TRUE) {
 }
 #=============================================================================
 # If sleeplog exists convert sleeplog to expected format
-# sleeplog = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx"
-# sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog)
-sleeplogfile = c()
+
+sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog)
+# sleeplogfile = c()
 
 filenames = dir(datadir, full.names = FALSE)
 if (length(filenames) == 0) {
@@ -173,11 +190,11 @@ model_threshold = -CF[1]/CF[2]
 # Summarise and show on screen
 cat("\n Samenvatting van resultaten\n")
 if (development.mode == TRUE) {
-  source("~/projects/ActChronicFatigue/R/summarise.R")
-  SUM = summarise(outputdir, part5_summary, Nmostrecent = 10,
-                                     model_threshold=model_threshold)
-  # SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10,
+  # source("~/projects/ActChronicFatigue/R/summarise.R")
+  # SUM = summarise(outputdir, part5_summary, Nmostrecent = 10,
   #                                    model_threshold=model_threshold)
+  SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10,
+                                     model_threshold=model_threshold)
 }
 
 recent_results_file = paste0(outputdir,"/results/samenvatting_",
