@@ -119,8 +119,8 @@ summarise = function(outputdir, part5_summary, Nmostrecent = 10,
     # Extract person summary for part 5
     P5P = part5_summary[which(part5_summary$ID == ID),]
     
-    
-    pdf(file = paste0(outputdir, "/results/Beweeg_en_slaap_rapport_",ID,".pdf"), paper = "a4r")
+    pdffile = paste0(outputdir, "/results/Beweeg_en_slaap_rapport_",ID,".pdf")
+    pdf(file = pdffile, paper = "a4r")
     par(mfrow=c(3,1), mar=c(4, 4, 3, 0.5),oma=c(0,0,0,0))  # las = 3
     # Key facts
     keystats = t(recent_recording[which(recent_recording$ID == ID), varnames])
@@ -256,6 +256,8 @@ summarise = function(outputdir, part5_summary, Nmostrecent = 10,
     # axis(side = 2, at = timeaxis, labels = as.character(timeaxislabels), cex.axis=1.0)
     # lines(WV, sleeponset_ts, type = "p", pch=20, cex=CXdots)
     dev.off()
+    
   }
+  cat(paste0("\nDe PDF rapporten zijn nu opgeslagen in ",pdffile,"."))
   
 }

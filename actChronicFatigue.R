@@ -2,16 +2,8 @@ rm(list=ls())
 
 # Klik op [Source] hier rechtsboven om het programa te starten.
 
-development.mode = TRUE
-# sleeplog = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx"
 
-
-# TO DO:
-# - Kies slaaplog boek als onderdeel van filepath keuze
-# - Schrijf tutorial
-#  - Make sure non-wear is visible
-# - turn of sourcing of local version of summarise function (at bottom)
-
+development.mode = FALSE
 
 #=========================================
 # Install code if not available:
@@ -46,13 +38,12 @@ if (development.mode == TRUE) {
     if ("devtools" %in% rownames(installed.packages()) == FALSE) {
       install.packages("devtools", verbose = verbose.install)
     }
+    library("devtools")
     if (do.gt3x.conversion == TRUE) {
       # On Ubuntue, possibly need to do :
       # sudo apt install libgsl-dev
-      install_github("THLfi/read.gt3x", dependencies=TRUE, 
-                     verbose = FALSE, force = FALSE)
+      devtools::install_github("THLfi/read.gt3x", dependencies=TRUE, force = FALSE)
     }
-    library("devtools")
     if (install_again == TRUE) {
       if("ActChronicFatigue" %in% (.packages())){
         detach("package:ActChronicFatigue", unload=TRUE)
@@ -189,16 +180,11 @@ model_threshold = -CF[1]/CF[2]
 #=============================================================================
 # Summarise and show on screen
 cat("\n Samenvatting van resultaten\n")
-if (development.mode == TRUE) {
-  # source("~/projects/ActChronicFatigue/R/summarise.R")
-  # SUM = summarise(outputdir, part5_summary, Nmostrecent = 10,
-  #                                    model_threshold=model_threshold)
-  SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10,
-                                     model_threshold=model_threshold)
-}
+SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10,
+                                   model_threshold=model_threshold)
 
-recent_results_file = paste0(outputdir,"/results/samenvatting_",
-                             as.character(as.Date(Sys.time())),".csv")
-write.csv(SUM, file = recent_results_file, row.names = FALSE)
-cat(paste0("\nAanvullende resultaten staan in ",outputdir))
-cat(paste0("\nSamenvatting van resultaten is ook opgeslagen in", recent_results_file, "\n"))
+# recent_results_file = paste0(outputdir,"/results/samenvatting_",
+#                              as.character(as.Date(Sys.time())),".csv")
+# write.csv(SUM, file = recent_results_file, row.names = FALSE)
+# cat(paste0("\nAanvullende resultaten staan in ",outputdir))
+# cat(paste0("\nSamenvatting van resultaten is ook opgeslagen in", recent_results_file, "\n"))
