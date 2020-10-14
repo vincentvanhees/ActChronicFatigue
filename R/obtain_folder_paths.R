@@ -17,18 +17,18 @@ obtain_folder_paths = function() {
       Q2 = menu(c("Ja", "Nee"), title=paste0("\nGebruik je gt3x data?"))
       if (Q2 == 1) {
         cat(paste0(rep('_',options()$width),collapse=''))
-        Q3 = menu(c("Ja", "Nee"), title=paste0("\nIs ",gt3xdir," nog steeds de locatie van de gt3x bestanden? Zo nee, specificeer de nieuwe locatie in het volgende scherm"))
+        Q3 = menu(c("Ja", "Nee"), title=paste0("\nIs ",gt3xdir," nog steeds de locatie van de gt3x bestanden? \nZo nee, specificeer de nieuwe locatie in het volgende scherm"))
         if (Q3 == 2) {
           gt3xdir = easycsv::choose_dir()
         }
       }
       cat(paste0(rep('_',options()$width),collapse=''))
-      Q4 = menu(c("Ja", "Nee"), title=paste0("\nIs ",datadir," nog steeds de locatie van de csv bestanden? Zo nee, specificeer de nieuwe locatie in het volgende scherm"))
+      Q4 = menu(c("Ja", "Nee"), title=paste0("\nIs ",datadir," nog steeds de locatie van de csv bestanden? \nZo nee, specificeer de nieuwe locatie in het volgende scherm"))
       if (Q4 == 2) {
         datadir = easycsv::choose_dir()
       }
       cat(paste0(rep('_',options()$width),collapse=''))
-      Q5 = menu(c("Ja", "Nee"), title=paste0("\nIs ",outputdir," nog steeds de locatie waar je de resultaten wilt hebben? Zo nee, specificeer de nieuwe locatie in het volgende scherm"))
+      Q5 = menu(c("Ja", "Nee"), title=paste0("\nIs ",outputdir," nog steeds de locatie waar je de resultaten wilt hebben? \nZo nee, specificeer de nieuwe locatie in het volgende scherm"))
       if (Q5 == 2) {
         datadir = easycsv::choose_dir()
       }
@@ -37,7 +37,7 @@ obtain_folder_paths = function() {
       Q6 = menu(c("Ja", "Nee"), title=paste0("\nGebruik je een slaapdagboek?"))
       if (Q6 == 1) {
         cat(paste0(rep('_',options()$width),collapse=''))
-        Q7 = menu(c("Ja", "Nee"), title=paste0("\nIs ",dagboekdir," nog steeds de locatie van het slaapdagboek? Zo nee, specificeer de nieuwe locatie in het volgende scherm"))
+        Q7 = menu(c("Ja", "Nee"), title=paste0("\nIs ",dagboekdir," nog steeds de locatie van het slaapdagboek? \nZo nee, specificeer de nieuwe locatie in het volgende scherm"))
         if (Q7 == 2) {
           dagboekdir = file.choose() #easycsv::choose_dir()
         }
@@ -46,13 +46,13 @@ obtain_folder_paths = function() {
     }
   } else {
     cat(paste0(rep('_',options()$width),collapse=''))
-    readline("\nGeef aan waar de gt3x bestanden opgeslagen zijn. Klik eerst [enter] om verder te gaan.")  
+    readline("\nGeef aan waar de gt3x bestanden opgeslagen zijn.\n Klik eerst [enter] om verder te gaan.")  
     gt3xdir = easycsv::choose_dir()
-    readline("\nGeef aan waar de csv bestanden opgeslagen zijn. Klik eerst [enter] om verder te gaan.")  
+    readline("\nGeef aan waar de csv bestanden opgeslagen zijn.\n Klik eerst [enter] om verder te gaan.")  
     datadir = easycsv::choose_dir()
-    readline("\nGeef aan waar de resultaten opgeslagen mogen worden. Klik eerst [enter] om verder te gaan.")  
+    readline("\nGeef aan waar de resultaten opgeslagen mogen worden.\n Klik eerst [enter] om verder te gaan.")  
     outputdir = easycsv::choose_dir()
-    readline("\nGeef aan in welk bestand het slaapdagboek (.xlsx) is opgeslagen. Klik eerst [enter] om verder te gaan.")  
+    readline("\nGeef aan in welk bestand het slaapdagboek (.xlsx) is opgeslagen.\n Klik eerst [enter] om verder te gaan.")  
     dagboekdir = file.choose()
     
     
