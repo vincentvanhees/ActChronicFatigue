@@ -54,7 +54,8 @@ if (development.mode == TRUE) {
     } else {
       depe = FALSE
     }
-    install_github("vincentvanhees/ActChronicFatigue", dependencies=depe, 
+    devtools::install_github("wadpac/GGIR")
+    devtools::install_github("vincentvanhees/ActChronicFatigue", dependencies=depe, 
                    verbose = verbose.install, force = depe)
    
   }
