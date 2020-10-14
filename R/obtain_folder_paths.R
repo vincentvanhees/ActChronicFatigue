@@ -3,6 +3,7 @@
 #' @return no object is returned, GGIR writes all its outputs to files
 #' @importFrom utils menu
 #' @export
+
 obtain_folder_paths = function() {
   datalocaties = "log_ActChronicFatigue.RData"
   if (file.exists(datalocaties) == TRUE) {
