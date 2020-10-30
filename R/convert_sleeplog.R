@@ -14,9 +14,17 @@ convert_sleeplog = function(sleeplog = c()) {
     D = D[,c(colid, coln1:(ncol(D)-(Ncols %% 2)))]
     for (i in 2:ncol(D)) {
       myfun = function(x) {
+        
         if (is.na(x) == TRUE | x == "") {
           x = ""
         } else {
+          if (is.character(x)) {
+            x <- gsub(',','.',x)
+            x <- as.numeric(x)
+          }
+          if (is.numeric(x) == FALSE) {
+            stop("\nTijd in slaapdagboek wordt niet herkent")
+          }
           if (x >= 24) x = x - 24
           HRS = floor(x)
           MIN = floor((x - HRS)*60)

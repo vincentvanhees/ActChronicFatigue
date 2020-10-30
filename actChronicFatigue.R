@@ -5,12 +5,13 @@ rm(list=ls())
 
 development.mode = FALSE
 
+referentiewaarden = c(30,8) # gemiddelde en standaard deviatie
+
 #=========================================
 # Install code if not available:
-verbose.install = TRUE
 if (development.mode == TRUE) {
   roxygen2::roxygenise()
-  do.gt3x.conversion = TRUE
+  # do.gt3x.conversion = TRUE
   locationRcode = "/home/vincent/projects/ActChronicFatigue/R" 
   ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
   for (i in 1:length(ffnames)) {
@@ -22,44 +23,46 @@ if (development.mode == TRUE) {
     source(paste(locationRcode,"/",ffnames[i],sep=""))
   }
 } else { # install code from GitHub
-  do.gt3x.conversion = TRUE
-  install_again = FALSE
+  # do.gt3x.conversion = TRUE
+  install_again = TRUE
   Q1b = 1
   if ("ActChronicFatigue" %in% rownames(installed.packages()) == TRUE) {
     cat(paste0(rep('_',options()$width),collapse=''))
     Q1 = menu(c("Ja", "Nee"), title="\nWil je de software opnieuw installeren?")
-    if (Q1 == 1) {
-      install_again = TRUE
-      cat(paste0(rep('_',options()$width),collapse=''))
-      Q1b = menu(c("Ja", "Nee"), title="\nWil je ook all dependencies opnieuw installeren?")
-    }
+    # if (Q1 == 1) {
+    #   install_again = TRUE
+    #   cat(paste0(rep('_',options()$width),collapse=''))
+    #   Q1b = menu(c("Ja", "Nee"), title="\nWil je ook all dependencies opnieuw installeren?")
+    # }
   }
   if ("ActChronicFatigue" %in% rownames(installed.packages()) == FALSE | install_again == TRUE) {
     if ("devtools" %in% rownames(installed.packages()) == FALSE) {
-      install.packages("devtools", verbose = verbose.install)
+      cat("\ndevtools installeren...")
+      install.packages("devtools")
     }
     library("devtools")
-    if (do.gt3x.conversion == TRUE) {
-      # On Ubuntue, possibly need to do :
-      # sudo apt install libgsl-dev
-      devtools::install_github("THLfi/read.gt3x", dependencies=TRUE, force = FALSE)
-    }
+    # if (do.gt3x.conversion == TRUE) {
+    #   # On Ubuntue, possibly need to do :
+    #   # sudo apt install libgsl-dev
+    #   devtools::install_github("THLfi/read.gt3x", dependencies=TRUE, force = FALSE)
+    # }
     if (install_again == TRUE) {
       if("ActChronicFatigue" %in% (.packages())){
         detach("package:ActChronicFatigue", unload=TRUE)
       }
     }
-    if (Q1b == 1) {
-      depe = TRUE
-    } else {
-      depe = FALSE
-    }
+    # if (Q1b == 1) {
+    depe = TRUE
+    # } else {
+    #   depe = FALSE
+    # }
     if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
-      devtools::install_github("wadpac/GGIR", force=FALSE, dependencies=TRUE)
+      cat("\nGGIR installeren...")
+      devtools::install_github("wadpac/GGIR", dependencies=TRUE)
     }
-    devtools::install_github("vincentvanhees/ActChronicFatigue", dependencies=depe, 
-                   verbose = verbose.install, force = depe)
-   
+    cat("\nActChronicFatigue installeren...")
+    devtools::install_github("vincentvanhees/ActChronicFatigue", dependencies=depe) #, force = depe)
+    
   }
   library(ActChronicFatigue)
 }
@@ -70,35 +73,35 @@ datalocaties = ActChronicFatigue::obtain_folder_paths() # Obtain folder paths fr
 replaceslash = function(x) {
   return(gsub(replacement = "/", pattern = "\\\\",x=x))
 }
-gt3xdir = replaceslash(datalocaties$gt3xdir)
+# gt3xdir = replaceslash(datalocaties$gt3xdir)
 datadir = replaceslash(datalocaties$datadir)
 outputdir = replaceslash(datalocaties$outputdir)
 sleeplog = replaceslash(datalocaties$dagboekdir)
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nBestand locaties:\n")
-cat(paste0("\nLocatie ",length(dir(datalocaties$gt3xdir))," gt3x bestanden = ",datalocaties$gt3xdir))
+# cat(paste0("\nLocatie ",length(dir(datalocaties$gt3xdir))," gt3x bestanden = ",datalocaties$gt3xdir))
 cat(paste0("\nLocatie ",length(dir(datalocaties$datadir))," csv bestanden = ",datalocaties$datadir))
 cat(paste0("\nLocatie resultaten =  ",datalocaties$outputdir,"\n"))
 
 chunksize = 0.5
 
-if (length(dir(datalocaties$gt3xdir)) == 0 & length(dir(datalocaties$datadir)) == 0) {
+if (length(dir(datalocaties$datadir)) == 0) { #length(dir(datalocaties$gt3xdir)) == 0 &
   cat("\n")
   stop("\nGeen data gevonden. Controleer data folders.")
 }
 
-#=============================================================================
-# Converteer all gt3x bestanden naar csv bestanden en plaats die in datadir
-if (do.gt3x.conversion ==  TRUE) {
-  gt3x_files_to_convert = dir(gt3xdir, full.names = T)
-  if (length(gt3x_files_to_convert ) > 0) {
-    for (gt3xfile in gt3x_files_to_convert ) {
-      cat(paste0(rep('_',options()$width),collapse=''))
-      cat(paste0("\nConverteer ",basename(gt3xfile)," -> .csv"))
-      ActChronicFatigue::gt3x_to_csv(path = gt3xfile, outpath =datadir, gzip=T)
-    }
-  }
-}
+# #=============================================================================
+# # Converteer all gt3x bestanden naar csv bestanden en plaats die in datadir
+# if (do.gt3x.conversion ==  TRUE) {
+#   gt3x_files_to_convert = dir(gt3xdir, full.names = T)
+#   if (length(gt3x_files_to_convert ) > 0) {
+#     for (gt3xfile in gt3x_files_to_convert ) {
+#       cat(paste0(rep('_',options()$width),collapse=''))
+#       cat(paste0("\nConverteer ",basename(gt3xfile)," -> .csv"))
+#       ActChronicFatigue::gt3x_to_csv(path = gt3xfile, outpath =datadir, gzip=T)
+#     }
+#   }
+# }
 #=============================================================================
 # If sleeplog exists convert sleeplog to expected format
 
@@ -184,7 +187,7 @@ model_threshold = -CF[1]/CF[2]
 # Summarise and show on screen
 cat("\n Samenvatting van resultaten\n")
 SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10,
-                                   model_threshold=model_threshold)
+                                   model_threshold=model_threshold, referentiewaarden =referentiewaarden)
 
 # recent_results_file = paste0(outputdir,"/results/samenvatting_",
 #                              as.character(as.Date(Sys.time())),".csv")

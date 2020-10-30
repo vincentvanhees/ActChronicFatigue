@@ -4,13 +4,14 @@
 #' @param part5_summary ...
 #' @param Nmostrecent ...
 #' @param model_threshold ...
+#' @param referentiewaarden ...
 #' @return no object is returned, only a summary is printed to the screen
 #' @export
 #' @importFrom grDevices dev.off pdf
 #' @importFrom graphics abline axis barplot par
 #' @importFrom graphics legend lines text
 summarise = function(outputdir, part5_summary, Nmostrecent = 10,
-                     model_threshold = 75){
+                     model_threshold = 75, referentiewaarden){
   part2_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                             pattern = "part2_summary", value = T)
   part2_summary = read.csv(file=part2_summary_file, sep=",")
@@ -28,7 +29,7 @@ summarise = function(outputdir, part5_summary, Nmostrecent = 10,
   }
   part2_summary = part2_summary[,c("ID", "ENMO_fullRecordingMean")] #  "BFEN_fullRecordingMean" "ENMO_fullRecordingMean"
   colnames(part2_summary) = c("ID","Activity_zscore")
-  part2_summary$Activity_zscore = round((part2_summary$Activity - 30) / 8, digits=1) # - 23.64) / 15.5 for ENMO
+  part2_summary$Activity_zscore = round((part2_summary$Activity - referentiewaarden[1]) / referentiewaarden[2], digits=1) # - 23.64) / 15.5 for ENMO
   part5_summary = merge(part5_summary, part2_summary, by.x = "ID2", by.y = "ID")
   cat(paste0("Klassificaties voor meest recente ", Nmostrecent, " metingen: "))
   most_recent_recordings = which(order(as.Date(Sys.time()) - 
