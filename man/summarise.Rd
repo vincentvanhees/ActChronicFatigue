@@ -4,7 +4,13 @@
 \alias{summarise}
 \title{summarise}
 \usage{
-summarise(outputdir, part5_summary, Nmostrecent = 10, model_threshold = 75)
+summarise(
+  outputdir,
+  part5_summary,
+  Nmostrecent = 10,
+  model_threshold = 75,
+  referentiewaarden
+)
 }
 \arguments{
 \item{outputdir}{...}
@@ -14,6 +20,8 @@ summarise(outputdir, part5_summary, Nmostrecent = 10, model_threshold = 75)
 \item{Nmostrecent}{...}
 
 \item{model_threshold}{...}
+
+\item{referentiewaarden}{...}
 }
 \value{
 no object is returned, only a summary is printed to the screen
