@@ -57,7 +57,7 @@ convert_sleeplog = function(sleeplog = c()) {
     dup = duplicated(D$ID)
     if (length(dup) > 0) {
       warning("\nEr zijn twee metingen voor dezelfde persoon in het slaapdagboek. We negeren nu beide.")
-      D = D[-which(D$ID == D$ID[dup]),]
+      D = D[-which(D$ID %in% D$ID[dup] == TRUE),]
     }
     
     
