@@ -16,7 +16,8 @@ runGGIR(
   chunksize = 1,
   loglocation = c(),
   do.parallel = TRUE,
-  testbatch = FALSE
+  testbatch = FALSE,
+  sleeplogidnum = TRUE
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ runGGIR(
 \item{do.parallel}{...}
 
 \item{testbatch}{...}
+
+\item{sleeplogidnum}{...}
 }
 \value{
 no object is returned, GGIR writes all its outputs to files

@@ -127,7 +127,7 @@ cat("\nStart analyse met GGIR...\n")
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:5),
                            do.report = c(2, 4, 5), overwrite=FALSE, do.visual = FALSE,
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
-                           loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE)
+                           loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE, sleeplogidnum = FALSE)
 
 # always overwrite part 5 to be sure BFEN is used
 # ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5),

@@ -12,13 +12,15 @@
 #' @param loglocation ...
 #' @param do.parallel ...
 #' @param testbatch ...
+#' @param sleeplogidnum ...
 #' @return no object is returned, GGIR writes all its outputs to files
 #' @export
 
 runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                    overwrite=FALSE, do.visual=FALSE,
                    visualreport=FALSE, acc.metric = "BFEN", chunksize = 1,
-                   loglocation = c(), do.parallel = TRUE, testbatch = FALSE) {
+                   loglocation = c(), do.parallel = TRUE, testbatch = FALSE,
+                   sleeplogidnum = TRUE) {
   if (testbatch == TRUE) {
     f0 = 1
     f1 = 2
@@ -70,6 +72,7 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                # qwindow=c(0,9,21,24), #window over which to calculate quantiles
                qwindow = c(0, 24), #activitylog,
                nnights= nnights,
+               sleeplogidnum =sleeplogidnum ,
                loglocation = loglocation,
                do.visual = do.visual,
                ilevels = c(seq(0,300,by=50),8000), #acceleration values (metric ENMO) from which a frequency distribution needs to be derived, set value at c() if you do not want quantiles
