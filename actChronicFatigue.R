@@ -6,8 +6,9 @@ rm(list=ls())
 
 gebruik_slaap_dagboek == TRUE
 referentiewaarden = c(30,8) # gemiddelde en standaard deviatie
-development.mode = TRUE
 
+development.mode = FALSE # laat op FALSE staan, TRUE is alleen voor onderhoud
+sleeplogidnum =TRUE # TRUE als patient ID een nummer is.
 
 #=========================================
 # Install code if not available:
@@ -143,7 +144,7 @@ if (gebruik_slaap_dagboek == TRUE) {
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(4:5),
                            do.report = c(4, 5), overwrite=FALSE, do.visual = FALSE,
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
-                           loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE, sleeplogidnum = TRUE)
+                           loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE, sleeplogidnum = sleeplogidnum)
 
 
 
