@@ -1,11 +1,13 @@
+#===========
+#
+# Klik op [Source] hier rechtsboven om het programa te starten.
+#
 rm(list=ls())
 
-# Klik op [Source] hier rechtsboven om het programa te starten.
-
-
-development.mode = FALSE
-
+gebruik_slaap_dagboek == TRUE
 referentiewaarden = c(30,8) # gemiddelde en standaard deviatie
+development.mode = TRUE
+
 
 #=========================================
 # Install code if not available:
@@ -102,11 +104,7 @@ if (length(dir(datalocaties$datadir)) == 0) { #length(dir(datalocaties$gt3xdir))
 #     }
 #   }
 # }
-#=============================================================================
-# If sleeplog exists convert sleeplog to expected format
 
-sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog)
-# sleeplogfile = c()
 
 filenames = dir(datadir, full.names = FALSE)
 if (length(filenames) == 0) {
@@ -124,16 +122,31 @@ if (length(filenames) == 0) {
 # Start processing of raw accelerometer data with GGIR
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nStart analyse met GGIR...\n")
-ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:5),
-                           do.report = c(2, 4, 5), overwrite=FALSE, do.visual = FALSE,
+ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:3),
+                           do.report = c(2), overwrite=FALSE, 
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
-                           loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE, sleeplogidnum = FALSE)
+                           testbatch = FALSE,  do.parallel=TRUE)
 
-# always overwrite part 5 to be sure BFEN is used
-# ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(5),
-#                            do.report=c(5), overwrite=TRUE, do.visual = FALSE,
-#                            visualreport=FALSE, acc.metric = "BFEN",
-#                            loglocation = sleeplogfile)
+
+part2resultsfile = paste0(outputdir,"/output_",basename(datadir),"/results/part2_summary.csv")
+
+#=============================================================================
+# If sleeplog exists convert sleeplog to expected format
+
+if (gebruik_slaap_dagboek == TRUE) {
+  sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog, part2resultsfile)
+} else {
+  sleeplogfile = c()
+}
+
+
+ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(4:5),
+                           do.report = c(4, 5), overwrite=FALSE, do.visual = FALSE,
+                           visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
+                           loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE, sleeplogidnum = TRUE)
+
+
+
 
 #=============================================================================
 cat(paste0(rep('_',options()$width),collapse=''))

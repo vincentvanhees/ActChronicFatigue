@@ -4,10 +4,12 @@
 \alias{convert_sleeplog}
 \title{convert_sleeplog}
 \usage{
-convert_sleeplog(sleeplog = c())
+convert_sleeplog(sleeplog = c(), part2resultsfile = c())
 }
 \arguments{
 \item{sleeplog}{...}
+
+\item{part2resultsfile}{...}
 }
 \value{
 no object is returned, only a new file is created in the same folder as the activitylog
