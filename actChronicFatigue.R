@@ -4,7 +4,7 @@
 #
 rm(list=ls())
 
-gebruik_slaap_dagboek == TRUE
+gebruik_slaap_dagboek = TRUE
 referentiewaarden = c(30,8) # gemiddelde en standaard deviatie
 
 development.mode = FALSE # laat op FALSE staan, TRUE is alleen voor onderhoud
