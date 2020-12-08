@@ -23,7 +23,7 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                    sleeplogidnum = TRUE) {
   if (testbatch == TRUE) {
     f0 = 1
-    f1 = 2
+    f1 = 3
   } else {
     f0 = f1 = c()
   }
@@ -53,7 +53,7 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                storefolderstructure = TRUE,
                do.parallel = do.parallel,
                do.bfen = TRUE,
-               acc.metric = "BFEN",
+               acc.metric = "BFEN", # more similar original aktometer approach and reduced impact of Actigraph calibration challengee
                hb = 10,
                lb = 0.8,
                coln1 = 3,
