@@ -10,10 +10,13 @@ referentiewaarden = c(30,8) # gemiddelde en standaard deviatie
 development.mode = FALSE # laat op FALSE staan, TRUE is alleen voor onderhoud
 sleeplogidnum =TRUE # TRUE als patient ID een nummer is.
 
+
+
 #=========================================
 # Install code if not available:
 if (development.mode == TRUE) {
   roxygen2::roxygenise()
+  testbatch  = FALSE
   # do.gt3x.conversion = TRUE
   locationRcode = "/home/vincent/projects/ActChronicFatigue/R" 
   ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
@@ -28,15 +31,11 @@ if (development.mode == TRUE) {
 } else { # install code from GitHub
   # do.gt3x.conversion = TRUE
   install_again = TRUE
+  testbatch = FALSE
   Q1b = 1
   if ("ActChronicFatigue" %in% rownames(installed.packages()) == TRUE) {
     cat(paste0(rep('_',options()$width),collapse=''))
     Q1 = menu(c("Ja", "Nee"), title="\nWil je de software opnieuw installeren?")
-    # if (Q1 == 1) {
-    #   install_again = TRUE
-    #   cat(paste0(rep('_',options()$width),collapse=''))
-    #   Q1b = menu(c("Ja", "Nee"), title="\nWil je ook all dependencies opnieuw installeren?")
-    # }
   }
   if ("ActChronicFatigue" %in% rownames(installed.packages()) == FALSE | install_again == TRUE) {
     if ("devtools" %in% rownames(installed.packages()) == FALSE) {
@@ -44,21 +43,12 @@ if (development.mode == TRUE) {
       install.packages("devtools")
     }
     library("devtools")
-    # if (do.gt3x.conversion == TRUE) {
-    #   # On Ubuntue, possibly need to do :
-    #   # sudo apt install libgsl-dev
-    #   devtools::install_github("THLfi/read.gt3x", dependencies=TRUE, force = FALSE)
-    # }
     if (install_again == TRUE) {
       if("ActChronicFatigue" %in% (.packages())){
         detach("package:ActChronicFatigue", unload=TRUE)
       }
     }
-    # if (Q1b == 1) {
     depe = TRUE
-    # } else {
-    #   depe = FALSE
-    # }
     if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
       cat("\nGGIR installeren...")
       devtools::install_github("wadpac/GGIR", dependencies=TRUE)
@@ -93,20 +83,6 @@ if (length(dir(datalocaties$datadir)) == 0) { #length(dir(datalocaties$gt3xdir))
   stop("\nGeen data gevonden. Controleer data folders.")
 }
 
-# #=============================================================================
-# # Converteer all gt3x bestanden naar csv bestanden en plaats die in datadir
-# if (do.gt3x.conversion ==  TRUE) {
-#   gt3x_files_to_convert = dir(gt3xdir, full.names = T)
-#   if (length(gt3x_files_to_convert ) > 0) {
-#     for (gt3xfile in gt3x_files_to_convert ) {
-#       cat(paste0(rep('_',options()$width),collapse=''))
-#       cat(paste0("\nConverteer ",basename(gt3xfile)," -> .csv"))
-#       ActChronicFatigue::gt3x_to_csv(path = gt3xfile, outpath =datadir, gzip=T)
-#     }
-#   }
-# }
-
-
 filenames = dir(datadir, full.names = FALSE)
 if (length(filenames) == 0) {
   stop(paste0("\nGeen data bestanden gevonden in ", datadir))
@@ -126,8 +102,7 @@ cat("\nStart analyse met GGIR...\n")
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:3),
                            do.report = c(2), overwrite=FALSE, 
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
-                           testbatch = FALSE,  do.parallel=TRUE)
-
+                           testbatch = testbatch ,  do.parallel=TRUE)
 
 part2resultsfile = paste0(outputdir,"/output_",basename(datadir),"/results/part2_summary.csv")
 
@@ -136,15 +111,16 @@ part2resultsfile = paste0(outputdir,"/output_",basename(datadir),"/results/part2
 
 if (gebruik_slaap_dagboek == TRUE) {
   sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog, part2resultsfile)
+  # sleeplogfile = convert_sleeplog(sleeplog, part2resultsfile)
 } else {
   sleeplogfile = c()
 }
 
-
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(4:5),
                            do.report = c(4, 5), overwrite=FALSE, do.visual = FALSE,
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
-                           loglocation = sleeplogfile, testbatch = FALSE,  do.parallel=TRUE, sleeplogidnum = sleeplogidnum)
+                           loglocation = sleeplogfile, testbatch = testbatch , 
+                           do.parallel=TRUE, sleeplogidnum = sleeplogidnum)
 
 
 
@@ -202,6 +178,7 @@ model_threshold = -CF[1]/CF[2]
 cat("\n Samenvatting van resultaten\n")
 SUM = ActChronicFatigue::summarise(outputdir, part5_summary, Nmostrecent = 10,
                                    model_threshold=model_threshold, referentiewaarden =referentiewaarden)
+
 
 # recent_results_file = paste0(outputdir,"/results/samenvatting_",
 #                              as.character(as.Date(Sys.time())),".csv")
