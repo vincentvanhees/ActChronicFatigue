@@ -58,10 +58,10 @@ labels = droplevels(labels)
 D = read.csv(file=part5_summary_file, sep=separator)
 
 # "gradient_mean", "y_intercept_mean", "X1", "X2", "X3", "X4",
-D = D[,c("act9167", "ID2", "filename", "Nvaliddays","Ndays",
+D = D[,c("act9167", "ID2", "filename", "Nvaliddays","Ndays_used", # these are the number of days used by the model
          "nonwear_perc_day_spt_pla", "ACC_day_mg_pla", "nonwear_perc_day_pla")]
 
-D = D[which(D$nonwear_perc_day_spt_pla <= 33 & D$Ndays >= 12),] #& D$calib_err < 0.02 #& D$Nvaliddays > 10
+D = D[which(D$nonwear_perc_day_spt_pla <= 33 & D$nonwear_perc_day_pla <= 33 & D$Ndays_used >= 12),] #& D$calib_err < 0.02 #& D$Nvaliddays > 10
 # Merge data with labels
 NmatchingIDs = length(which(labels[,id_column_labels] %in% D[,id_column_part5] == TRUE))
 if (NmatchingIDs == 0) {
@@ -190,7 +190,8 @@ x11()
 boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type="p", pch=20)
 
 print("Misclassified:")
-print(MergedData_wrist[which(MergedData_wrist$ID%in% sort(output$ID[which(output$result == FALSE)]) == TRUE),])
+# print(MergedData_wrist[which(MergedData_wrist$ID%in% sort(output$ID[which(output$result == FALSE)]) == TRUE),])
+print(MergedData_wrist[which(round(MergedData_wrist$pred) != MergedData_wrist$label),])
 
 # x11()
 # hpp = which(MergedData$label == "pp" & MergedData$loc == "hip")

@@ -38,7 +38,7 @@ addVariables5 = function(outputdir=c()) {
   # Calculate the 91.67th percentile of the day level variables
   DL = aggregate(x = P5, by = list(P5$ID), FUN = function(x) length(x))
   DL = DL[,-2]
-  colnames(DL) = c("ID","Ndays")
+  colnames(DL) = c("ID","Ndays_used")
   D = aggregate(x = P5, by = list(P5$ID), FUN = function(x) {quantile(x,11/12, na.rm = TRUE) })
   D = D[,-2]
   colnames(D) = c("ID","act9167")
@@ -50,7 +50,7 @@ addVariables5 = function(outputdir=c()) {
   P5summary$ID2 = convertID(P5summary$filename)
   
   # Check whether data already has the expected variables
-  existingvars = which(colnames(P5summary) %in% c("ID","act9167","Ndays"))
+  existingvars = which(colnames(P5summary) %in% c("ID","act9167","Ndays_used"))
   if (length(existingvars) > 0) P5summary = P5summary[,-existingvars]
   P5summary_updated = merge(P5summary,D,by.x="ID2",by.y="ID")
   # Save changes
