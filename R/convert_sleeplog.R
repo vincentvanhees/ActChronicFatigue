@@ -49,7 +49,6 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
       return(x)
     }
     for (i in 3:ncol(D)) {
-      
       D[,i] =  sapply(X = D[,i], FUN = myfun)
     }
     D$BEGINDAT = as.Date(D$BEGINDAT)
@@ -64,8 +63,6 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
         D = D[-which(D$ID == D$ID[dup[ki]] & D$BEGINDAT == date2use),]
       }
     }
-    
-    #
     if (length(part2resultsfile) > 0) {
       P2 = read.csv(part2resultsfile)
       P2$start_time
@@ -80,7 +77,7 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
             if (length(starttime_acc) > 1) starttime_acc = max(starttime_acc, na.rm = TRUE)
             starttime_diary = D$BEGINDAT[hi]
             delay = starttime_diary - starttime_acc
-            if (delay <= 0) {
+            if (delay < -1) {
               D[hi,3:ncol(D)] = ""
             } else if (delay > 0 & delay < 8) {
               deldays = delay * 2
