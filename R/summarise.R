@@ -127,13 +127,13 @@ summarise = function(outputdir, part5_summary, Nmostrecent = 10,
     keystats = t(recent_recording[which(recent_recording$ID == ID), varnames])
     colnames(keystats)[1] = paste0("ID: ", ID)
     CX = 1.1
-    CXdays = 1.1
+    CXdays = 1.0
     relprop = as.numeric(keystats[3])
     if (keystats[2] != "Laag Actief") relprop = 100 - relprop
     titel = paste0(ID," | Start: ", keystats[1]," | ",
                    keystats[2], " (kans=", relprop,"%) | ",
                    "beweging (z-score) = ", keystats[4])
-    CL = 1.1
+    CL = 1.0
     CXdots = 1.5
     
     #========================================
@@ -153,7 +153,7 @@ summarise = function(outputdir, part5_summary, Nmostrecent = 10,
     A[,2] = A[,2] - A[,1]
     brpos = barplot(t(as.matrix(A)), space=rep(0, nrow(A)), ylab="Tijd in uren", ylim=c(0, maxvalue + 1.5),cex.axis = 0.9,
             names.arg = P5D$weekday, cex.names=CXdays, cex.lab=CL,
-            main="Slaap (donker grijs), Wakker na start slaap (licht grijs) en Slaap efficientie % na start slaap (nummers)")
+            main="Slaap (donker), Wakker na start slaap (licht) en Slaap efficientie % na start slaap (nummers)")
     
     text(brpos, rowSums(A)+1, labels = round(100*(A[,1] / (rowSums(A))), digits = 0))
     
