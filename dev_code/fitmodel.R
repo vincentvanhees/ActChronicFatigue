@@ -189,9 +189,13 @@ plot(MergedData_wrist$act9167, MergedData_wrist$pred - MergedData_wrist$label, t
 x11()
 boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type="p", pch=20)
 
-print("Misclassified:")
+cat("\nMisclassified:\n")
 # print(MergedData_wrist[which(MergedData_wrist$ID%in% sort(output$ID[which(output$result == FALSE)]) == TRUE),])
-print(MergedData_wrist[which(round(MergedData_wrist$pred) != MergedData_wrist$label),])
+# print(MergedData_wrist[which(round(MergedData_wrist$pred) != MergedData_wrist$label),])
+# print(MergedData_wrist[which(round(MergedData_wrist$pred) != MergedData_wrist$label),])
+# print(MergedData_wrist[which(MergedData_wrist$ID %in% output$ID[which(output$label != output$estimate)] == TRUE),]) # estimate are columns, label are rows
+
+print(output[which(output$label != output$estimate),]) # estimate are columns, label are rows
 
 # x11()
 # hpp = which(MergedData$label == "pp" & MergedData$loc == "hip")
