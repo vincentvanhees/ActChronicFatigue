@@ -1,4 +1,4 @@
-#' convert_sleeplog 
+#' convert_sleeplog
 #'
 #' @param sleeplog ...
 #' @param part2resultsfile ...
@@ -12,8 +12,15 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
     D = as.data.frame(readxl::read_excel(sleeplog))
     coln1 = which(colnames(D) == "bed1")
     startdate = which(colnames(D) == "BEGINDAT")
+    options(warn=-1)
+    tmpp = as.numeric(D$BEGINDAT)
+    D$BEGINDAT = as.Date(tmpp, origin="1900-1-1") - 2 # to correct for Excel and R bias
+    options(warn=0)
+    D = D[-which(is.na(D$BEGINDAT) == TRUE),]
+
     Ncols = length(coln1:ncol(D)) # make sure only an even number of colums are loaded
     D = D[,c(colid,  startdate, coln1:(ncol(D)-(Ncols %% 2)))]
+
     myfun = function(x) {
       if (is.na(x) == TRUE | x == "") {
         x = ""
@@ -48,27 +55,33 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
       }
       return(x)
     }
+
     for (i in 3:ncol(D)) {
       D[,i] =  sapply(X = D[,i], FUN = myfun)
     }
-    D$BEGINDAT = as.Date(D$BEGINDAT)
+
+
+    # D$BEGINDAT = as.Date(D$BEGINDAT)
     #---------------------------------------------------------------------------
     outputfile = paste0(unlist(strsplit(sleeplog,"[.]cs"))[1],"2.csv")
     colnames(D)[1] = "ID"
     dup = which(duplicated(D$ID,incomparables=NA) == TRUE)
+
     if (length(dup) > 0) {
       cat("\nLet op: Er zijn twee metingen voor dezelfde persoon in het slaapdagboek. We gebruiken de meeste recente.")
+      rows2delete = c()
       for (ki in 1:length(dup)) {
         date2use = max(D$BEGINDAT[which(D$ID == D$ID[dup[ki]])], na.rm = TRUE)
-        D = D[-which(D$ID == D$ID[dup[ki]] & D$BEGINDAT == date2use),]
+        rows2delete = c(rows2delete, which(D$ID == D$ID[dup[ki]] & D$BEGINDAT != date2use ))
       }
+      if (length(rows2delete) > 0) D = D[-rows2delete,]
     }
+
     if (length(part2resultsfile) > 0) {
       P2 = read.csv(part2resultsfile)
       P2$start_time
       P2$start_time = as.Date(as.POSIXlt(P2$start_time,format="%Y-%m-%dT%H:%M:%S%z",tz=""))
       D = cbind(D, matrix("",nrow(D), 14)) # add 7 days (14 entries)
-      
       for (hi in 1:nrow(D)) {
         if (is.na(D$BEGINDAT[hi]) == FALSE) {
           matchingID = which(P2$ID == D$ID[hi])
@@ -76,7 +89,7 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
             starttime_acc = P2$start_time[matchingID]
             if (length(starttime_acc) > 1) starttime_acc = max(starttime_acc, na.rm = TRUE)
             starttime_diary = D$BEGINDAT[hi]
-            delay = starttime_diary - starttime_acc
+            delay = as.numeric(starttime_diary - starttime_acc)
             if (delay < -1) {
               D[hi,3:ncol(D)] = ""
             } else if (delay > 0 & delay < 8) {
@@ -89,6 +102,7 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
           }
         }
       }
+
       cnt = 1
       while (cnt > 0) { # remove rows without sleep diary
         tmp = as.character(D[cnt,3:ncol(D)])
@@ -100,7 +114,9 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
         if (cnt > nrow(D)) cnt = cnt = -1
       }
     }
+    options(warn=-1)
     D$ID = as.numeric(D$ID)
+    options(warn=0)
     write.csv(D, file = outputfile, row.names = FALSE)
   } else {
     if (length(sleeplog) != 0) {

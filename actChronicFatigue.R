@@ -7,7 +7,7 @@ rm(list=ls())
 gebruik_slaap_dagboek = TRUE
 referentiewaarden = c(30,8) # gemiddelde en standaard deviatie
 
-development.mode =TRUE # laat op FALSE staan, TRUE is alleen voor onderhoud
+development.mode =FALSE # laat op FALSE staan, TRUE is alleen voor onderhoud
 sleeplogidnum =TRUE # TRUE als patient ID een nummer is.
 
 
@@ -18,12 +18,12 @@ if (development.mode == TRUE) {
   roxygen2::roxygenise()
   testbatch  = FALSE
   # do.gt3x.conversion = TRUE
-  locationRcode = "/home/vincent/projects/ActChronicFatigue/R" 
+  locationRcode = "/home/vincent/projects/ActChronicFatigue/R"
   ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
   for (i in 1:length(ffnames)) {
     source(paste(locationRcode,"/",ffnames[i],sep=""))
   }
-  locationRcode = "/home/vincent/GGIR/R" 
+  locationRcode = "/home/vincent/GGIR/R"
   ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
   for (i in 1:length(ffnames)) {
     source(paste(locationRcode,"/",ffnames[i],sep=""))
@@ -55,7 +55,7 @@ if (development.mode == TRUE) {
     }
     cat("\nActChronicFatigue installeren...")
     devtools::install_github("vincentvanhees/ActChronicFatigue", dependencies=depe) #, force = depe)
-    
+
   }
   library(ActChronicFatigue)
 }
@@ -100,7 +100,7 @@ if (length(filenames) == 0) {
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nStart analyse met GGIR...\n")
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:3),
-                           do.report = c(2), overwrite=FALSE, 
+                           do.report = c(2), overwrite=FALSE,
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
                            testbatch = testbatch ,  do.parallel=TRUE)
 
@@ -117,10 +117,10 @@ if (gebruik_slaap_dagboek == TRUE) {
 }
 
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(4:5),
-                           do.report = c(4, 5), overwrite=FALSE, do.visual = FALSE,
+                           do.report = c(4, 5), overwrite=FALSE, do.visual = TRUE,
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
-                           loglocation = sleeplogfile, testbatch = testbatch , 
-                           do.parallel=TRUE, sleeplogidnum = sleeplogidnum)
+                           loglocation = sleeplogfile, testbatch = testbatch ,
+                           do.parallel=TRUE, sleeplogidnum = TRUE)
 
 
 
