@@ -12,12 +12,17 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
     D = as.data.frame(readxl::read_excel(sleeplog))
     coln1 = which(colnames(D) == "bed1")
     startdate = which(colnames(D) == "BEGINDAT")
-    options(warn=-1)
-    tmpp = as.numeric(D$BEGINDAT)
-    D$BEGINDAT = as.Date(tmpp, origin="1900-1-1") - 2 # to correct for Excel and R bias
-    options(warn=0)
+    
+    if(.Platform$OS.type == "windows") {
+      options(warn=-1)
+      tmpp = as.numeric(D$BEGINDAT)
+      D$BEGINDAT = as.Date(tmpp, origin="1900-1-1") - 2 # to correct for Excel and R bias
+      options(warn=0)
+    } else {
+      D$BEGINDAT = as.Date(D$BEGINDAT)
+    }
     D = D[-which(is.na(D$BEGINDAT) == TRUE),]
-
+    
     Ncols = length(coln1:ncol(D)) # make sure only an even number of colums are loaded
     D = D[,c(colid,  startdate, coln1:(ncol(D)-(Ncols %% 2)))]
 
@@ -59,8 +64,6 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
     for (i in 3:ncol(D)) {
       D[,i] =  sapply(X = D[,i], FUN = myfun)
     }
-
-
     # D$BEGINDAT = as.Date(D$BEGINDAT)
     #---------------------------------------------------------------------------
     outputfile = paste0(unlist(strsplit(sleeplog,"[.]cs"))[1],"2.csv")
