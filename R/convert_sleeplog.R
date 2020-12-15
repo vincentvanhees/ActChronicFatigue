@@ -57,7 +57,7 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
     colnames(D)[1] = "ID"
     dup = which(duplicated(D$ID,incomparables=NA) == TRUE)
     if (length(dup) > 0) {
-      warning("\nEr zijn twee metingen voor dezelfde persoon in het slaapdagboek. We gebruiken de meeste recente.")
+      cat("\nLet op: Er zijn twee metingen voor dezelfde persoon in het slaapdagboek. We gebruiken de meeste recente.")
       for (ki in 1:length(dup)) {
         date2use = max(D$BEGINDAT[which(D$ID == D$ID[dup[ki]])], na.rm = TRUE)
         D = D[-which(D$ID == D$ID[dup[ki]] & D$BEGINDAT == date2use),]
