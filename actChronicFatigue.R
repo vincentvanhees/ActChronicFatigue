@@ -7,7 +7,7 @@ rm(list=ls())
 gebruik_slaap_dagboek = TRUE
 referentiewaarden = c(30,8) # gemiddelde en standaard deviatie
 
-development.mode = FALSE # laat op FALSE staan, TRUE is alleen voor onderhoud
+development.mode =TRUE # laat op FALSE staan, TRUE is alleen voor onderhoud
 sleeplogidnum =TRUE # TRUE als patient ID een nummer is.
 
 
@@ -30,14 +30,14 @@ if (development.mode == TRUE) {
   }
 } else { # install code from GitHub
   # do.gt3x.conversion = TRUE
-  install_again = TRUE
+  install_again = FALSE
   testbatch = FALSE
   Q1b = 1
   if ("ActChronicFatigue" %in% rownames(installed.packages()) == TRUE) {
     cat(paste0(rep('_',options()$width),collapse=''))
     Q1 = menu(c("Ja", "Nee"), title="\nWil je de software opnieuw installeren?")
   }
-  if ("ActChronicFatigue" %in% rownames(installed.packages()) == FALSE | install_again == TRUE) {
+  if (Q1 == 1 | "ActChronicFatigue" %in% rownames(installed.packages()) == FALSE | install_again == TRUE) {
     if ("devtools" %in% rownames(installed.packages()) == FALSE) {
       cat("\ndevtools installeren...")
       install.packages("devtools")
