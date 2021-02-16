@@ -41,11 +41,11 @@ if (development.mode == TRUE) {
     Q1 = menu(c("Ja", "Nee"), title="\nWil je de software opnieuw installeren?")
   }
   if (Q1 == 1 | "ActChronicFatigue" %in% rownames(installed.packages()) == FALSE | install_again == TRUE) {
-    if ("devtools" %in% rownames(installed.packages()) == FALSE) {
-      cat("\ndevtools installeren...")
-      install.packages("devtools")
+    if ("remotes" %in% rownames(installed.packages()) == FALSE) {
+      cat("\nremotes installeren...")
+      install.packages("remotes")
     }
-    library("devtools")
+    library("remotes")
     if (install_again == TRUE) {
       if("ActChronicFatigue" %in% (.packages())){
         detach("package:ActChronicFatigue", unload=TRUE)
@@ -54,10 +54,10 @@ if (development.mode == TRUE) {
     depe = TRUE
     if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
       cat("\nGGIR installeren...")
-      devtools::install_github("wadpac/GGIR", dependencies=TRUE)
+      remotes::install_github("wadpac/GGIR", dependencies=TRUE)
     }
     cat("\nActChronicFatigue installeren...")
-    devtools::install_github("vincentvanhees/ActChronicFatigue", dependencies=depe) #, force = depe)
+    remotes::install_github("vincentvanhees/ActChronicFatigue", dependencies=depe) #, force = depe)
 
   }
   library(ActChronicFatigue)
