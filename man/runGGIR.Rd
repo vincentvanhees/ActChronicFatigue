@@ -17,7 +17,9 @@ runGGIR(
   loglocation = c(),
   do.parallel = TRUE,
   testbatch = FALSE,
-  sleeplogidnum = TRUE
+  sleeplogidnum = TRUE,
+  hrs.del.start = 0,
+  hrs.del.end = 0
 )
 }
 \arguments{
@@ -46,6 +48,10 @@ runGGIR(
 \item{testbatch}{...}
 
 \item{sleeplogidnum}{...}
+
+\item{hrs.del.start}{...}
+
+\item{hrs.del.end}{...}
 }
 \value{
 no object is returned, GGIR writes all its outputs to files

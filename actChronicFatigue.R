@@ -11,6 +11,9 @@ development.mode =FALSE # laat op FALSE staan, TRUE is alleen voor onderhoud
 sleeplogidnum =TRUE # TRUE als patient ID een nummer is.
 
 
+# hoeveel urem data wil kje negeren aan het begin en aan het einde van de meting
+hrs.del.start = 0 # aantal uren te negeren aan het begin
+hrs.del.end = 0 # aantal uren te negeren aan het begin
 
 #=========================================
 # Install code if not available:
@@ -102,7 +105,8 @@ cat("\nStart analyse met GGIR...\n")
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:3),
                            do.report = c(2), overwrite=FALSE,
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
-                           testbatch = testbatch ,  do.parallel=TRUE)
+                           testbatch = testbatch ,  do.parallel=TRUE, hrs.del.start = hrs.del.start,
+                           hrs.del.end = hrs.del.end)
 
 part2resultsfile = paste0(outputdir,"/output_",basename(datadir),"/results/part2_summary.csv")
 

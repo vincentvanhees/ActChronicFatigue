@@ -13,6 +13,8 @@
 #' @param do.parallel ...
 #' @param testbatch ...
 #' @param sleeplogidnum ...
+#' @param hrs.del.start ...
+#' @param hrs.del.end ...
 #' @return no object is returned, GGIR writes all its outputs to files
 #' @export
 
@@ -20,7 +22,7 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                    overwrite=FALSE, do.visual=FALSE,
                    visualreport=FALSE, acc.metric = "BFEN", chunksize = 1,
                    loglocation = c(), do.parallel = TRUE, testbatch = FALSE,
-                   sleeplogidnum = TRUE) {
+                   sleeplogidnum = TRUE, hrs.del.start=0, hrs.del.end=0) {
   if (testbatch == TRUE) {
     f0 = 1
     f1 = 3
@@ -63,8 +65,8 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                desiredtz = "Europe/Amsterdam",
                strategy = 1, #Strategy (see tutorial for explanation)
                ndayswindow=7, #only relevant when strategy = 3
-               hrs.del.start = 0, # Only relevant when strategy = 2. How many HOURS need to be ignored at the START of the measurement?
-               hrs.del.end = 0, # Only relevant when strategy = 2. How many HOURS need to be ignored at the END of the measurement?
+               hrs.del.start = hrs.del.start, # Only relevant when strategy = 2. How many HOURS need to be ignored at the START of the measurement?
+               hrs.del.end = hrs.del.end, # Only relevant when strategy = 2. How many HOURS need to be ignored at the END of the measurement?
                maxdur = 18, # How many DAYS of measurement do you maximumally expect?
                includedaycrit = 16, # number of minimum valid hours in a day to attempt physical activity analysis
                winhr = c(5), # size of M5 and L5 (5 hours by default)
