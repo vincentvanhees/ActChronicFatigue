@@ -35,7 +35,7 @@ if (development.mode == TRUE) {
   # do.gt3x.conversion = TRUE
   install_again = FALSE
   testbatch = FALSE
-  Q1b = 1
+  Q1 = 1
   if ("ActChronicFatigue" %in% rownames(installed.packages()) == TRUE) {
     cat(paste0(rep('_',options()$width),collapse=''))
     Q1 = menu(c("Ja", "Nee"), title="\nWil je de software opnieuw installeren?")
