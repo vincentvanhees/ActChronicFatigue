@@ -13,19 +13,24 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
     coln1 = which(colnames(D) == "bed1")
     startdate = which(colnames(D) == "BEGINDAT")
     
-    if(.Platform$OS.type == "windows") {
-      options(warn=-1)
-      tmpp = as.numeric(D$BEGINDAT)
-      D$BEGINDAT = as.Date(tmpp, origin="1900-1-1") - 2 # to correct for Excel and R bias
-      options(warn=0)
-    } else {
-      D$BEGINDAT = as.Date(D$BEGINDAT)
-    }
+    # if(.Platform$OS.type == "windows") {
+    #   options(warn=-1)
+    #   # 
+    #   D$BEGINDAT = as.Date(as.POSIXlt(D$BEGINDAT))
+    #   # if (abs(tmpp - now) > (3600*24*365*50)) {
+    #   #   D$BEGINDAT = as.Date(tmpp, origin="1900-1-1") - 2 # to correct for Excel and R bias
+    #   # } else {
+    #   #   D$BEGINDAT = as.Date(tmpp, origin="1970-1-1") # to correct for Excel and R bias
+    #   # }
+    #   options(warn=0)
+    # } else {
+    D$BEGINDAT = as.Date(D$BEGINDAT)
+    # }
     D = D[-which(is.na(D$BEGINDAT) == TRUE),]
     
     Ncols = length(coln1:ncol(D)) # make sure only an even number of colums are loaded
     D = D[,c(colid,  startdate, coln1:(ncol(D)-(Ncols %% 2)))]
-
+    
     myfun = function(x) {
       if (is.na(x) == TRUE | x == "") {
         x = ""
@@ -60,7 +65,7 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
       }
       return(x)
     }
-
+    
     for (i in 3:ncol(D)) {
       D[,i] =  sapply(X = D[,i], FUN = myfun)
     }
@@ -69,7 +74,7 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
     outputfile = paste0(unlist(strsplit(sleeplog,"[.]cs"))[1],"2.csv")
     colnames(D)[1] = "ID"
     dup = which(duplicated(D$ID,incomparables=NA) == TRUE)
-
+    
     if (length(dup) > 0) {
       cat("\nLet op: Er zijn twee metingen voor dezelfde persoon in het slaapdagboek. We gebruiken de meeste recente.")
       rows2delete = c()
@@ -79,7 +84,7 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
       }
       if (length(rows2delete) > 0) D = D[-rows2delete,]
     }
-
+    
     if (length(part2resultsfile) > 0) {
       P2 = read.csv(part2resultsfile)
       P2$start_time
@@ -105,7 +110,7 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
           }
         }
       }
-
+      
       cnt = 1
       while (cnt > 0) { # remove rows without sleep diary
         tmp = as.character(D[cnt,3:ncol(D)])
