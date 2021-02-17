@@ -6,17 +6,16 @@ rm(list=ls())
 
 gebruik_slaap_dagboek = TRUE
 referentiewaarden = c(30,8) # gemiddelde en standaard deviatie
-
-development.mode =FALSE # laat op FALSE staan, TRUE is alleen voor onderhoud
-sleeplogidnum =TRUE # TRUE als patient ID een nummer is.
+sleeplogidnum =TRUE # TRUE als patient ID een nummer is, FALSE als het ook letters bevat
 
 
-# hoeveel urem data wil kje negeren aan het begin en aan het einde van de meting
+# hoeveel uren data wil je negeren aan het begin en aan het einde van de meting?
 hrs.del.start = 0 # aantal uren te negeren aan het begin
-hrs.del.end = 0 # aantal uren te negeren aan het begin
+hrs.del.end = 0 # aantal uren te negeren aan het einde
 
 #=========================================
 # Install code if not available:
+development.mode =FALSE # laat op FALSE staan, TRUE is alleen voor onderhoud
 if (development.mode == TRUE) {
   roxygen2::roxygenise()
   testbatch  = FALSE
@@ -51,13 +50,12 @@ if (development.mode == TRUE) {
         detach("package:ActChronicFatigue", unload=TRUE)
       }
     }
-    depe = TRUE
     if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
       cat("\nGGIR installeren...")
       remotes::install_github("wadpac/GGIR", dependencies=TRUE)
     }
     cat("\nActChronicFatigue installeren...")
-    remotes::install_github("vincentvanhees/ActChronicFatigue", dependencies=depe) #, force = depe)
+    remotes::install_github("vincentvanhees/ActChronicFatigue", dependencies=TRUE)
 
   }
   library(ActChronicFatigue)
