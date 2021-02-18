@@ -32,8 +32,10 @@ summarise = function(outputdir, part5_summary, Nmostrecent = 10,
   part2_summary$Activity_zscore = round((part2_summary$Activity - referentiewaarden[1]) / referentiewaarden[2], digits=1) # - 23.64) / 15.5 for ENMO
   part5_summary = merge(part5_summary, part2_summary, by.x = "ID2", by.y = "ID")
   cat(paste0("Klassificaties voor meest recente ", Nmostrecent, " metingen: "))
-  most_recent_recordings = which(order(as.Date(Sys.time()) - 
-                                         as.Date(part5_summary$calendar_date), decreasing = T) <= Nmostrecent)
+  # most_recent_recordings = which(order(as.Date(Sys.time()) - 
+  #                                        as.Date(part5_summary$calendar_date), decreasing = T) <= Nmostrecent)
+  most_recent_recordings = order(as.Date(Sys.time()) - 
+                  as.Date(part5_summary$calendar_date), decreasing = F)[1:Nmostrecent]
   part5_summary = part5_summary[order(as.Date(part5_summary$calendar_date)),]
   recent_recording = part5_summary[most_recent_recordings,
                                    c("ID2", "calendar_date", "prop_perv_passive", "Activity_zscore",
