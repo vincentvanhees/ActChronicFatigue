@@ -13,19 +13,21 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
     coln1 = which(colnames(D) == "bed1")
     startdate = which(colnames(D) == "BEGINDAT")
     
-    # if(.Platform$OS.type == "windows") {
-    #   options(warn=-1)
-    #   # 
-    #   D$BEGINDAT = as.Date(as.POSIXlt(D$BEGINDAT))
-    #   # if (abs(tmpp - now) > (3600*24*365*50)) {
-    #   #   D$BEGINDAT = as.Date(tmpp, origin="1900-1-1") - 2 # to correct for Excel and R bias
-    #   # } else {
-    #   #   D$BEGINDAT = as.Date(tmpp, origin="1970-1-1") # to correct for Excel and R bias
-    #   # }
-    #   options(warn=0)
-    # } else {
-    D$BEGINDAT = as.Date(D$BEGINDAT)
-    # }
+    # convert dates
+    if(.Platform$OS.type == "windows") {
+      options(warn=-1)
+      testD = as.character(D$BEGINDAT)
+      tmp1 = testD[which(is.na(testD) == FALSE)[1]]
+      tmp2 = unlist(strsplit(tmp1, "-"))
+      if (length(tmp2) == 1) { #dates as number (laptop Manon)
+        D$BEGINDAT = as.Date(testD, origin="1900-1-1") - 2 # to correct for Excel and R bias
+      } else { # dates as readable character (laptop Tanja)
+        D$BEGINDAT = as.Date(as.POSIXlt(D$BEGINDAT))
+      }
+      options(warn=0)
+    } else {
+      D$BEGINDAT = as.Date(D$BEGINDAT)
+    }
     D = D[-which(is.na(D$BEGINDAT) == TRUE),]
     
     Ncols = length(coln1:ncol(D)) # make sure only an even number of colums are loaded
