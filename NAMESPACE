@@ -2,7 +2,6 @@
 
 export(addVariables)
 export(addVariables5)
-export(convert_diary)
 export(convert_sleeplog)
 export(obtain_folder_paths)
 export(runGGIR)

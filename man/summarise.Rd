@@ -4,20 +4,12 @@
 \alias{summarise}
 \title{summarise}
 \usage{
-summarise(
-  outputdir,
-  part5_summary,
-  Nmostrecent = 10,
-  model_threshold = 75,
-  referentiewaarden
-)
+summarise(outputdir, part5_summary, model_threshold = 75, referentiewaarden)
 }
 \arguments{
 \item{outputdir}{...}
 
 \item{part5_summary}{...}
-
-\item{Nmostrecent}{...}
 
 \item{model_threshold}{...}
 

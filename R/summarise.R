@@ -2,7 +2,6 @@
 #'
 #' @param outputdir ...
 #' @param part5_summary ...
-#' @param Nmostrecent ...
 #' @param model_threshold ...
 #' @param referentiewaarden ...
 #' @return no object is returned, only a summary is printed to the screen
@@ -10,7 +9,7 @@
 #' @importFrom grDevices dev.off pdf
 #' @importFrom graphics abline axis barplot par
 #' @importFrom graphics legend lines text
-summarise = function(outputdir, part5_summary, Nmostrecent = 10,
+summarise = function(outputdir, part5_summary, 
                      model_threshold = 75, referentiewaarden){
   part2_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                             pattern = "part2_summary", value = T)
@@ -31,11 +30,29 @@ summarise = function(outputdir, part5_summary, Nmostrecent = 10,
   colnames(part2_summary) = c("ID","Activity_zscore")
   part2_summary$Activity_zscore = round((part2_summary$Activity - referentiewaarden[1]) / referentiewaarden[2], digits=1) # - 23.64) / 15.5 for ENMO
   part5_summary = merge(part5_summary, part2_summary, by.x = "ID2", by.y = "ID")
-  cat(paste0("Klassificaties voor meest recente ", Nmostrecent, " metingen: "))
+  
   # most_recent_recordings = which(order(as.Date(Sys.time()) - 
   #                                        as.Date(part5_summary$calendar_date), decreasing = T) <= Nmostrecent)
-  most_recent_recordings = order(as.Date(Sys.time()) - 
-                  as.Date(part5_summary$calendar_date), decreasing = F)[1:Nmostrecent]
+  
+  # outputdir = "/media/vincent/DATA/actometer_nkcv/output_nkcv_wrist"
+  # check for which IDs reports have already been generated:
+  filesinresults = dir(paste0(outputdir, "/results"))
+  report_names = grep(pattern = "eweeg_en_slaap_rapport_", x = filesinresults, value = TRUE)
+  if (length(report_names) > 0) {
+    extractID = function(x) {
+      return(unlist(strsplit(x, "_rapport_|[.]pd"))[2])
+    }
+    
+    IDdone = unlist(lapply(X = report_names, FUN =  extractID))
+    
+  }
+  most_recent_recordings = which(part5_summary$ID2 %in% IDdone == FALSE)
+  cat(paste0("Klassificaties voor meest recente ", length(most_recent_recordings), " metingen: "))
+  
+  # most_recent_recordings = order(as.Date(Sys.time()) - 
+  #                 as.Date(part5_summary$calendar_date), decreasing = F)[1:Nmostrecent]
+  
+  
   part5_summary = part5_summary[order(as.Date(part5_summary$calendar_date)),]
   recent_recording = part5_summary[most_recent_recordings,
                                    c("ID2", "calendar_date", "prop_perv_passive", "Activity_zscore",
