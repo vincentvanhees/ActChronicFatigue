@@ -1,8 +1,8 @@
 Package: ActChronicFatigue
 Type: Package
 Title: Process accelerometer data from individuals with chronic fatigue
-Version: 0.2-2
-Date: 2021-02-25
+Version: 0.2-3
+Date: 2021-03-31
 Authors@R: c(person("Vincent T","van Hees",role=c("aut","cre"),
                   email="v.vanhees@accelting.com"))
 Maintainer: Vincent T van Hees <v.vanhees@accelting.com>

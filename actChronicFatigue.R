@@ -13,53 +13,53 @@ sleeplogidnum =TRUE # TRUE als patient ID een nummer is, FALSE als het ook lette
 hrs.del.start = 0 # aantal uren te negeren aan het begin
 hrs.del.end = 0 # aantal uren te negeren aan het einde
 
-#=========================================
-# Install code if not available:
+# #=========================================
+# # Install code if not available:
 development.mode =FALSE # laat op FALSE staan, TRUE is alleen voor onderhoud
-if (development.mode == TRUE) {
-  roxygen2::roxygenise()
-  testbatch  = FALSE
-  # do.gt3x.conversion = TRUE
-  locationRcode = "/home/vincent/projects/ActChronicFatigue/R"
-  ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
-  for (i in 1:length(ffnames)) {
-    source(paste(locationRcode,"/",ffnames[i],sep=""))
-  }
-  locationRcode = "/home/vincent/GGIR/R"
-  ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
-  for (i in 1:length(ffnames)) {
-    source(paste(locationRcode,"/",ffnames[i],sep=""))
-  }
-} else { # install code from GitHub
-  # do.gt3x.conversion = TRUE
-  install_again = FALSE
-  testbatch = FALSE
-  Q1 = 1
-  if ("ActChronicFatigue" %in% rownames(installed.packages()) == TRUE) {
-    cat(paste0(rep('_',options()$width),collapse=''))
-    Q1 = menu(c("Ja", "Nee"), title="\nWil je de software opnieuw installeren?")
-  }
-  if (Q1 == 1 | "ActChronicFatigue" %in% rownames(installed.packages()) == FALSE | install_again == TRUE) {
-    if ("remotes" %in% rownames(installed.packages()) == FALSE) {
-      cat("\nremotes installeren...")
-      install.packages("remotes")
-    }
-    library("remotes")
-    if (install_again == TRUE) {
-      if("ActChronicFatigue" %in% (.packages())){
-        detach("package:ActChronicFatigue", unload=TRUE)
-      }
-    }
-    if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
-      cat("\nGGIR installeren...")
-      remotes::install_github("wadpac/GGIR", dependencies=TRUE)
-    }
-    cat("\nActChronicFatigue installeren...")
-    remotes::install_github("vincentvanhees/ActChronicFatigue", dependencies=TRUE)
-
-  }
-  library(ActChronicFatigue)
-}
+# if (development.mode == TRUE) {
+#   roxygen2::roxygenise()
+#   testbatch  = FALSE
+#   # do.gt3x.conversion = TRUE
+  # locationRcode = "/home/vincent/projects/ActChronicFatigue/R"
+  # ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
+  # for (i in 1:length(ffnames)) {
+  #   source(paste(locationRcode,"/",ffnames[i],sep=""))
+  # }
+#   locationRcode = "/home/vincent/GGIR/R"
+#   ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
+#   for (i in 1:length(ffnames)) {
+#     source(paste(locationRcode,"/",ffnames[i],sep=""))
+#   }
+# } else { # install code from GitHub
+#   # do.gt3x.conversion = TRUE
+#   install_again = FALSE
+testbatch = FALSE
+#   Q1 = 1
+#   if ("ActChronicFatigue" %in% rownames(installed.packages()) == TRUE) {
+#     cat(paste0(rep('_',options()$width),collapse=''))
+#     Q1 = menu(c("Ja", "Nee"), title="\nWil je de software opnieuw installeren?")
+#   }
+#   if (Q1 == 1 | "ActChronicFatigue" %in% rownames(installed.packages()) == FALSE | install_again == TRUE) {
+#     if ("remotes" %in% rownames(installed.packages()) == FALSE) {
+#       cat("\nremotes installeren...")
+#       install.packages("remotes")
+#     }
+#     library("remotes")
+#     if (install_again == TRUE) {
+#       if("ActChronicFatigue" %in% (.packages())){
+#         detach("package:ActChronicFatigue", unload=TRUE)
+#       }
+#     }
+#     if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
+#       cat("\nGGIR installeren...")
+#       remotes::install_github("wadpac/GGIR", dependencies=TRUE)
+#     }
+#     cat("\nActChronicFatigue installeren...")
+#     remotes::install_github("vincentvanhees/ActChronicFatigue", dependencies=TRUE)
+# 
+#   }
+library(ActChronicFatigue)
+# }
 
 #=========================================
 # Obtain data locations

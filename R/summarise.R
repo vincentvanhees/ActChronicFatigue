@@ -38,21 +38,23 @@ summarise = function(outputdir, part5_summary,
   # check for which IDs reports have already been generated:
   filesinresults = dir(paste0(outputdir, "/results"))
   report_names = grep(pattern = "eweeg_en_slaap_rapport_", x = filesinresults, value = TRUE)
+  IDdone =c()
   if (length(report_names) > 0) {
     extractID = function(x) {
       return(unlist(strsplit(x, "_rapport_|[.]pd"))[2])
     }
-    
     IDdone = unlist(lapply(X = report_names, FUN =  extractID))
-    
   }
-  most_recent_recordings = which(part5_summary$ID2 %in% IDdone == FALSE)
+  if (length(IDdone) > 0) {
+    most_recent_recordings = which(part5_summary$ID2 %in% IDdone == FALSE)
+  } else {
+    most_recent_recordings = 1:nrow(part5_summary)
+  }
+  
   cat(paste0("Klassificaties voor meest recente ", length(most_recent_recordings), " metingen: "))
   
   # most_recent_recordings = order(as.Date(Sys.time()) - 
   #                 as.Date(part5_summary$calendar_date), decreasing = F)[1:Nmostrecent]
-  
-  
   part5_summary = part5_summary[order(as.Date(part5_summary$calendar_date)),]
   recent_recording = part5_summary[most_recent_recordings,
                                    c("ID2", "calendar_date", "prop_perv_passive", "Activity_zscore",
@@ -76,11 +78,9 @@ summarise = function(outputdir, part5_summary,
   
   varnames = c("Datum start meeting", "Klassificatie", "Kans op laag actief (%)",
                "Gemiddelde beweging t.o.v. referentie groep (z-score)")
-  
   recent_recording = recent_recording[,c(1:4,10,5:9)]
   cat("\n")
-  print(recent_recording)
-  
+
   part5_daysummary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                             pattern = "part5_daysummary", value = T)
   part5_daysummary = read.csv(file=part5_daysummary_file, sep=",")
@@ -99,8 +99,6 @@ summarise = function(outputdir, part5_summary,
     part4_nightsummary$weekday = gsub(x = part4_nightsummary$weekday,
                                     pattern = days[ki], replacement = dagen[ki]) 
   }
-  
-  
   for (ID in unique(recent_recording$ID)) {
     P5D = part5_daysummary[which(part5_daysummary$ID == ID),]
     P4N = part4_nightsummary[which(part4_nightsummary$ID == ID),]
@@ -123,7 +121,6 @@ summarise = function(outputdir, part5_summary,
         }
       }
     }
-    
     P5D$calendar_date = format(as.Date(P5D$calendar_date), "%d")
     
     # Now shorten weekday
@@ -186,10 +183,6 @@ summarise = function(outputdir, part5_summary,
     
     #========================================
     # Slaap waak tijden
-    
-    
-    # print(dim(P4N))
-    # print(colnames(P4N))
     sleeponset_ts = P4N$sleeponset_ts # c("22:00", "23:20", "01:10")
     wakeup_ts = P4N$wakeup_ts # c("6:55", "8:30", "10:40")
     sleeponset_log_ts = P4N$guider_onset_ts # c("22:00", "23:20", "01:10")
