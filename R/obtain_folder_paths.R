@@ -30,7 +30,7 @@ obtain_folder_paths = function() {
       cat(paste0(rep('_',options()$width),collapse=''))
       Q5 = menu(c("Ja", "Nee"), title=paste0("\nIs ",outputdir," nog steeds de locatie waar je de resultaten wilt hebben? \nZo nee, specificeer de nieuwe locatie in het volgende scherm"))
       if (Q5 == 2) {
-        datadir = easycsv::choose_dir()
+        outputdir = easycsv::choose_dir()
       }
       
       cat(paste0(rep('_',options()$width),collapse=''))
