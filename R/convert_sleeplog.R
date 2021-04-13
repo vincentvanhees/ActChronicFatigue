@@ -12,7 +12,6 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
     D = as.data.frame(readxl::read_excel(sleeplog))
     coln1 = which(colnames(D) == "bed1")
     startdate = which(colnames(D) == "BEGINDAT")
-    
     # convert dates
     if(.Platform$OS.type == "windows") {
       options(warn=-1)
@@ -28,11 +27,9 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
     } else {
       D$BEGINDAT = as.Date(D$BEGINDAT)
     }
-    D = D[-which(is.na(D$BEGINDAT) == TRUE),]
-    
+    D = D[which(is.na(D$BEGINDAT) == FALSE),]
     Ncols = length(coln1:ncol(D)) # make sure only an even number of colums are loaded
     D = D[,c(colid,  startdate, coln1:(ncol(D)-(Ncols %% 2)))]
-    
     myfun = function(x) {
       if (is.na(x) == TRUE | x == "") {
         x = ""
@@ -67,11 +64,9 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
       }
       return(x)
     }
-    
     for (i in 3:ncol(D)) {
       D[,i] =  sapply(X = D[,i], FUN = myfun)
     }
-    # D$BEGINDAT = as.Date(D$BEGINDAT)
     #---------------------------------------------------------------------------
     outputfile = paste0(unlist(strsplit(sleeplog,"[.]cs"))[1],"2.csv")
     colnames(D)[1] = "ID"
@@ -86,7 +81,6 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
       }
       if (length(rows2delete) > 0) D = D[-rows2delete,]
     }
-    
     if (length(part2resultsfile) > 0) {
       P2 = read.csv(part2resultsfile)
       P2$start_time
@@ -112,7 +106,6 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
           }
         }
       }
-      
       cnt = 1
       while (cnt > 0) { # remove rows without sleep diary
         tmp = as.character(D[cnt,3:ncol(D)])

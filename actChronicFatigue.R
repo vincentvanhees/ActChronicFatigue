@@ -177,7 +177,7 @@ model_threshold = -CF[1]/CF[2]
 
 #=============================================================================
 # Summarise and show on screen
-cat("\n Samenvatting van resultaten\n")
+cat("\n Samenvatting van resultatenL\n")
 SUM = ActChronicFatigue::summarise(outputdir, part5_summary, 
                                    model_threshold=model_threshold, referentiewaarden =referentiewaarden)
 
