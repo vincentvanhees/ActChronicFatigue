@@ -55,7 +55,7 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                storefolderstructure = TRUE,
                do.parallel = do.parallel,
                do.bfen = TRUE,
-               acc.metric = "BFEN", # more similar original aktometer approach and reduced impact of Actigraph calibration challengee
+               acc.metric = acc.metric, # more similar original aktometer approach and reduced impact of Actigraph calibration challengee
                hb = 10,
                lb = 0.8,
                coln1 = 3,
