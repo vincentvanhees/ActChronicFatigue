@@ -2,8 +2,8 @@ rm(list=ls())
 graphics.off()
 show.training.performance = FALSE
 library(psych)
-library(ROCR)
-
+# library(ROCR)
+library(pROC)
 #=====================================================
 # Input needed:
 #=====================================================
@@ -61,15 +61,24 @@ D = D[,c("act9167", "ID2", "filename", "Nvaliddays","Ndays_used", # these are th
          "nonwear_perc_day_spt_pla", "ACC_day_mg_pla", "nonwear_perc_day_pla")]
 
 D = D[which(D$nonwear_perc_day_spt_pla <= 33 & D$nonwear_perc_day_pla <= 33 & D$Ndays_used >= 12),] #& D$calib_err < 0.02 #& D$Nvaliddays > 10
+
 # Merge data with labels
 NmatchingIDs = length(which(labels[,id_column_labels] %in% D[,id_column_part5] == TRUE))
+
 if (NmatchingIDs == 0) {
   print("No matching id could be found, please check that correct column is specified")
   print(paste0("format of id in labels: ", labels[1,id_column_labels]))
   print(paste0("format of id in part2_summary.csv: ",  D[1,id_column_part5]))
+} else {
+  labels = labels[!duplicated(labels),]
+  D = D[!duplicated(D),]
+  labels = labels[which(labels[,id_column_labels] %in% D[,id_column_part5] == TRUE),]
+  D = D[which(D[,id_column_part5] %in% labels[,id_column_labels] == TRUE),]
+  
 }
-MergedData = merge(labels,D,by.x=id_column_labels,by.y=id_column_part5)
+MergedData = merge(labels, D,by.x=id_column_labels,by.y=id_column_part5)
 
+rm(D)
 findwinner = function(x) {
   y = x[c(fluctuationactive,pervasivepassive,pervasiveactive)]
   if (sort(y)[2] > 0.5) {
@@ -95,9 +104,9 @@ for (location in c(wrist)) { #,hip
   cat("\n===============================")
   cnt = 1
   # select subset of one sensor location
-  D = MergedData[which(MergedData$loc == location),]
-  for (testind in sample(nrow(D))) {
-    S = D # create copy, because in the second iteration of the loop we will need the original data again
+  Dloc = MergedData[which(MergedData$loc == location),]
+  for (testind in sample(nrow(Dloc))) {
+    S = Dloc # create copy, because in the second iteration of the loop we will need the original data again
     # split into training and test set
     testset = S[testind,]
     S = S[-testind,] # training set
@@ -152,10 +161,14 @@ for (location in c(wrist)) { #,hip
   cat(paste0("\n",location,": overall performance on leave one out test set (rows are labels, columns estimates)"))
   print(table(output$label,output$estimate)) # estimate are columns, label are rows
   print(psych::cohen.kappa(table(output$label,output$estimate)))
+  
   output$result = FALSE
   output$result[which(output$estimate == output$label)] = TRUE
   cat("\nIDs corresponding to errors:\n")
   cat(sort(output$ID[which(output$result == FALSE)]))
+  cat("\n")
+  cat(paste0("auc: ",round(auc(pROC::roc(output$label,output$estimate, )), digits=4)))
+  
 }
 
 MergedData_wrist = MergedData[which(MergedData$loc == wrist),]
