@@ -2,8 +2,8 @@ rm(list=ls())
 graphics.off()
 show.training.performance = FALSE
 library(psych)
-# library(ROCR)
-library(pROC)
+library(ROCR)
+# library(pROC)
 #=====================================================
 # Input needed:
 #=====================================================
@@ -35,7 +35,7 @@ derive_threshold = function(fit, data) {
   # https://www.r-bloggers.com/a-small-introduction-to-the-rocr-package/
   # Note: If cost.fp = 1 and cost.fn =1, then threshold is still optimized, but with equal importance
   statspredict <- stats::predict(object = fit, newdata = data, type = "response")
-  pred = prediction(statspredict,data$label)
+  pred = ROCR::prediction(statspredict,data$label)
   opt.cut = function(perf, pred){
     cut.ind = mapply(FUN=function(x, y, p){
       d = (x - 0)^2 + (y-1)^2
@@ -44,7 +44,7 @@ derive_threshold = function(fit, data) {
         cutoff = p[[ind]])
     }, perf@x.values, perf@y.values, pred@cutoffs)
   }
-  roc.perf = performance(pred, cost.fp = 1, cost.fn = 3, measure = "tpr", x.measure = "fpr") #, ) #
+  roc.perf = ROCR::performance(pred, cost.fp = 1, cost.fn = 3, measure = "tpr", x.measure = "fpr") #, ) #
   threshold = opt.cut(roc.perf, pred)[3]
 }
 
@@ -58,7 +58,7 @@ D = read.csv(file=part5_summary_file, sep=separator)
 
 # "gradient_mean", "y_intercept_mean", "X1", "X2", "X3", "X4",
 D = D[,c("act9167", "ID2", "filename", "Nvaliddays","Ndays_used", # these are the number of days used by the model
-         "nonwear_perc_day_spt_pla", "ACC_day_mg_pla", "nonwear_perc_day_pla")]
+         "nonwear_perc_day_spt_pla", "ACC_day_mg_pla", "nonwear_perc_day_pla", "calendar_date")]
 
 D = D[which(D$nonwear_perc_day_spt_pla <= 33 & D$nonwear_perc_day_pla <= 33 & D$Ndays_used >= 12),] #& D$calib_err < 0.02 #& D$Nvaliddays > 10
 
@@ -208,3 +208,12 @@ cat("\nMisclassified:\n")
 # print(MergedData_wrist[which(MergedData_wrist$ID %in% output$ID[which(output$label != output$estimate)] == TRUE),]) # estimate are columns, label are rows
 
 print(output[which(output$label != output$estimate),]) # estimate are columns, label are rows
+output$calendar_date = as.Date(output$calendar_date)
+output$year = format(output$calendar_date,"%Y")
+output$error = abs(output$estimate - output$label)
+output = output[order(output$calendar_date),]
+x11()
+plot(as.Date(output$calendar_date), output$error,
+     type="p", pch=20, xlab="datum", ylab="misclassificatie")
+
+# table(output[,c("year","error")])
