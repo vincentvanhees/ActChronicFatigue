@@ -1,7 +1,7 @@
 #' convert_sleeplog
 #'
-#' @param sleeplog ...
-#' @param part2resultsfile ...
+#' @param sleeplog path to sleeplog (diary) file kept by the study (xlsx) assumed to have a column BEGINDAT with the date of recording and at least a column bed1 to indicate the time of going to bed on night 1.
+#' @param part2resultsfile Path to GGIR part 2 person level summary file (csv).
 #' @return no object is returned, only a new file is created in the same folder as the activitylog
 #' @export
 #' @importFrom utils write.csv

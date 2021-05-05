@@ -23,35 +23,35 @@ runGGIR(
 )
 }
 \arguments{
-\item{datadir}{...}
+\item{datadir}{GGIR argument, see document R package GGIR}
 
-\item{outputdir}{...}
+\item{outputdir}{GGIR argument, see document R package GGIR}
 
-\item{mode}{...}
+\item{mode}{GGIR argument, see document R package GGIR}
 
-\item{do.report}{...}
+\item{do.report}{GGIR argument, see document R package GGIR}
 
-\item{overwrite}{...}
+\item{overwrite}{GGIR argument, see document R package GGIR}
 
-\item{do.visual}{...}
+\item{do.visual}{GGIR argument, see document R package GGIR}
 
-\item{visualreport}{...}
+\item{visualreport}{GGIR argument, see document R package GGIR}
 
-\item{acc.metric}{...}
+\item{acc.metric}{GGIR argument, see document R package GGIR}
 
-\item{chunksize}{...}
+\item{chunksize}{GGIR argument, see document R package GGIR}
 
-\item{loglocation}{...}
+\item{loglocation}{GGIR argument, see document R package GGIR}
 
-\item{do.parallel}{...}
+\item{do.parallel}{GGIR argument, see document R package GGIR}
 
-\item{testbatch}{...}
+\item{testbatch}{If set to TRUE the function will only process the first three files}
 
-\item{sleeplogidnum}{...}
+\item{sleeplogidnum}{GGIR argument, see document R package GGIR}
 
-\item{hrs.del.start}{...}
+\item{hrs.del.start}{GGIR argument, see document R package GGIR}
 
-\item{hrs.del.end}{...}
+\item{hrs.del.end}{GGIR argument, see document R package GGIR}
 }
 \value{
 no object is returned, GGIR writes all its outputs to files
