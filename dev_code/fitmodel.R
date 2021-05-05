@@ -195,8 +195,8 @@ write.csv(data2store,
 #====================================================
 # Exploration plots
 
-x11()
-plot(MergedData_wrist$act9167, MergedData_wrist$pred - MergedData_wrist$label, type="p", pch=20)
+# x11()
+# plot(MergedData_wrist$act9167, MergedData_wrist$pred - MergedData_wrist$label, type="p", pch=20)
 
 x11()
 boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type="p", pch=20)
@@ -212,8 +212,8 @@ output$calendar_date = as.Date(output$calendar_date)
 output$year = format(output$calendar_date,"%Y")
 output$error = abs(output$estimate - output$label)
 output = output[order(output$calendar_date),]
-x11()
-plot(as.Date(output$calendar_date), output$error,
-     type="p", pch=20, xlab="datum", ylab="misclassificatie")
+# x11()
+# plot(as.Date(output$calendar_date), output$error,
+#      type="p", pch=20, xlab="datum", ylab="misclassificatie")
 
 # table(output[,c("year","error")])

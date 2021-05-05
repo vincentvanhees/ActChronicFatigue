@@ -159,7 +159,6 @@ part5_summary = cbind(part5_summary, prop_perv_passive)
 CF = coef(final_model_wrist)
 model_threshold = -CF[1]/CF[2]
 
-
 # Note that we assumed that all data in part2_summary comes from accelerometer
 # worn on the wrist, because that is what the model was trained for.
 # If all went well object prop_perv_passive will have the predictions.
