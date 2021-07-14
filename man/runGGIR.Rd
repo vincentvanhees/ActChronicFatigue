@@ -19,7 +19,8 @@ runGGIR(
   testbatch = FALSE,
   sleeplogidnum = TRUE,
   hrs.del.start = 0,
-  hrs.del.end = 0
+  hrs.del.end = 0,
+  sleepwindowType = "TimeInBed"
 )
 }
 \arguments{
@@ -52,6 +53,8 @@ runGGIR(
 \item{hrs.del.start}{GGIR argument, see document R package GGIR}
 
 \item{hrs.del.end}{GGIR argument, see document R package GGIR}
+
+\item{sleepwindowType}{GGIR argument, see document R package GGIR}
 }
 \value{
 no object is returned, GGIR writes all its outputs to files
