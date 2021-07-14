@@ -10,7 +10,8 @@
 #' @importFrom graphics abline axis barplot par
 #' @importFrom graphics legend lines text
 summarise = function(outputdir, part5_summary, 
-                     model_threshold = 75, referentiewaarden){
+                     model_threshold = 75, referentiewaarden,
+                     sleepwindowType="SPT"){
   part2_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                             pattern = "part2_summary", value = T)
   part2_summary = read.csv(file=part2_summary_file, sep=",")
@@ -156,14 +157,30 @@ summarise = function(outputdir, part5_summary,
       # par(mar=c(4, 4, 3, 0.5)) 
       #========================================
       # Plot sleep duration
-      A = P5D[,c("dur_spt_sleep_min", "dur_spt_min")] / 60
+      # A = P5D[,c("dur_spt_sleep_min", "dur_spt_min", )] / 60
+      if (sleepwindowType == "TimeInBed") {
+        A = P4N[,c("SleepDurationInSpt" , "SptDuration", "sleeplatency", "guider_inbedDuration", "sleepefficiency")]
+        title = "Slaap (donker), Wakker na start slaap (licht), Slaap latency (lichter), en Slaap efficientie %"
+        # A[,1:4] = A[,1:4]/60
+      } else {
+        A = P4N[,c("SleepDurationInSpt" , "SptDuration")] #/ 60
+        title = "Slaap (donker), Wakker na start slaap (licht)"
+      }
+      if (nrow(P4N) > nrow(P5D) & nrow(P4N) > 1) A = A[2:nrow(A),]
       maxvalue = max(A[,2], na.rm = T)
       A[,2] = A[,2] - A[,1]
-      brpos = barplot(t(as.matrix(A)), space=rep(0, nrow(A)), ylab="Tijd in uren", ylim=c(0, maxvalue + 1.5),cex.axis = 0.9,
-                      names.arg = P5D$weekday, cex.names=CXdays, cex.lab=CL,
-                      main="Slaap (donker), Wakker na start slaap (licht) en Slaap efficientie % na start slaap (nummers)")
-      
-      text(brpos, rowSums(A)+1, labels = round(100*(A[,1] / (rowSums(A))), digits = 0))
+      if (sleepwindowType == "TimeInBed") {
+        B = A[,c(1,2, 3)]
+      } else {
+        B = A[,c(1,2)]
+      }
+      brpos = barplot(t(as.matrix(B)), space=rep(0, nrow(B)), ylab="Tijd in uren", 
+                      ylim=c(0, maxvalue + 1.5),cex.axis = 0.9,
+                      names.arg = P4N$weekday, cex.names=CXdays, cex.lab=CL,
+                      main=title)
+      if (sleepwindowType == "TimeInBed") {
+        text(brpos, A$guider_inbedDuration+1, labels = round(100*(A$sleepefficiency), digits = 0))
+      }
       
       #========================================
       # Niet gedragen tijd
@@ -177,8 +194,13 @@ summarise = function(outputdir, part5_summary,
       # Slaap waak tijden
       sleeponset_ts = P4N$sleeponset_ts # c("22:00", "23:20", "01:10")
       wakeup_ts = P4N$wakeup_ts # c("6:55", "8:30", "10:40")
-      sleeponset_log_ts = P4N$guider_onset_ts # c("22:00", "23:20", "01:10")
-      wakeup_log_ts = P4N$guider_wakeup_ts # c("6:55", "8:30", "10:40")
+      if (sleepwindowType == "SPT") {
+        sleeponset_log_ts = P4N$guider_onset_ts
+        wakeup_log_ts = P4N$guider_wakeup_ts
+      } else if (sleepwindowType == "TimeInBed") {
+        sleeponset_log_ts = P4N$guider_inbedStart_ts
+        wakeup_log_ts = P4N$guider_inbedEnd_ts
+      }
       WV = which(is.na(wakeup_ts) == FALSE & is.na(sleeponset_ts) == FALSE &
                    is.na(wakeup_log_ts) == FALSE & is.na(sleeponset_log_ts) == FALSE)
       sleeponset_ts = as.POSIXlt(sleeponset_ts[WV],format="%H:%M")
@@ -227,7 +249,7 @@ summarise = function(outputdir, part5_summary,
       lines(WV[waki], sleeponset_ts[onsi], type = "b", lty=1, pch=17, cex=CXdots, col=COL[1])
       lines(WV[waki], wakeup_log_ts[waki], type = "b", lty=1, pch=16, cex=CXdots, col=COL[2])
       lines(WV[waki], sleeponset_log_ts[onsi], type = "b", lty=1, pch=17, cex=CXdots, col= COL[2])
-      legend("top", legend = c("beweegmeter opstatijden", "beweegmeter bedtijden",
+      legend("top", legend = c("beweegmeter opstatijden", "beweegmeter slaaptijden",
                                "dagboek opstatijden", "dagboek bedtijden"),
              col = COL[c(1,1,2,2)], lty=rep(1,4), pch=c(16,17,16,17), ncol=2, cex= 0.8)
       dev.off()
