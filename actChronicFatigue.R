@@ -13,52 +13,54 @@ sleeplogidnum =TRUE # TRUE als patient ID een nummer is, FALSE als het ook lette
 hrs.del.start = 0 # aantal uren te negeren aan het begin
 hrs.del.end = 0 # aantal uren te negeren aan het einde
 
+
+sleepwindowType="TimeInBed"
 # #=========================================
 # # Install code if not available:
 development.mode =FALSE # laat op FALSE staan, TRUE is alleen voor onderhoud
-# if (development.mode == TRUE) {
-#   roxygen2::roxygenise()
-#   testbatch  = FALSE
-#   # do.gt3x.conversion = TRUE
-  # locationRcode = "/home/vincent/projects/ActChronicFatigue/R"
-  # ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
-  # for (i in 1:length(ffnames)) {
-  #   source(paste(locationRcode,"/",ffnames[i],sep=""))
-  # }
-#   locationRcode = "/home/vincent/GGIR/R"
-#   ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
-#   for (i in 1:length(ffnames)) {
-#     source(paste(locationRcode,"/",ffnames[i],sep=""))
-#   }
-# } else { # install code from GitHub
-#   # do.gt3x.conversion = TRUE
-#   install_again = FALSE
 testbatch = FALSE
-#   Q1 = 1
-#   if ("ActChronicFatigue" %in% rownames(installed.packages()) == TRUE) {
-#     cat(paste0(rep('_',options()$width),collapse=''))
-#     Q1 = menu(c("Ja", "Nee"), title="\nWil je de software opnieuw installeren?")
+# if (development.mode == TRUE) {
+# roxygen2::roxygenise()
+# do.gt3x.conversion = TRUE
+# locationRcode = "/home/vincent/projects/ActChronicFatigue/R"
+# ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
+# for (i in 1:length(ffnames)) {
+#   source(paste(locationRcode,"/",ffnames[i],sep=""))
+# }
+# locationRcode = "/home/vincent/GGIR/R"
+# ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
+# for (i in 1:length(ffnames)) {
+#   source(paste(locationRcode,"/",ffnames[i],sep=""))
+# }
+# } else { # install code from GitHub
+# do.gt3x.conversion = TRUE
+
+# Q1 = 1
+# if ("ActChronicFatigue" %in% rownames(installed.packages()) == TRUE) {
+#   cat(paste0(rep('_',options()$width),collapse=''))
+#   Q1 = menu(c("Ja", "Nee"), title="\nWil je de software opnieuw installeren?")
+# } 
+# if (Q1 == 1 | "ActChronicFatigue" %in% rownames(installed.packages()) == FALSE | install_again == TRUE) {
+#   if ("remotes" %in% rownames(installed.packages()) == FALSE) {
+#     cat("\nremotes installeren...")
+#     install.packages("remotes")
 #   }
-#   if (Q1 == 1 | "ActChronicFatigue" %in% rownames(installed.packages()) == FALSE | install_again == TRUE) {
-#     if ("remotes" %in% rownames(installed.packages()) == FALSE) {
-#       cat("\nremotes installeren...")
-#       install.packages("remotes")
+#   library("remotes")
+#   if (install_again == TRUE) {
+#     if("ActChronicFatigue" %in% (.packages())){
+#       detach("package:ActChronicFatigue", unload=TRUE)
 #     }
-#     library("remotes")
-#     if (install_again == TRUE) {
-#       if("ActChronicFatigue" %in% (.packages())){
-#         detach("package:ActChronicFatigue", unload=TRUE)
-#       }
-#     }
-#     if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
-#       cat("\nGGIR installeren...")
-#       remotes::install_github("wadpac/GGIR", dependencies=TRUE)
-#     }
-#     cat("\nActChronicFatigue installeren...")
-#     remotes::install_github("vincentvanhees/ActChronicFatigue", dependencies=TRUE)
-# 
 #   }
+if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
+  cat("\nGGIR installeren...")
+  remotes::install_github("wadpac/GGIR", dependencies=TRUE, ref="issue418_sibreport")
+}
+#   cat("\nActChronicFatigue installeren...")
+#   remotes::install_github("vincentvanhees/ActChronicFatigue", dependencies=TRUE)
+#   
+# }
 library(ActChronicFatigue)
+library(GGIR)
 # }
 
 #=========================================
@@ -110,7 +112,6 @@ part2resultsfile = paste0(outputdir,"/output_",basename(datadir),"/results/part2
 
 #=============================================================================
 # If sleeplog exists convert sleeplog to expected format
-
 if (gebruik_slaap_dagboek == TRUE) {
   sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog, part2resultsfile)
   # sleeplogfile = convert_sleeplog(sleeplog, part2resultsfile)
@@ -122,10 +123,7 @@ ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(4:5)
                            do.report = c(4, 5), overwrite=FALSE, do.visual = TRUE,
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
                            loglocation = sleeplogfile, testbatch = testbatch ,
-                           do.parallel=TRUE, sleeplogidnum = TRUE)
-
-
-
+                           do.parallel=TRUE, sleeplogidnum = TRUE, sleepwindowType = sleepwindowType)
 
 #=============================================================================
 cat(paste0(rep('_',options()$width),collapse=''))
@@ -163,26 +161,11 @@ model_threshold = -CF[1]/CF[2]
 # worn on the wrist, because that is what the model was trained for.
 # If all went well object prop_perv_passive will have the predictions.
 
-# Check that estimate is matches with labels in our traininge data
-# labels = read.csv("/media/vincent/DATA/actometer_nkcv/labels.csv")
-##part5_summary part5_summary = part5_summary[which(part5_summary$ID2 %in% labels$ID[which(labels$loc == "wrist")]),]
-# EV = merge(labels, part5_summary, by.x = "ID", by.y = "ID2")
-# EV = EV[which(EV$loc == "wrist"),]
-# EV$pp = 0
-# EV$pp[which(EV$label == "pp")] = 1
-# x11();plot(EV[,c("pp","prop_perv_passive")],type="p", pch=20)
-
-
-
 #=============================================================================
 # Summarise and show on screen
 cat("\n Samenvatting van resultatenL\n")
 SUM = ActChronicFatigue::summarise(outputdir, part5_summary, 
-                                   model_threshold=model_threshold, referentiewaarden =referentiewaarden)
+                                   model_threshold=model_threshold, referentiewaarden =referentiewaarden,
+                                   sleepwindowType=sleepwindowType)
 
 
-# recent_results_file = paste0(outputdir,"/results/samenvatting_",
-#                              as.character(as.Date(Sys.time())),".csv")
-# write.csv(SUM, file = recent_results_file, row.names = FALSE)
-# cat(paste0("\nAanvullende resultaten staan in ",outputdir))
-# cat(paste0("\nSamenvatting van resultaten is ook opgeslagen in", recent_results_file, "\n"))

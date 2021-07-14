@@ -4,6 +4,7 @@
 #' @param part5_summary Content of GGIR part 5 personsummary file
 #' @param model_threshold Acceleration threshold corresponding to the model, which can be derived as negative of the first coefficient divided by the second coefficient.
 #' @param referentiewaarden Mean and standard deviation ENMO_fullRecordingMean in a reference population.
+#' @param sleepwindowType See, GGIR documentation.
 #' @return no object is returned, only a summary is printed to the screen
 #' @export
 #' @importFrom grDevices dev.off pdf
@@ -158,16 +159,20 @@ summarise = function(outputdir, part5_summary,
       #========================================
       # Plot sleep duration
       # A = P5D[,c("dur_spt_sleep_min", "dur_spt_min", )] / 60
+      if (nrow(P4N) > nrow(P5D) & nrow(P4N) > 1) {
+        P4N = P4N[2:nrow(P4N),]
+      }
       if (sleepwindowType == "TimeInBed") {
         A = P4N[,c("SleepDurationInSpt" , "SptDuration", "sleeplatency", "guider_inbedDuration", "sleepefficiency")]
-        title = "Slaap (donker), Wakker na start slaap (licht), Slaap latency (lichter), en Slaap efficientie %"
+        title = "(Onderstaande nummers geven de slaap efficientie aan uitgedrukt in procenten)" #Slaap (donker), Wakker na start slaap (licht), Slaap latency (lichter), en 
         # A[,1:4] = A[,1:4]/60
+        maxvalue = max(c(A[,2]+A[,3]), na.rm = T)
       } else {
         A = P4N[,c("SleepDurationInSpt" , "SptDuration")] #/ 60
         title = "Slaap (donker), Wakker na start slaap (licht)"
+        maxvalue = max(A[,2], na.rm = T)
       }
-      if (nrow(P4N) > nrow(P5D) & nrow(P4N) > 1) A = A[2:nrow(A),]
-      maxvalue = max(A[,2], na.rm = T)
+      
       A[,2] = A[,2] - A[,1]
       if (sleepwindowType == "TimeInBed") {
         B = A[,c(1,2, 3)]
@@ -175,13 +180,14 @@ summarise = function(outputdir, part5_summary,
         B = A[,c(1,2)]
       }
       brpos = barplot(t(as.matrix(B)), space=rep(0, nrow(B)), ylab="Tijd in uren", 
-                      ylim=c(0, maxvalue + 1.5),cex.axis = 0.9,
-                      names.arg = P4N$weekday, cex.names=CXdays, cex.lab=CL,
-                      main=title)
+                      ylim=c(0, maxvalue + 6),cex.axis = 0.9,
+                      names.arg = P4N$weekday, cex.names=CXdays, cex.lab=CL, cex.main=0.9,
+                      main=title, legend.text = c("Slaap", "Wakker na in slaap vallen", "Wakker voor in slaap vallen"),
+                      args.legend=list(ncol=3, x="topright", cex=0.9))
+
       if (sleepwindowType == "TimeInBed") {
-        text(brpos, A$guider_inbedDuration+1, labels = round(100*(A$sleepefficiency), digits = 0))
+        text(brpos, A$guider_inbedDuration+0.5, labels = round(100*(A$sleepefficiency), digits = 0), cex=0.8)
       }
-      
       #========================================
       # Niet gedragen tijd
       A = P5D[,c("nonwear_perc_day", "nonwear_perc_spt")]
@@ -207,21 +213,25 @@ summarise = function(outputdir, part5_summary,
       wakeup_ts = as.POSIXlt(wakeup_ts[WV],format="%H:%M")
       sleeponset_log_ts = as.POSIXlt(sleeponset_log_ts[WV],format="%H:%M")
       wakeup_log_ts = as.POSIXlt(wakeup_log_ts[WV],format="%H:%M")
-      
       for (j in 1:length(wakeup_ts)) {
         if (sleeponset_ts[j] < as.POSIXlt("18:00", format="%H:%M")) {
           sleeponset_ts[j] = sleeponset_ts[j] + (24 * 3600)
         }
-        if (sleeponset_log_ts[j] < as.POSIXlt("18:00", format="%H:%M")) {
-          sleeponset_log_ts[j] = sleeponset_log_ts[j] + (24 * 3600)
+        if (!is.na(sleeponset_log_ts[j])) {
+          if (sleeponset_log_ts[j] < as.POSIXlt("18:00", format="%H:%M")) {
+            sleeponset_log_ts[j] = sleeponset_log_ts[j] + (24 * 3600)
+          }
         }
         if (wakeup_ts[j] < sleeponset_ts[j] |
             (wakeup_ts[j] > as.POSIXlt("00:00", format="%H:%M")) & (wakeup_ts[j] < as.POSIXlt("12:00", format="%H:%M"))) {
           wakeup_ts[j] = wakeup_ts[j] + (24 * 3600)
         }
-        if (wakeup_log_ts[j] < sleeponset_log_ts[j] |
-            (wakeup_log_ts[j] > as.POSIXlt("00:00", format="%H:%M")) & (wakeup_log_ts[j] < as.POSIXlt("12:00", format="%H:%M"))) {
-          wakeup_log_ts[j] = wakeup_log_ts[j] + (24 * 3600)
+        if (!is.na(wakeup_log_ts[j])) {
+          if (wakeup_log_ts[j] < sleeponset_log_ts[j] |
+              (wakeup_log_ts[j] > as.POSIXlt("00:00", format="%H:%M")) &
+              (wakeup_log_ts[j] < as.POSIXlt("12:00", format="%H:%M"))) {
+            wakeup_log_ts[j] = wakeup_log_ts[j] + (24 * 3600)
+          }
         }
         wakeup_ts[j] = wakeup_ts[j] - (24 * 3600)
         wakeup_log_ts[j] = wakeup_log_ts[j] - (24 * 3600)
