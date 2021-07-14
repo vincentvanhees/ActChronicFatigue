@@ -15,6 +15,7 @@
 #' @param sleeplogidnum GGIR argument, see document R package GGIR
 #' @param hrs.del.start GGIR argument, see document R package GGIR
 #' @param hrs.del.end GGIR argument, see document R package GGIR
+#' @param sleepwindowType GGIR argument, see document R package GGIR
 #' @return no object is returned, GGIR writes all its outputs to files
 #' @export
 
@@ -22,7 +23,7 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                    overwrite=FALSE, do.visual=FALSE,
                    visualreport=FALSE, acc.metric = "BFEN", chunksize = 1,
                    loglocation = c(), do.parallel = TRUE, testbatch = FALSE,
-                   sleeplogidnum = TRUE, hrs.del.start=0, hrs.del.end=0) {
+                   sleeplogidnum = TRUE, hrs.del.start=0, hrs.del.end=0, sleepwindowType = "TimeInBed") {
   if (testbatch == TRUE) {
     f0 = 1
     f1 = 3
@@ -36,7 +37,7 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
     nnights = 18
   }
   # activitylog = paste0(unlist(strsplit(activitylog,"[.]cs"))[1],"2.csv")
-  GGIR::g.shell.GGIR(#=======================================
+  GGIR::g.shell.GGIR(#======================================= 
                # INPUT NEEDED:
                #-------------------------------
                # General parameters
@@ -77,6 +78,7 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                sleeplogidnum =sleeplogidnum ,
                loglocation = loglocation,
                do.visual = do.visual,
+               sleepwindowType =sleepwindowType,
                ilevels = c(seq(0,300,by=50),8000), #acceleration values (metric ENMO) from which a frequency distribution needs to be derived, set value at c() if you do not want quantiles
                mvpathreshold = c(100), #MVPA (moderate and vigorous physical activity threshold
                threshold.lig=40,
