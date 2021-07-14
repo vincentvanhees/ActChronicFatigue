@@ -112,7 +112,7 @@ summarise = function(outputdir, part5_summary,
         P5D$calendar_date[newvalues] = format(as.Date(missing_dates), "%Y-%m-%d")
         P5D$weekday[newvalues] = weekdays(missing_dates)
         P5D = P5D[order(P5D$calendar_date),]
-        if (length(which(P5D$weekday[newvalues] %in% days)) > 0) {
+        if (length(which(P5D$weekday %in% days == TRUE)) > 0) {
           for (ki in 1:length(days)) {
             P5D$weekday = gsub(x = P5D$weekday,
                                pattern = days[ki], replacement = dagen[ki])
