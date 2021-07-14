@@ -167,7 +167,7 @@ for (location in c(wrist)) { #,hip
   cat("\nIDs corresponding to errors:\n")
   cat(sort(output$ID[which(output$result == FALSE)]))
   cat("\n")
-  cat(paste0("auc: ",round(auc(pROC::roc(output$label,output$estimate, )), digits=4)))
+  cat(paste0("auc: ",round(pROC::auc(pROC::roc(output$label,output$estimate, )), digits=4)))
   
 }
 
