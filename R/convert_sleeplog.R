@@ -7,6 +7,7 @@
 #' @importFrom utils write.csv
 #'
 convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
+  # options(warn=2)
   if (file.exists(sleeplog) == TRUE) {
     colid = 1 # hard-coded assumption that id is stored in first column of sleeplog
     D = as.data.frame(readxl::read_excel(sleeplog))
@@ -36,31 +37,38 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
       } else {
         if (is.character(x)) {
           x <- gsub(',','.',x)
-          x <- as.numeric(x)
+          if (!is.na(x)) {
+            x = paste0(unlist(strsplit(x," |`")), collapse="")
+            x <- as.numeric(x)
+          }
         }
         if (is.numeric(x) == FALSE) {
           stop("\nTijd in slaapdagboek wordt niet herkent")
         }
-        if (x >= 24) x = x - 24
-        HRS = floor(x)
-        MIN = floor((x - HRS)*60)
-        SEC = floor((((x - HRS)*60) - MIN) * 60)
-        if (SEC == 60) {
-          SEC = 0
-          MIN = MIN +1
-        }
-        if (MIN == 60) {
-          MIN = 0
-          HRS = HRS +1
-        }
-        convert2char = function(y) {
-          y = as.character(y)
-          if (nchar(y) == 1) {
-            y = paste0("0",y)
+        if (is.na(x) == TRUE | x == "") {
+          x = ""
+        } else {
+          if (x >= 24) x = x - 24
+          HRS = floor(x)
+          MIN = floor((x - HRS)*60)
+          SEC = floor((((x - HRS)*60) - MIN) * 60)
+          if (SEC == 60) {
+            SEC = 0
+            MIN = MIN +1
           }
-          return(y)
+          if (MIN == 60) {
+            MIN = 0
+            HRS = HRS +1
+          }
+          convert2char = function(y) {
+            y = as.character(y)
+            if (nchar(y) == 1) {
+              y = paste0("0",y)
+            }
+            return(y)
+          }
+          x = paste0(convert2char(HRS),":",convert2char(MIN),":", convert2char(SEC))
         }
-        x = paste0(convert2char(HRS),":",convert2char(MIN),":", convert2char(SEC))
       }
       return(x)
     }
@@ -127,5 +135,6 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
     }
     outputfile = c()
   }
+  # options(warn=0)
   return(outputfile)
 }
