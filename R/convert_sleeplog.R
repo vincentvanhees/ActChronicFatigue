@@ -104,12 +104,12 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
             delay = as.numeric(starttime_diary - starttime_acc)
             if (delay < -1) {
               D[hi,3:ncol(D)] = ""
-            } else if (delay > 0 & delay < 8) {
+            } else if (delay > 0) { # & delay < 8) {
               deldays = delay * 2
               D[hi,(3+deldays):(max(which(D[hi,] != ""))+deldays)] = D[hi,3:max(which(D[hi,] != ""))]
               D[hi,3:(2+deldays)] = ""
-            } else if (delay >= 8) {
-              D[hi,3:ncol(D)] = ""
+            # } else if (delay >= 8) {
+            #   D[hi,3:ncol(D)] = ""
             }
           }
         }
