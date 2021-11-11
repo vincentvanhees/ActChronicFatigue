@@ -52,7 +52,6 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                do.imp = TRUE, # Do imputation? (recommended)
                idloc = 5, #id location (1 = file header, 2 = filename)
                print.filename = TRUE,
-               do.imp = TRUE,
                storefolderstructure = TRUE,
                do.parallel = do.parallel,
                do.bfen = TRUE,
