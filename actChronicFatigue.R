@@ -53,14 +53,21 @@ testbatch = FALSE
 #   }
 if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
   cat("\nGGIR installeren...")
-  remotes::install_github("wadpac/GGIR", dependencies=TRUE, ref="issue418_sibreport")
+  remotes::install_github("wadpac/GGIR", dependencies=TRUE, ref="issue466_check_duplicated_args")
 }
 #   cat("\nActChronicFatigue installeren...")
 #   remotes::install_github("vincentvanhees/ActChronicFatigue", dependencies=TRUE)
 #   
 # }
 library(ActChronicFatigue)
-library(GGIR)
+# library(GGIR)
+
+# dirR = "~/GGIR/R"
+# ffnames = dir(dirR) # creating list of filenames of scriptfiles to load
+# for (i in 1:length(ffnames)) {
+#   source(paste(dirR,"/",ffnames[i],sep="")) #loading scripts for reading geneactiv data
+# }
+
 # }
 
 #=========================================
@@ -73,6 +80,7 @@ replaceslash = function(x) {
 datadir = replaceslash(datalocaties$datadir)
 outputdir = replaceslash(datalocaties$outputdir)
 sleeplog = replaceslash(datalocaties$dagboekdir)
+
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nBestand locaties:\n")
 # cat(paste0("\nLocatie ",length(dir(datalocaties$gt3xdir))," gt3x bestanden = ",datalocaties$gt3xdir))
@@ -114,7 +122,6 @@ part2resultsfile = paste0(outputdir,"/output_",basename(datadir),"/results/part2
 # If sleeplog exists convert sleeplog to expected format
 if (gebruik_slaap_dagboek == TRUE) {
   sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog, part2resultsfile)
-  # sleeplogfile = convert_sleeplog(sleeplog, part2resultsfile)
 } else {
   sleeplogfile = c()
 }
@@ -131,13 +138,13 @@ cat("\nKlassficeer of de persoon al dan niet laag actief is ...\n")
 
 # Add extra variables, specifically needed for classification
 tmp = unlist(strsplit(datadir,"/|\")"))
-outputdir_backup = outputdir
-outputdir = paste0(outputdir,"/output_",tmp[length(tmp)])
-ActChronicFatigue::addVariables5(outputdir=outputdir)
+outputdir2 = outputdir
+outputdir2 = paste0(outputdir,"/output_",tmp[length(tmp)])
+ActChronicFatigue::addVariables5(outputdir=outputdir2)
 
 
 # Load the resulting part5_personsummary.csv bestand
-part5_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
+part5_summary_file = grep(dir(paste0(outputdir2,"/results"), full.names = TRUE),
                           pattern = "part5_personsummary_WW_", value = T)
 part5_summary = read.csv(file=part5_summary_file, sep=",")
 
@@ -163,8 +170,9 @@ model_threshold = -CF[1]/CF[2]
 
 #=============================================================================
 # Summarise and show on screen
-cat("\n Samenvatting van resultatenL\n")
-SUM = ActChronicFatigue::summarise(outputdir, part5_summary, 
+cat("\n Samenvatting van resultaten:\n")
+source("~/projects/ActChronicFatigue/R/summarise.R")
+ActChronicFatigue::summarise(outputdir2, part5_summary,
                                    model_threshold=model_threshold, referentiewaarden =referentiewaarden,
                                    sleepwindowType=sleepwindowType)
 
