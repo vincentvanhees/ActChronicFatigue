@@ -53,7 +53,7 @@ testbatch = FALSE
 #   }
 if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
   cat("\nGGIR installeren...")
-  remotes::install_github("wadpac/GGIR", dependencies=TRUE, ref="issue466_check_duplicated_args")
+  remotes::install_github("wadpac/GGIR", dependencies=TRUE)
 }
 #   cat("\nActChronicFatigue installeren...")
 #   remotes::install_github("vincentvanhees/ActChronicFatigue", dependencies=TRUE)
@@ -110,8 +110,8 @@ if (length(filenames) == 0) {
 # Start processing of raw accelerometer data with GGIR
 cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nStart analyse met GGIR...\n")
-ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:3),
-                           do.report = c(2), overwrite=FALSE,
+ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:2),
+                           do.report = c(2), overwrite=FALSE, 
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
                            testbatch = testbatch ,  do.parallel=TRUE, hrs.del.start = hrs.del.start,
                            hrs.del.end = hrs.del.end)
@@ -126,7 +126,7 @@ if (gebruik_slaap_dagboek == TRUE) {
   sleeplogfile = c()
 }
 
-ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(4:5),
+ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(3:5),
                            do.report = c(4, 5), overwrite=FALSE, do.visual = TRUE,
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
                            loglocation = sleeplogfile, testbatch = testbatch ,
