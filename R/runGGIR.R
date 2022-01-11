@@ -20,7 +20,7 @@
 #' @export
 
 runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
-                   overwrite=FALSE, do.visual=FALSE,
+                   overwrite=FALSE, do.visual=FALSE, 
                    visualreport=FALSE, acc.metric = "BFEN", chunksize = 1,
                    loglocation = c(), do.parallel = TRUE, testbatch = FALSE,
                    sleeplogidnum = TRUE, hrs.del.start=0, hrs.del.end=0, sleepwindowType = "TimeInBed") {
@@ -55,6 +55,7 @@ runGGIR = function(datadir=c(), outputdir =c(), mode = c(), do.report=c(),
                storefolderstructure = TRUE,
                do.parallel = do.parallel,
                do.bfen = TRUE,
+               do.anglez = TRUE,
                acc.metric = acc.metric, # more similar original aktometer approach and reduced impact of Actigraph calibration challengee
                hb = 10,
                lb = 0.8,

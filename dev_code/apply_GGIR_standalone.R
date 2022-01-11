@@ -6,8 +6,8 @@ library("GGIR")
 # INPUT NEEDED:
 # specify file number to start and end with, fill in c() if unknown
 
-datadir = "/media/vincent/DATA/actometer_nkcv/rawactigraph_nkcv/nkcv_wrist"
-outputdir = "/media/vincent/DATA/actometer_nkcv"
+datadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv/rawactigraph_nkcv/nkcv_wrist"
+outputdir = "/home/vincent/Dropbox/Work/W22/DATA" #/actometer_nkcv
 studyname= "nkcv_wrist"
 
 f0 = c()
@@ -20,21 +20,21 @@ ffnames = ffnames[which(ffnames != "g.cwaread.R")]
 for (i in 1:length(ffnames)) {
   source(paste(dirR,"/",ffnames[i],sep="")) #loading scripts for reading geneactiv data
 }
-loglocation = "/media/vincent/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx2.csv"
+loglocation = "~/Dropbox/Work/W22/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx2.csv"
 SLEEPLOG = read.csv(loglocation)
 nnights = round((ncol(SLEEPLOG) - 1) / 2)
 
-g.shell.GGIR(mode = 5, #specify above
+g.shell.GGIR(mode = c(3), #specify above
              datadir = datadir, #specify above
              outputdir = outputdir, #specify above
              f0 = c(), #specify above
              f1 = c(), #specify above
              overwrite = FALSE, #overwrite previous milestone data?
-             do.report = c(5), #for what parts does and report need to be generated? (option: 2, 4 and 5)
+             do.report = c(2), #for what parts does and report need to be generated? (option: 2, 4 and 5)
              do.imp = TRUE, # Do imputation? (recommended)
              idloc = 5, #id location (1 = file header, 2 = filename)
              print.filename = TRUE,
-             do.imp = TRUE,
+             # do.imp = TRUE,
              storefolderstructure = TRUE,
              do.parallel = FALSE,
              do.bfen = TRUE,
