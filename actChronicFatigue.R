@@ -112,6 +112,7 @@ cat(paste0(rep('_',options()$width),collapse=''))
 cat("\nStart analyse met GGIR...\n")
 ActChronicFatigue::runGGIR(datadir=datadir, outputdir = outputdir, mode = c(1:2),
                            do.report = c(2), overwrite=FALSE, 
+                           sleepwindowType = "SPT", # to prevent triggering warning
                            visualreport=FALSE, acc.metric = "BFEN", chunksize = chunksize,
                            testbatch = testbatch ,  do.parallel=TRUE, hrs.del.start = hrs.del.start,
                            hrs.del.end = hrs.del.end)
