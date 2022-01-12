@@ -3,12 +3,12 @@ graphics.off()
 show.training.performance = FALSE
 library(psych)
 library(ROCR)
-# library(pROC)
+# library(pROC) Orchestrating privacy-protected big data
 #=====================================================
 # Input needed:
 #=====================================================
-outputdir = "/media/vincent/DATA/actometer_nkcv/output_nkcv_wrist" # GGIR output directory
-mydatadir = "/media/vincent/DATA/actometer_nkcv" # directory where the labels.csv file is stored
+outputdir = "/home/vincent/Dropbox/Work/W22/DATA/output_nkcv_wrist" # GGIR output directory
+mydatadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv" # directory where the labels.csv file is stored
 # Specify location of file:
 part5_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),pattern = "part5_personsummary_WW_", value = T)
 # Specify location of file with the labels
