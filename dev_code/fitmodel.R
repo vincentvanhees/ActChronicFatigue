@@ -15,6 +15,7 @@ part5_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),p
 # This file needs to have the columns names: id, label, loc (loc refers to body location)
 filewithlabels = paste0(mydatadir,"/labels.csv") # specify file location
 
+
 # Specifiy what abbraviations are used (update the character string on the right side of the =-sign)
 pervasivepassive = "pp"
 pervasiveactive = "pa"
@@ -51,6 +52,10 @@ derive_threshold = function(fit, data) {
 # load data
 labels = read.csv(filewithlabels, sep=separator, stringsAsFactors = TRUE)
 
+# labels = labels[which(labels$ID %in% c(62038, 62058, 60601, 62001, 62056, 62036, 62061) == FALSE),]
+# labels = labels[which(labels$ID %in% c(62038, 62001, 62056, 61837) == FALSE),] 
+# labels = labels[which(labels$ID %in% c(62056) == FALSE),]
+
 labels$label[which(labels$label == "pa")] = "fa"
 labels = labels[which(as.character(labels$label) %in% c("pp","fa")),] #, "pa"
 labels = droplevels(labels)
@@ -59,6 +64,7 @@ D = read.csv(file=part5_summary_file, sep=separator)
 # "gradient_mean", "y_intercept_mean", "X1", "X2", "X3", "X4",
 D = D[,c("act9167", "ID2", "filename", "Nvaliddays","Ndays_used", # these are the number of days used by the model
          "nonwear_perc_day_spt_pla", "ACC_day_mg_pla", "nonwear_perc_day_pla", "calendar_date")]
+
 
 D = D[which(D$nonwear_perc_day_spt_pla <= 33 & D$nonwear_perc_day_pla <= 33 & D$Ndays_used >= 12),] #& D$calib_err < 0.02 #& D$Nvaliddays > 10
 
@@ -114,30 +120,6 @@ for (location in c(wrist)) { #,hip
     # Fit model, this where we decide what variables will be used:
     if (location == wrist) {
       fit = glm(label ~ act9167, data = S, family = binomial) #
-    } else if (location == hip) {
-      # fit = glm(label ~ act9167 + ACC_day_mg_pla, data = S, family = binomial) # + ACC_day_mg_pla
-    }
-    # training performance:
-    if (show.training.performance == TRUE) { 
-      pp <- as.data.frame(stats::fitted(fit)) # three probabilities per person
-      pp2 = round(pp,digits=4)
-      S = cbind(S,pp2)
-      S$estimate = apply(S,1, findwinner)
-      S$estimate = as.factor(S$estimate)
-      S$label = as.factor(S$label)
-      S$estimate = factor(S$estimate, levels = 
-                            c(pervasivepassive, fluctuationactive, pervasiveactive,
-                              levels(S$estimate)[which(levels(S$estimate) %in%
-                                                         c(pervasivepassive, 
-                                                           fluctuationactive,
-                                                           pervasiveactive) == FALSE)]))
-      S$label = factor(S$label, levels = c(pervasivepassive, fluctuationactive, pervasiveactive,
-                                           levels(S$estimate)[which(levels(S$estimate) %in%
-                                                                      c(pervasivepassive,
-                                                                        fluctuationactive,
-                                                                        pervasiveactive) == FALSE)]))
-      cat(paste0("\ntraining ",location))
-      print(table(S$estimate, S$label))
     }
     #=============================================================================================
     # predict class probability with logistic regression model:
@@ -149,14 +131,14 @@ for (location in c(wrist)) { #,hip
       testset$estimate = ifelse(test = pp_testset < threshold, yes = 0, no = 1) # give more weight to pp
     } else {
       # Round to get class prediction:
-      testset$estimate = round(test = pp_testset)
+      testset$estimate = round(pp_testset)
     }
     if (cnt == 1) {
       output = testset
     } else {
       output = rbind(output,testset)
     }
-    cnt = cnt +1
+    cnt = cnt + 1
   }
   cat(paste0("\n",location,": overall performance on leave one out test set (rows are labels, columns estimates)"))
   print(table(output$label,output$estimate)) # estimate are columns, label are rows
@@ -167,7 +149,7 @@ for (location in c(wrist)) { #,hip
   cat("\nIDs corresponding to errors:\n")
   cat(sort(output$ID[which(output$result == FALSE)]))
   cat("\n")
-  cat(paste0("auc: ",round(pROC::auc(pROC::roc(output$label,output$estimate, )), digits=4)))
+  cat(paste0("auc: ",round(pROC::auc(pROC::roc(output$label,output$estimate, )), digits = 4)))
   
 }
 
@@ -207,7 +189,12 @@ cat("\nMisclassified:\n")
 # print(MergedData_wrist[which(round(MergedData_wrist$pred) != MergedData_wrist$label),])
 # print(MergedData_wrist[which(MergedData_wrist$ID %in% output$ID[which(output$label != output$estimate)] == TRUE),]) # estimate are columns, label are rows
 
-print(output[which(output$label != output$estimate),]) # estimate are columns, label are rows
+output = output[order(output$calendar_date),]
+print(output[which(output$label != output$estimate),
+             which(colnames(output) %in% c("loc", "Nvaliddays", "Ndays_used",
+                                           "nonwear_perc_day_spt_pla",
+                                           "nonwear_perc_day_pla", "year",
+                                           "result", "error") == FALSE) ]) # estimate are columns, label are rows
 output$calendar_date = as.Date(output$calendar_date)
 output$year = format(output$calendar_date,"%Y")
 output$error = abs(output$estimate - output$label)
@@ -217,3 +204,4 @@ output = output[order(output$calendar_date),]
 #      type="p", pch=20, xlab="datum", ylab="misclassificatie")
 
 # table(output[,c("year","error")])
+
