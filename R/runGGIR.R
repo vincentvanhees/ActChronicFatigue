@@ -55,6 +55,7 @@ runGGIR = function(datadir = c(), outputdir = c(), mode = c(), do.report = c(),
                storefolderstructure = TRUE,
                do.parallel = do.parallel,
                do.bfen = TRUE,
+               do.enmo = TRUE,
                do.anglez = TRUE,
                acc.metric = acc.metric, # more similar original aktometer approach and reduced impact of Actigraph calibration challengee
                hb = 10,
@@ -80,7 +81,7 @@ runGGIR = function(datadir = c(), outputdir = c(), mode = c(), do.report = c(),
                loglocation = loglocation,
                do.visual = do.visual,
                sleepwindowType = sleepwindowType,
-               ilevels = c(seq(0, 300, by = 50), 8000), #acceleration values (metric ENMO) from which a frequency distribution needs to be derived, set value at c() if you do not want quantiles
+               ilevels = c(0, 40, 100, 8000), #acceleration values (metric ENMO) from which a frequency distribution needs to be derived, set value at c() if you do not want quantiles
                mvpathreshold = c(100), #MVPA (moderate and vigorous physical activity threshold
                threshold.lig = 40,
                threshold.mod = 100,

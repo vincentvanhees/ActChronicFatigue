@@ -61,13 +61,13 @@ summarise = function(outputdir, part5_summary,
                                      c("ID2", "calendar_date", "prop_perv_passive", "Activity_zscore",
                                        "dur_spt_sleep_min_pla", "dur_spt_min_pla", "sleep_efficiency_pla",
                                        "sleeponset_pla", "wakeup_pla")]
-    recent_recording$dur_spt_sleep_min_pla = round(recent_recording$dur_spt_sleep_min_pla / 60, digits=2)
-    recent_recording$dur_spt_min_pla = round(recent_recording$dur_spt_min_pla / 60, digits=2)
-    recent_recording$sleep_efficiency_pla =  round(recent_recording$sleep_efficiency_pla * 100, digits=0)
-    recent_recording$sleeponset_pla = round(recent_recording$sleeponset_pla - 24, digits=2)
-    recent_recording$wakeup_pla = round(recent_recording$wakeup_pla - 24, digits=2)
+    recent_recording$dur_spt_sleep_min_pla = round(recent_recording$dur_spt_sleep_min_pla / 60, digits = 2)
+    recent_recording$dur_spt_min_pla = round(recent_recording$dur_spt_min_pla / 60, digits = 2)
+    recent_recording$sleep_efficiency_pla = round(recent_recording$sleep_efficiency_pla * 100, digits = 0)
+    recent_recording$sleeponset_pla = round(recent_recording$sleeponset_pla - 24, digits = 2)
+    recent_recording$wakeup_pla = round(recent_recording$wakeup_pla - 24, digits = 2)
     
-    recent_recording$prop_perv_passive = round(recent_recording$prop_perv_passive* 100)
+    recent_recording$prop_perv_passive = round(recent_recording$prop_perv_passive * 100)
     recent_recording$classification = "Actief"
     pp = which(recent_recording$prop_perv_passive >= 50)
     if (length(pp) > 0) recent_recording$classification[pp] = "Laag Actief"
@@ -84,6 +84,11 @@ summarise = function(outputdir, part5_summary,
     part5_daysummary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                                  pattern = "part5_daysummary", value = T)
     part5_daysummary = read.csv(file=part5_daysummary_file, sep=",")
+    
+    
+    part2_daysummary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
+                                 pattern = "part2_daysummary", value = T)
+    part2_daysummary = read.csv(file=part2_daysummary_file, sep=",")
     # Load sleep/wake times from both GGIR and diary
     part4_nightsummaryfull_file = grep(dir(paste0(outputdir,"/results/QC"), full.names = TRUE),
                                        pattern = "part4_nightsummary_sleep_full.csv", value = T)
@@ -94,15 +99,30 @@ summarise = function(outputdir, part5_summary,
     for (ki in 1:length(days)) {
       part5_daysummary$weekday = gsub(x = part5_daysummary$weekday,
                                       pattern = days[ki], replacement = dagen[ki])
+      part2_daysummary$weekday = gsub(x = part2_daysummary$weekday,
+                                      pattern = days[ki], replacement = dagen[ki])
       part4_nightsummary$weekday = gsub(x = part4_nightsummary$weekday,
                                         pattern = days[ki], replacement = dagen[ki]) 
     }
     for (ID in unique(recent_recording$ID)) {
       P5D = part5_daysummary[which(part5_daysummary$ID == ID),]
+      P2D = part2_daysummary[which(part2_daysummary$ID == ID),]
       P4N = part4_nightsummary[which(part4_nightsummary$ID == ID),]
       #---------------------------------------------
       # add empty rows for missing days
       P5D$calendar_date = as.Date(P5D$calendar_date, "%Y-%m-%d")
+      P2D$calendar_date = as.Date(P2D$calendar_date, "%Y-%m-%d")
+      P4N$calendar_date = as.Date(P4N$calendar_date, "%d/%m/%Y")
+      # Merge time spent in two acceleration range to sleep object, to ease plotting later on
+      P4N = base::merge(P4N, P2D[,c("calendar_date", "X.0.40._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr", "L5hr_ENMO_mg_0.24hr")],
+                        by = c("calendar_date"), all.x = TRUE)
+      colnames(P4N)[which(colnames(P4N) %in% c("X.0.40._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr") == TRUE)] = c("SB", "MVPA")
+      P4N[,c("SB", "MVPA")] = P4N[,c("SB", "MVPA")] / 60 # convert minutes to hours
+      if (sleepwindowType == "TimeInBed") {
+        P4N[,"SB"] = P4N[,"SB"] - P4N[, "guider_inbedDuration"]
+      } else {
+        P4N[,"SB"] = P4N[,"SB"] - P4N[, "SleepDurationInSpt"]
+      }
       dates = P5D$calendar_date
       dates_theoretical = seq(min(dates), max(dates), by = 1)
       missing_dates = dates_theoretical[which(dates_theoretical %in% dates == FALSE)]
@@ -135,11 +155,11 @@ summarise = function(outputdir, part5_summary,
       
       pdffile = paste0(outputdir, "/results/Beweeg_en_slaap_rapport_",ID,".pdf")
       pdf(file = pdffile, paper = "a4r")
-      par(mfrow=c(3,1), mar=c(4, 4, 3, 0.5),oma=c(0,0,0,0))  # las = 3
+      par(mfrow = c(4,1), mar = c(4, 4, 3, 0.5), oma = c(0,0,0,0))  # las = 3
       # Key facts
       keystats = t(recent_recording[which(recent_recording$ID == ID), varnames])
       colnames(keystats)[1] = paste0("ID: ", ID)
-      CX = 1.1
+      CXmain = 1.0
       CXdays = 1.0
       relprop = as.numeric(keystats[3])
       if (keystats[2] != "Laag Actief") relprop = 100 - relprop
@@ -150,26 +170,24 @@ summarise = function(outputdir, part5_summary,
       CXdots = 1.5
       #========================================
       # Plot activity time series
-      plot(P5D$ACC_day_mg, type = "b", pch=20, ylim = range(c(model_threshold * 2, P5D$ACC_day_mg), na.rm = T),
-           main=titel, xlab = "", ylab="Beweging per dag", bty="l", axes=FALSE, cex.main=1.5, cex.lab=CL, cex= CXdots)
-      axis(side=1, at=1:nrow(P5D), labels=paste0(P5D$weekday," ",P5D$calendar_date), cex.axis=CXdays)
-      abline(h = model_threshold, col="black", lty=2, lwd=1.3)
-      text(x = 0.8, y = model_threshold + 5, labels="grenswaarde laag actief", pos = 4)
+      plot(P5D$ACC_day_mg, type = "b", pch = 20, ylim = range(c(model_threshold * 2, P5D$ACC_day_mg), na.rm = T),
+           main = titel, xlab = "", ylab = "Beweging per dag", bty = "l", axes = FALSE, cex.main = 1.5, cex.lab = CL, cex = CXdots)
+      axis(side = 1, at = 1:nrow(P5D), labels = paste0(P5D$weekday," ",P5D$calendar_date), cex.axis = CXdays)
+      abline(h = model_threshold, col = "black", lty = 2, lwd = 1.3)
+      text(x = 0.8, y = model_threshold + 5, labels = "grenswaarde laag actief", pos = 4)
       # par(mar=c(4, 4, 3, 0.5)) 
       #========================================
       # Plot sleep duration
-      # A = P5D[,c("dur_spt_sleep_min", "dur_spt_min", )] / 60
       if (nrow(P4N) > nrow(P5D) & nrow(P4N) > 1) {
         P4N = P4N[2:nrow(P4N),]
       }
       if (sleepwindowType == "TimeInBed") {
         A = P4N[,c("SleepDurationInSpt" , "SptDuration", "sleeplatency", "guider_inbedDuration", "sleepefficiency")]
-        title = "(Onderstaande nummers geven de slaap efficientie aan uitgedrukt in procenten)" #Slaap (donker), Wakker na start slaap (licht), Slaap latency (lichter), en 
-        # A[,1:4] = A[,1:4]/60
+        title = "Slaap (met in wit: slaap efficientie %)" #Slaap (donker), Wakker na start slaap (licht), Slaap latency (lichter), en 
         maxvalue = max(c(A[,2]+A[,3]), na.rm = T)
       } else {
         A = P4N[,c("SleepDurationInSpt" , "SptDuration")] #/ 60
-        title = "Slaap (donker), Wakker na start slaap (licht)"
+        title = "Slaap" #Slaap (donker), Wakker na start slaap (licht)
         maxvalue = max(A[,2], na.rm = T)
       }
       
@@ -179,27 +197,45 @@ summarise = function(outputdir, part5_summary,
       } else {
         B = A[,c(1,2)]
       }
-      brpos = barplot(t(as.matrix(B)), space=rep(0, nrow(B)), ylab="Tijd in uren", 
-                      ylim=c(0, maxvalue + 6),cex.axis = 0.9,
-                      names.arg = P4N$weekday, cex.names=CXdays, cex.lab=CL, cex.main=0.9,
-                      main=title, legend.text = c("Slaap", "Wakker na in slaap vallen", "Wakker voor in slaap vallen"),
-                      args.legend=list(ncol=3, x="topright", cex=0.9))
+      brpos = barplot(t(as.matrix(B)), space = rep(0, nrow(B)), ylab = "Tijd in uren", 
+                      ylim = c(0, maxvalue + 6), cex.axis = 0.9,
+                      names.arg = P4N$weekday, cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
+                       legend.text = c("Slaap", "Wakker na in slaap vallen", "Wakker voor in slaap vallen"),
+                      main = title,
+                      args.legend = list(ncol = 3, x = "topright", cex = 0.7))
+      
 
       if (sleepwindowType == "TimeInBed") {
-        text(brpos, A$guider_inbedDuration+0.5, labels = round(100*(A$sleepefficiency), digits = 0), cex=0.8)
+        text(brpos, rep(1, length(A$guider_inbedDuration)),
+             labels = round(100 * (A$sleepefficiency), digits = 0),
+             cex = 0.8,
+             col = "white")
       }
       #========================================
       # Niet gedragen tijd
       A = P5D[,c("nonwear_perc_day", "nonwear_perc_spt")]
-      barplot(t(as.matrix(A)),  ylab="Percentage (%)", beside=TRUE, space=c(0,0.2),#rep(1, nrow(A)),
-              names.arg = P5D$weekday, cex.names=CXdays, cex.lab=CL,
-              main="Percentage van tijd beweegmeter niet gedragen", legend.text = c("overdag", "nacht"),
-              args.legend=list(ncol=2), ylim=c(0,100))
+      barplot(t(as.matrix(A)),  ylab = "Percentage (%)", beside = TRUE, space = c(0, 0.2),
+              names.arg = P5D$weekday, cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
+              main = "Beweegmeter niet gedragen?", legend.text = c("overdag", "nacht"),
+              args.legend = list(x = "topright", ncol = 2, cex = 0.7), ylim = c(0,100))
       
+      #=======================================
+      # MVPA
+      maxvalue = max(P4N$SB, na.rm = T) + 2 #max(G, na.rm = T)
+      title = "Sedentair gedrag (met in wit: minuten in matig-tot-zwaar intensief bewegen)"
+      brpos = barplot(t(as.matrix(P4N$SB)), space = rep(0, nrow(P4N)), ylab = "Tijd in uren", 
+                      ylim = c(0, maxvalue), cex.axis = 0.9,
+                      names.arg = P4N$weekday, cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
+                      legend.text = NULL, main = title)
+      text(brpos, rep(1, length(P4N$SB)),
+           labels = round(60 * (P4N$MVPA), digits = 0),
+           cex = 0.8,
+           col = "white", font = 2)
       #========================================
       # Slaap waak tijden
       sleeponset_ts = P4N$sleeponset_ts # c("22:00", "23:20", "01:10")
       wakeup_ts = P4N$wakeup_ts # c("6:55", "8:30", "10:40")
+      L5timing = P4N$L5hr_ENMO_mg_0.24hr
       if (sleepwindowType == "SPT") {
         sleeponset_log_ts = P4N$guider_onset_ts
         wakeup_log_ts = P4N$guider_wakeup_ts
@@ -209,10 +245,11 @@ summarise = function(outputdir, part5_summary,
       }
       WV = which(is.na(wakeup_ts) == FALSE & is.na(sleeponset_ts) == FALSE &
                    is.na(wakeup_log_ts) == FALSE & is.na(sleeponset_log_ts) == FALSE)
-      sleeponset_ts = as.POSIXlt(sleeponset_ts[WV],format="%H:%M")
-      wakeup_ts = as.POSIXlt(wakeup_ts[WV],format="%H:%M")
-      sleeponset_log_ts = as.POSIXlt(sleeponset_log_ts[WV],format="%H:%M")
-      wakeup_log_ts = as.POSIXlt(wakeup_log_ts[WV],format="%H:%M")
+      sleeponset_ts = as.POSIXlt(sleeponset_ts[WV], format = "%H:%M")
+      wakeup_ts = as.POSIXlt(wakeup_ts[WV], format = "%H:%M")
+      sleeponset_log_ts = as.POSIXlt(sleeponset_log_ts[WV], format = "%H:%M")
+      wakeup_log_ts = as.POSIXlt(wakeup_log_ts[WV], format = "%H:%M")
+      L5timing_ts = as.POSIXlt(paste0(floor(L5timing), ":", round((L5timing - floor(L5timing)) * 60)), format = "%H:%M")
       for (j in 1:length(wakeup_ts)) {
         if (sleeponset_ts[j] < as.POSIXlt("18:00", format="%H:%M")) {
           sleeponset_ts[j] = sleeponset_ts[j] + (24 * 3600)
@@ -233,6 +270,12 @@ summarise = function(outputdir, part5_summary,
             wakeup_log_ts[j] = wakeup_log_ts[j] + (24 * 3600)
           }
         }
+        # if (!is.na(L5timing_ts[j])) {
+        #   if (L5timing_ts[j]  < as.POSIXlt("18:00", format="%H:%M")) {
+        #     # L5timing_ts[j] = L5timing_ts[j] + (24 * 3600)
+        #   }
+        # }
+        
         wakeup_ts[j] = wakeup_ts[j] - (24 * 3600)
         wakeup_log_ts[j] = wakeup_log_ts[j] - (24 * 3600)
       }
@@ -244,24 +287,40 @@ summarise = function(outputdir, part5_summary,
       waki = 1:(length(wakeup_ts)-1)
       onsi = 2:length(sleeponset_ts)
       
-      COL = c("blue", "red") 
+      COL = c("blue", "red", "black") 
       CL = 1
-      par(mfrow=c(1,1), oma=c(0,0,0,0))
-      plot(WV[waki], wakeup_ts[waki], type = "b", pch=16, xlab = "",  ylab = "",
-           ylim=as.numeric(YLIM), axes=FALSE, main="Opsta- en bed-tijden", cex.lab=CL, cex=CXdots, col=COL[1])
+      par(mfrow = c(1,1), oma = c(0,0,0,0))
+      plot(WV[waki], wakeup_ts[waki], type = "b", pch = 16, xlab = "",  ylab = "",
+           ylim = as.numeric(YLIM), axes = FALSE, main = "Opsta- en bed-tijden", cex.lab = CL, cex = CXdots, col = COL[1])
       for (ii in -24:24) {
-        abline(h = as.numeric(as.POSIXlt("24:00", format="%H:%M"))+(ii*3600), col="grey", lty=3 )
+        abline(h = as.numeric(as.POSIXlt("24:00", format = "%H:%M")) + (ii * 3600), col = "grey", lty = 3)
       }
-      axis(side=1, at=waki, labels=P4N$weekday[onsi], cex.axis=CXdays)
-      abline(v = waki, col="grey", lty=3 ) # vertical lines
-      par(las=1)
-      axis(side = 2, at = timeaxis, labels = as.character(timeaxislabels), cex.axis=1.0)
-      lines(WV[waki], sleeponset_ts[onsi], type = "b", lty=1, pch=17, cex=CXdots, col=COL[1])
-      lines(WV[waki], wakeup_log_ts[waki], type = "b", lty=1, pch=16, cex=CXdots, col=COL[2])
-      lines(WV[waki], sleeponset_log_ts[onsi], type = "b", lty=1, pch=17, cex=CXdots, col= COL[2])
+      axis(side = 1, at = waki, labels = P4N$weekday[onsi], cex.axis = CXdays)
+      abline(v = waki, col = "grey", lty=3 ) # vertical lines
+      par(las = 1)
+      axis(side = 2, at = timeaxis, labels = as.character(timeaxislabels), cex.axis = 1.0)
+      lines(WV[waki], sleeponset_ts[onsi], type = "b", lty = 1, pch = 17, cex = CXdots, col = COL[1])
+      lines(WV[waki], wakeup_log_ts[waki], type = "b", lty = 1, pch = 16, cex = CXdots, col = COL[2])
+      lines(WV[waki], sleeponset_log_ts[onsi], type = "b", lty = 1, pch = 17, cex = CXdots, col = COL[2])
+      CXdots = 1.3
+      for (ji in waki) {
+        if (!is.na(L5timing_ts[ji])) {
+          y2 = L5timing_ts[ji] + (5*3600)
+          SecMN = as.POSIXlt("00:00", format = "%H:%M") + 24 * 3600
+          if (y2 < SecMN) { # normal in the day
+            lines(c(WV[ji], WV[ji]), c(L5timing_ts[ji], y2), type = "b", pch = 15,
+                  lty = 1, cex = CXdots, col = "black", lwd = 1.5)
+          } else { # goes over edge of the day
+            lines(c(WV[ji], WV[ji]), c(L5timing_ts[ji], SecMN), type = "b", pch = 15,
+                  lty = 1, cex = CXdots, col = "black", lwd = 1.5)
+            lines(c(WV[ji], WV[ji]), c(SecMN - 24*3600, L5timing_ts[ji] - (19*3600)), type = "b", pch = 15,
+                  lty = 1, cex = CXdots, col = "black", lwd = 1.5)
+          }
+        }
+      }
       legend("top", legend = c("beweegmeter opstatijden", "beweegmeter slaaptijden",
-                               "dagboek opstatijden", "dagboek bedtijden"),
-             col = COL[c(1,1,2,2)], lty=rep(1,4), pch=c(16,17,16,17), ncol=2, cex= 0.8)
+                               "dagboek opstatijden", "dagboek bedtijden", "meest inactieve 5 uur"),
+             col = COL[c(1, 1, 2, 2, 3)], lty = rep(1,5), pch = c(16,17,16,17, 15), ncol = 3, cex = 0.8, bg = "white")
       dev.off()
       cat(paste0("\nDe PDF rapporten zijn nu opgeslagen in ",pdffile,"."))
     }

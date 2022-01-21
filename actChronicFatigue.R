@@ -172,7 +172,8 @@ model_threshold = -CF[1]/CF[2]
 #=============================================================================
 # Summarise and show on screen
 cat("\n Samenvatting van resultaten:\n")
-source("~/projects/ActChronicFatigue/R/summarise.R")
+# ActChronicFatigue::
+# source("~/projects/ActChronicFatigue/R/summarise.R")
 ActChronicFatigue::summarise(outputdir2, part5_summary,
                                    model_threshold=model_threshold, referentiewaarden =referentiewaarden,
                                    sleepwindowType=sleepwindowType)
