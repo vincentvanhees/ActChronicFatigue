@@ -37,7 +37,7 @@ runGGIR = function(datadir = c(), outputdir = c(), mode = c(), do.report = c(),
     nnights = 18
   }
   # activitylog = paste0(unlist(strsplit(activitylog,"[.]cs"))[1],"2.csv")
-  GGIR::g.shell.GGIR(#======================================= 
+  GGIR::g.shell.GGIR(#=======================================
                # INPUT NEEDED:
                #-------------------------------
                # General parameters
@@ -61,7 +61,7 @@ runGGIR = function(datadir = c(), outputdir = c(), mode = c(), do.report = c(),
                hb = 10,
                lb = 0.8,
                coln1 = 3,
-               imputeTimegaps = FALSE,
+               imputeTimegaps = TRUE,
                chunksize = chunksize,
                do.cal = TRUE,
                minloadcrit = 3 * 24,

@@ -114,10 +114,10 @@ summarise = function(outputdir, part5_summary,
       P2D$calendar_date = as.Date(P2D$calendar_date, "%Y-%m-%d")
       P4N$calendar_date = as.Date(P4N$calendar_date, "%d/%m/%Y")
       # Merge time spent in two acceleration range to sleep object, to ease plotting later on
-      P4N = base::merge(P4N, P2D[,c("calendar_date", "X.0.40._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr", "L5hr_ENMO_mg_0.24hr")],
+      P4N = base::merge(P4N, P2D[,c("calendar_date", "X.0.40._ENMO_mg_0.24hr", "X.40.100._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr", "L5hr_ENMO_mg_0.24hr")],
                         by = c("calendar_date"), all.x = TRUE)
-      colnames(P4N)[which(colnames(P4N) %in% c("X.0.40._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr") == TRUE)] = c("SB", "MVPA")
-      P4N[,c("SB", "MVPA")] = P4N[,c("SB", "MVPA")] / 60 # convert minutes to hours
+      colnames(P4N)[which(colnames(P4N) %in% c("X.0.40._ENMO_mg_0.24hr", "X.40.100._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr") == TRUE)] = c("SB", "LIPA", "MVPA")
+      P4N[,c("SB", "LIPA", "MVPA")] = P4N[,c("SB", "LIPA", "MVPA")] / 60 # convert minutes to hours
       if (sleepwindowType == "TimeInBed") {
         P4N[,"SB"] = P4N[,"SB"] - P4N[, "guider_inbedDuration"]
       } else {
@@ -130,7 +130,7 @@ summarise = function(outputdir, part5_summary,
         newvalues = (nrow(P5D)+1):(nrow(P5D)+length(missing_dates))
         P5D[newvalues,] = NA
         P5D$calendar_date[newvalues] = format(as.Date(missing_dates), "%Y-%m-%d")
-        P5D$weekday[newvalues] = weekdays(missing_dates)
+        P5D$weekday[newvalues] = weekdays(missing_dates, abbreviate = FALSE)
         P5D = P5D[order(P5D$calendar_date),]
         if (length(which(P5D$weekday %in% days == TRUE)) > 0) {
           for (ki in 1:length(days)) {
@@ -221,13 +221,16 @@ summarise = function(outputdir, part5_summary,
       
       #=======================================
       # MVPA
-      maxvalue = max(P4N$SB, na.rm = T) + 2 #max(G, na.rm = T)
+      maxvalue = 100 #max(P4N$SB, na.rm = T) + 2 #max(G, na.rm = T)
       title = "Sedentair gedrag (met in wit: minuten in matig-tot-zwaar intensief bewegen)"
-      brpos = barplot(t(as.matrix(P4N$SB)), space = rep(0, nrow(P4N)), ylab = "Tijd in uren", 
+      P4N$SBperc = (P4N$SB / (rowSums(P4N[,c("SB", "LIPA", "MVPA")]))) * 100
+      brpos = barplot(t(as.matrix(P4N$SBperc)),
+                      space = rep(0, nrow(P4N)), ylab = "Tijd overdag (%)", 
                       ylim = c(0, maxvalue), cex.axis = 0.9,
                       names.arg = P4N$weekday, cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
                       legend.text = NULL, main = title)
-      text(brpos, rep(1, length(P4N$SB)),
+      abline(h = 100, lty = 2)
+      text(brpos, rep(5, length(P4N$SB)),
            labels = round(60 * (P4N$MVPA), digits = 0),
            cex = 0.8,
            col = "white", font = 2)
