@@ -154,7 +154,7 @@ summarise = function(outputdir, part5_summary,
       P5P = part5_summary[which(part5_summary$ID == ID),]
       
       pdffile = paste0(outputdir, "/results/Beweeg_en_slaap_rapport_",ID,".pdf")
-      pdf(file = pdffile, paper = "a4r")
+      pdf(file = pdffile, paper = "a4r", width = 11.69, height = 8.27)
       par(mfrow = c(4,1), mar = c(4, 4, 3, 0.5), oma = c(0,0,0,0))  # las = 3
       # Key facts
       keystats = t(recent_recording[which(recent_recording$ID == ID), varnames])
@@ -170,11 +170,21 @@ summarise = function(outputdir, part5_summary,
       CXdots = 1.5
       #========================================
       # Plot activity time series
-      plot(P5D$ACC_day_mg, type = "b", pch = 20, ylim = range(c(model_threshold * 2, P5D$ACC_day_mg), na.rm = T),
-           main = titel, xlab = "", ylab = "Beweging per dag", bty = "l", axes = FALSE, cex.main = 1.5, cex.lab = CL, cex = CXdots)
-      axis(side = 1, at = 1:nrow(P5D), labels = paste0(P5D$weekday," ",P5D$calendar_date), cex.axis = CXdays)
-      abline(h = model_threshold, col = "black", lty = 2, lwd = 1.3)
+      
+      NBars = 3
+      
+      TS = P5D$ACC_day_mg
+      TS = c(TS, rep(NA, NBars))
+      
+      plot(TS, type = "b", pch = 20, ylim = range(c(model_threshold * 2, P5D$ACC_day_mg), na.rm = T),
+           main = titel, xlab = "", ylab = "Beweging per dag", bty = "l", axes = FALSE, cex.main = 1.5,
+           cex.lab = CL, cex = CXdots)
+      axis(side = 1, at = 1:(length(TS)-NBars), labels = c(paste0(P5D$weekday," ",P5D$calendar_date)), #, rep("", 3)
+           cex.axis = CXdays)
+      # abline(h = model_threshold, col = "black", lty = 2, lwd = 1.3)
+      lines(x = c(1,length(TS)-NBars), y = rep(model_threshold, 2), col = "black", lty = 2, lwd = 1.3)
       text(x = 0.8, y = model_threshold + 5, labels = "grenswaarde laag actief", pos = 4)
+      # mtext(title, side = 3, adj = 0, line = 1.2, cex = 1, font = 2); 
       # par(mar=c(4, 4, 3, 0.5)) 
       #========================================
       # Plot sleep duration
@@ -183,7 +193,7 @@ summarise = function(outputdir, part5_summary,
       }
       if (sleepwindowType == "TimeInBed") {
         A = P4N[,c("SleepDurationInSpt" , "SptDuration", "sleeplatency", "guider_inbedDuration", "sleepefficiency")]
-        title = "Slaap (met in wit: slaap efficientie %)" #Slaap (donker), Wakker na start slaap (licht), Slaap latency (lichter), en 
+        title = "Slapen en wakker liggen (met slaap efficientie (%) aangeduid in wit)" #Slaap (donker), Wakker na start slaap (licht), Slaap latency (lichter), en 
         maxvalue = max(c(A[,2]+A[,3]), na.rm = T)
       } else {
         A = P4N[,c("SleepDurationInSpt" , "SptDuration")] #/ 60
@@ -197,14 +207,18 @@ summarise = function(outputdir, part5_summary,
       } else {
         B = A[,c(1,2)]
       }
+      B[(nrow(B) + 1):(nrow(B) + NBars),] <- NA
+      # print(nrow(P5D))
+      # print(nrow(B))
+      # print(dim(t(as.matrix(B))))
       brpos = barplot(t(as.matrix(B)), space = rep(0, nrow(B)), ylab = "Tijd in uren", 
                       ylim = c(0, maxvalue + 6), cex.axis = 0.9,
-                      names.arg = P4N$weekday, cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
+                      names.arg = c(P5D$weekday, rep("",nrow(B) - nrow(P5D))), cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
                        legend.text = c("Slaap", "Wakker na in slaap vallen", "Wakker voor in slaap vallen"),
-                      main = title,
-                      args.legend = list(ncol = 3, x = "topright", cex = 0.7))
-      
-
+                      main = "",
+                      args.legend = list(ncol = 1, x = nrow(B), cex = 0.9, bty = "n"))
+      mtext(title, side = 3, adj = 0, line = 1.2, cex = 0.9, font = 2); 
+# kkk
       if (sleepwindowType == "TimeInBed") {
         text(brpos, rep(1, length(A$guider_inbedDuration)),
              labels = round(100 * (A$sleepefficiency), digits = 0),
@@ -214,22 +228,28 @@ summarise = function(outputdir, part5_summary,
       #========================================
       # Niet gedragen tijd
       A = P5D[,c("nonwear_perc_day", "nonwear_perc_spt")]
+      A[(nrow(A) + 1):(nrow(A) + NBars),] <- NA
+
       barplot(t(as.matrix(A)),  ylab = "Percentage (%)", beside = TRUE, space = c(0, 0.2),
-              names.arg = P5D$weekday, cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
-              main = "Beweegmeter niet gedragen?", legend.text = c("overdag", "nacht"),
-              args.legend = list(x = "topright", ncol = 2, cex = 0.7), ylim = c(0,100))
-      
+              names.arg = c(P5D$weekday, rep("",NBars)), cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
+              main = "", legend.text = c("overdag", "nacht"),
+              args.legend = list(x = (nrow(A)*2)+1, ncol = 1, cex = 0.9, bty = "n"), ylim = c(0,100))
+      mtext("Beweegmeter niet gedragen?", side = 3, adj = 0, line = 1.2, cex = 0.9, font = 2); 
       #=======================================
       # MVPA
       maxvalue = 100 #max(P4N$SB, na.rm = T) + 2 #max(G, na.rm = T)
-      title = "Sedentair gedrag (met in wit: minuten in matig-tot-zwaar intensief bewegen)"
-      P4N$SBperc = (P4N$SB / (rowSums(P4N[,c("SB", "LIPA", "MVPA")]))) * 100
-      brpos = barplot(t(as.matrix(P4N$SBperc)),
-                      space = rep(0, nrow(P4N)), ylab = "Tijd overdag (%)", 
+      title = "Beweeggedrag overdag (met tijd in matig to zwaar intensief aangeduid in wit)"
+      PASB = (P4N[,c("SB", "LIPA", "MVPA")] / rowSums(P4N[,c("SB", "LIPA", "MVPA")])) * 100
+      PASB[(nrow(PASB) + 1):(nrow(PASB) + NBars),] <- NA
+      # PASB = rbind(PASB, matrix(NA,3, ncol(PASB)))
+      
+      brpos = barplot(t(as.matrix(PASB)),
+                      space = rep(0, nrow(PASB)), ylab = "Tijd overdag (%)", 
                       ylim = c(0, maxvalue), cex.axis = 0.9,
-                      names.arg = P4N$weekday, cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
-                      legend.text = NULL, main = title)
-      abline(h = 100, lty = 2)
+                      names.arg = c(P4N$weekday, rep("",NBars)), cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
+                      legend.text = c("Sedentair", "Licht intensief", "Matig tot zwaar intensief"), main = "",
+                      args.legend = list(ncol = 1, x = nrow(PASB), cex = 0.9, bty = "n"))
+      mtext(title, side = 3, adj = 0, line = 1.2, cex = 0.9, font = 2); 
       text(brpos, rep(5, length(P4N$SB)),
            labels = round(60 * (P4N$MVPA), digits = 0),
            cex = 0.8,

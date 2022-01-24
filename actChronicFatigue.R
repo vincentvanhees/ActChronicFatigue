@@ -91,7 +91,7 @@ ActChronicFatigue::runGGIR(datadir = datadir, outputdir = outputdir, mode = c(1:
                            do.report = c(2), overwrite = FALSE, 
                            sleepwindowType = "SPT", # to prevent triggering warning
                            visualreport = FALSE, acc.metric = "BFEN", chunksize = chunksize,
-                           testbatch = testbatch ,  do.parallel = FALSE, hrs.del.start = hrs.del.start,
+                           testbatch = testbatch ,  do.parallel = TRUE, hrs.del.start = hrs.del.start,
                            hrs.del.end = hrs.del.end)
 
 part2resultsfile = paste0(outputdir,"/output_",basename(datadir),"/results/part2_summary.csv")
@@ -150,7 +150,7 @@ model_threshold = -CF[1]/CF[2]
 # Summarise and show on screen
 cat("\n Samenvatting van resultaten:\n")
 # ActChronicFatigue::
-source("~/projects/ActChronicFatigue/R/summarise.R")
+# source("~/projects/ActChronicFatigue/R/summarise.R")
 ActChronicFatigue::summarise(outputdir2, part5_summary,
                                    model_threshold = model_threshold, referentiewaarden = referentiewaarden,
                                    sleepwindowType = sleepwindowType)
