@@ -136,7 +136,7 @@ if (development.mode == TRUE) {
 }
 
 # Make predictions by applying the model
-prop_perv_passive = stats::predict(object = final_model_wrist, newdata = part5_summary, type="response")
+prop_perv_passive = stats::predict(object = final_model_wrist, newdata = part5_summary, type = "response")
 part5_summary = cbind(part5_summary, prop_perv_passive)
 
 CF = coef(final_model_wrist)
@@ -149,7 +149,6 @@ model_threshold = -CF[1]/CF[2]
 #=============================================================================
 # Summarise and show on screen
 cat("\n Samenvatting van resultaten:\n")
-# ActChronicFatigue::
 # source("~/projects/ActChronicFatigue/R/summarise.R")
 ActChronicFatigue::summarise(outputdir2, part5_summary,
                                    model_threshold = model_threshold, referentiewaarden = referentiewaarden,

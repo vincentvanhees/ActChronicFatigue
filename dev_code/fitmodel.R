@@ -1,9 +1,9 @@
-rm(list=ls())
+rm(list = ls())
 graphics.off()
 show.training.performance = FALSE
 library(psych)
 library(ROCR)
-# library(pROC) Orchestrating privacy-protected big data
+
 #=====================================================
 # Input needed:
 #=====================================================
@@ -38,10 +38,10 @@ derive_threshold = function(fit, data) {
   statspredict <- stats::predict(object = fit, newdata = data, type = "response")
   pred = ROCR::prediction(statspredict,data$label)
   opt.cut = function(perf, pred){
-    cut.ind = mapply(FUN=function(x, y, p){
-      d = (x - 0)^2 + (y-1)^2
+    cut.ind = mapply(FUN = function(x, y, p){
+      d = (x - 0)^2 + (y - 1)^2
       ind = which(d == min(d))[1]
-      c(sensitivity = y[[ind]], specificity = 1-x[[ind]], 
+      c(sensitivity = y[[ind]], specificity = 1 - x[[ind]], 
         cutoff = p[[ind]])
     }, perf@x.values, perf@y.values, pred@cutoffs)
   }
@@ -50,27 +50,24 @@ derive_threshold = function(fit, data) {
 }
 
 # load data
-labels = read.csv(filewithlabels, sep=separator, stringsAsFactors = TRUE)
+labels = read.csv(filewithlabels, sep = separator, stringsAsFactors = TRUE)
 
-# labels = labels[which(labels$ID %in% c(62038, 62058, 60601, 62001, 62056, 62036, 62061) == FALSE),]
-# labels = labels[which(labels$ID %in% c(62038, 62001, 62056, 61837) == FALSE),] 
-# labels = labels[which(labels$ID %in% c(62056) == FALSE),]
+# labels = labels[which(labels$ID %in% c(62056, 62038, 62001) == FALSE),]
 
 labels$label[which(labels$label == "pa")] = "fa"
 labels = labels[which(as.character(labels$label) %in% c("pp","fa")),] #, "pa"
 labels = droplevels(labels)
-D = read.csv(file=part5_summary_file, sep=separator)
+D = read.csv(file = part5_summary_file, sep = separator)
 
 # "gradient_mean", "y_intercept_mean", "X1", "X2", "X3", "X4",
 D = D[,c("act9167", "ID2", "filename", "Nvaliddays","Ndays_used", # these are the number of days used by the model
          "nonwear_perc_day_spt_pla", "ACC_day_mg_pla", "nonwear_perc_day_pla", "calendar_date")]
-
-
-D = D[which(D$nonwear_perc_day_spt_pla <= 33 & D$nonwear_perc_day_pla <= 33 & D$Ndays_used >= 12),] #& D$calib_err < 0.02 #& D$Nvaliddays > 10
+D = D[which(D$nonwear_perc_day_spt_pla <= 33 &
+              D$nonwear_perc_day_pla <= 33 &
+              D$Ndays_used >= 12),] #& D$calib_err < 0.02 #& D$Nvaliddays > 10
 
 # Merge data with labels
 NmatchingIDs = length(which(labels[,id_column_labels] %in% D[,id_column_part5] == TRUE))
-
 if (NmatchingIDs == 0) {
   print("No matching id could be found, please check that correct column is specified")
   print(paste0("format of id in labels: ", labels[1,id_column_labels]))
@@ -82,32 +79,22 @@ if (NmatchingIDs == 0) {
   D = D[which(D[,id_column_part5] %in% labels[,id_column_labels] == TRUE),]
   
 }
-MergedData = merge(labels, D,by.x=id_column_labels,by.y=id_column_part5)
-
+MergedData = merge(labels, D,by.x = id_column_labels,by.y = id_column_part5)
 rm(D)
-findwinner = function(x) {
-  y = x[c(fluctuationactive,pervasivepassive,pervasiveactive)]
-  if (sort(y)[2] > 0.5) {
-    winner = paste0(names(sort(y)[2:3]), collapse="") # call it a combined class
-  } else {
-    win = which.max(y)
-    winner = names(win)
-  }
-  return(winner)
-}
 
 MergedData$label2 = MergedData$label
 MergedData$label <- stats::relevel(MergedData$label, ref = fluctuationactive)
 MergedData$label = as.integer(MergedData$label) - 1L
-
 labelkey = unique(MergedData[,c("label","label2")])
 colnames(labelkey) = c("value","label")
-print(labelkey)
 MergedData = MergedData[,-which(colnames(MergedData) == "label2")]
 MergedData =  MergedData[!is.na(MergedData$act9167),]
-# MergedData = MergedData[-which(MergedData$ID == 61207),]
+
+MergedData$label = factor(MergedData$label, levels = c(0, 1), 
+       labels = c("active", "perv_passive"))
+
 for (location in c(wrist)) { #,hip
-  cat("\n===============================")
+  cat("\n===============================\n")
   cnt = 1
   # select subset of one sensor location
   Dloc = MergedData[which(MergedData$loc == location),]
@@ -140,16 +127,21 @@ for (location in c(wrist)) { #,hip
     }
     cnt = cnt + 1
   }
+  output$estimate = factor(output$estimate, levels = c(0, 1), 
+                            labels = c("active", "perv_passive"))
   cat(paste0("\n",location,": overall performance on leave one out test set (rows are labels, columns estimates)"))
-  print(table(output$label,output$estimate)) # estimate are columns, label are rows
-  print(psych::cohen.kappa(table(output$label,output$estimate)))
   
+  print(table(output$label,output$estimate)) # estimate are columns, label are rows
+  cat("\n===============================\n")
+  print(psych::cohen.kappa(table(output$label, output$estimate)))
+  cat("\n===============================\n")
   output$result = FALSE
   output$result[which(output$estimate == output$label)] = TRUE
+  
   cat("\nIDs corresponding to errors:\n")
   cat(sort(output$ID[which(output$result == FALSE)]))
   cat("\n")
-  cat(paste0("auc: ",round(pROC::auc(pROC::roc(output$label,output$estimate, )), digits = 4)))
+  cat(paste0("auc: ",round(pROC::auc(pROC::roc(as.numeric(output$label),as.numeric(output$estimate))), digits = 4)))
   
 }
 
@@ -160,7 +152,7 @@ MergedData_wrist$pred = stats::predict(object = final_model_wrist, newdata = Mer
 threshold_wrist = threshold = 0.5
 
 if (derive.roc.cutoff == TRUE) {
-  threshold_wrist = derive_threshold(fit = final_model_wrist, data=  MergedData_wrist)
+  threshold_wrist = derive_threshold(fit = final_model_wrist, data = MergedData_wrist)
   cat("\n")
   cat(paste0("\nThresholds for final models: Wrist ",threshold_wrist))
 }
@@ -168,7 +160,7 @@ if (derive.roc.cutoff == TRUE) {
 # or inspect them with summary()
 save(final_model_wrist, threshold_wrist, file = "inst/extdata/final_model_wrist.Rdata")
 
-data2store = MergedData[which(MergedData$loc=="wrist"),
+data2store = MergedData[which(MergedData$loc == "wrist"),
                         c("ID", "act9167", "nonwear_perc_day_spt_pla", "ACC_day_mg_pla")]
 colnames(data2store) = c("ID","percentile9167_acceleration","accelerometer_worn_duration_days","average_acceleration")
 write.csv(data2store,
@@ -180,8 +172,8 @@ write.csv(data2store,
 # x11()
 # plot(MergedData_wrist$act9167, MergedData_wrist$pred - MergedData_wrist$label, type="p", pch=20)
 
-x11()
-boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type="p", pch=20)
+# x11()
+# boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type="p", pch=20)
 
 cat("\nMisclassified:\n")
 # print(MergedData_wrist[which(MergedData_wrist$ID%in% sort(output$ID[which(output$result == FALSE)]) == TRUE),])
@@ -189,15 +181,22 @@ cat("\nMisclassified:\n")
 # print(MergedData_wrist[which(round(MergedData_wrist$pred) != MergedData_wrist$label),])
 # print(MergedData_wrist[which(MergedData_wrist$ID %in% output$ID[which(output$label != output$estimate)] == TRUE),]) # estimate are columns, label are rows
 
-output = output[order(output$calendar_date),]
+output = output[order(output$calendar_date), c(colnames(output)[which(colnames(output) != "label")], "label")]
+
+varsNotShow = c("loc", "Nvaliddays", "Ndays_used",
+                "nonwear_perc_day_spt_pla",
+                "nonwear_perc_day_pla", "year",
+                "result", "error", "filename", 
+                "ACC_day_mg_pla", "act9167")
 print(output[which(output$label != output$estimate),
-             which(colnames(output) %in% c("loc", "Nvaliddays", "Ndays_used",
-                                           "nonwear_perc_day_spt_pla",
-                                           "nonwear_perc_day_pla", "year",
-                                           "result", "error") == FALSE) ]) # estimate are columns, label are rows
+             which(colnames(output) %in% varsNotShow == FALSE) ]) # estimate are columns, label are rows
+
+print(output[,which(colnames(output) %in% varsNotShow == FALSE) ]) # estimate are columns, label are rows
+
+
 output$calendar_date = as.Date(output$calendar_date)
 output$year = format(output$calendar_date,"%Y")
-output$error = abs(output$estimate - output$label)
+# output$error = abs(as.numoutput$estimate - output$label)
 output = output[order(output$calendar_date),]
 # x11()
 # plot(as.Date(output$calendar_date), output$error,
