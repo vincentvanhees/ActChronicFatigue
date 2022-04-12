@@ -6,13 +6,13 @@ library("GGIR")
 # INPUT NEEDED:
 # specify file number to start and end with, fill in c() if unknown
 
-# datadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv/rawactigraph_nkcv/nkcv_wrist"
-datadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv/issue17Jan2022/issue_file_17jan2022"
+datadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv/rawactigraph_nkcv/nkcv_wrist"
+# datadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv/issue17Jan2022/issue_file_17jan2022"
 outputdir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv/issue17Jan2022" #/actometer_nkcv
 # studyname= "nkcv_wrist"
 
-f0 = c()
-f1 = c()
+f0 = 1#c()
+f1 = 2#c()
 #=====================================================================================
 # load functions directly from local clone of the R package repository
 library(GGIR)
@@ -26,13 +26,13 @@ loglocation = "~/Dropbox/Work/W22/DATA/actometer_nkcv/sleepdiary/Logboek Vincent
 SLEEPLOG = read.csv(loglocation)
 nnights = round((ncol(SLEEPLOG) - 1) / 2)
 
-g.shell.GGIR(mode = c(1:5), #specify above
+g.shell.GGIR(mode = c(1:4), #specify above
              datadir = datadir, #specify above
              outputdir = outputdir, #specify above
-             f0 = c(), #specify above
-             f1 = c(), #specify above
+             f0 = f0, #specify above
+             f1 = f1, #specify above
              overwrite = FALSE, #overwrite previous milestone data?
-             do.report = c(2,4, 5), #for what parts does and report need to be generated? (option: 2, 4 and 5)
+             do.report = c(2, 4), #for what parts does and report need to be generated? (option: 2, 4 and 5)
              do.imp = TRUE, # Do imputation? (recommended)
              idloc = 5, #id location (1 = file header, 2 = filename)
              print.filename = TRUE,

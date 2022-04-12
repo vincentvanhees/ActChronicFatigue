@@ -61,10 +61,11 @@ D = read.csv(file = part5_summary_file, sep = separator)
 
 # "gradient_mean", "y_intercept_mean", "X1", "X2", "X3", "X4",
 D = D[,c("act9167", "ID2", "filename", "Nvaliddays","Ndays_used", # these are the number of days used by the model
-         "nonwear_perc_day_spt_pla", "ACC_day_mg_pla", "nonwear_perc_day_pla", "calendar_date")]
-D = D[which(D$nonwear_perc_day_spt_pla <= 33 &
+         "nonwear_perc_day_spt_pla", "ACC_day_mg_pla", "nonwear_perc_day_pla", 
+         "calendar_date")]
+D = D[which(D$nonwear_perc_day_spt_pla <= 100 &
               D$nonwear_perc_day_pla <= 33 &
-              D$Ndays_used >= 12),] #& D$calib_err < 0.02 #& D$Nvaliddays > 10
+              D$Ndays_used >= 12),] #&  #& D$Nvaliddays > 10
 
 # Merge data with labels
 NmatchingIDs = length(which(labels[,id_column_labels] %in% D[,id_column_part5] == TRUE))
@@ -188,10 +189,10 @@ varsNotShow = c("loc", "Nvaliddays", "Ndays_used",
                 "nonwear_perc_day_pla", "year",
                 "result", "error", "filename", 
                 "ACC_day_mg_pla", "act9167")
-print(output[which(output$label != output$estimate),
-             which(colnames(output) %in% varsNotShow == FALSE) ]) # estimate are columns, label are rows
-
-print(output[,which(colnames(output) %in% varsNotShow == FALSE) ]) # estimate are columns, label are rows
+# print(output[which(output$label != output$estimate),
+#              which(colnames(output) %in% varsNotShow == FALSE) ]) # estimate are columns, label are rows
+# 
+# print(output[,which(colnames(output) %in% varsNotShow == FALSE) ]) # estimate are columns, label are rows
 
 
 output$calendar_date = as.Date(output$calendar_date)
