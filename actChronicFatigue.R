@@ -39,14 +39,14 @@ if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
 library(ActChronicFatigue)
 library(GGIR)
 
-dirR = "~/GGIR/R"
-ffnames = dir(dirR) # creating list of filenames of scriptfiles to load
-ffnames = ffnames[which(ffnames %in% c("g.cwaread.R", "read.gt3x_ggir.R") == FALSE)]
-for (i in 1:length(ffnames)) {
-  source(paste(dirR,"/",ffnames[i], sep = "")) #loading scripts for reading geneactiv data
+if (development.mode == TRUE) {
+  dirR = "~/GGIR/R"
+  ffnames = dir(dirR) # creating list of filenames of scriptfiles to load
+  ffnames = ffnames[which(ffnames %in% c("g.cwaread.R", "read.gt3x_ggir.R") == FALSE)]
+  for (i in 1:length(ffnames)) {
+    source(paste(dirR,"/",ffnames[i], sep = "")) #loading scripts for reading geneactiv data
+  }
 }
-
-# }
 
 #=========================================
 # Obtain data locations
