@@ -17,24 +17,25 @@ hrs.del.end = 0 # aantal uren te negeren aan het einde
 sleepwindowType = "TimeInBed"
 # #=========================================
 # # Install code if not available:
-development.mode = FALSE # laat op FALSE staan, TRUE is alleen voor onderhoud
+development.mode = TRUE # laat op FALSE staan, TRUE is alleen voor onderhoud
 testbatch = FALSE
-# if (development.mode == TRUE) {
-# roxygen2::roxygenise()
-# locationRcode = "/home/vincent/projects/ActChronicFatigue/R"
-# ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
-# for (i in 1:length(ffnames)) {
-#   source(paste(locationRcode,"/",ffnames[i],sep=""))
-# }
+if (development.mode == TRUE) {
+  roxygen2::roxygenise()
+  locationRcode = "/home/vincent/projects/ActChronicFatigue/R"
+  ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
+  for (i in 1:length(ffnames)) {
+    source(paste(locationRcode, "/", ffnames[i], sep = ""))
+  }
+} else {
+  cat("\nActChronicFatigue installeren...")
+  remotes::install_github("vincentvanhees/ActChronicFatigue", dependencies = TRUE)
+}
 
 if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
   cat("\nGGIR installeren...")
   remotes::install_github("wadpac/GGIR", dependencies = TRUE)
 }
-#   cat("\nActChronicFatigue installeren...")
-#   remotes::install_github("vincentvanhees/ActChronicFatigue", dependencies=TRUE)
-#   
-# }
+
 library(ActChronicFatigue)
 library(GGIR)
 

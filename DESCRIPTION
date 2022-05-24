@@ -15,5 +15,5 @@ Depends: stats, utils, R (>= 3.5.0), grDevices, graphics
 Remotes: wadpac/GGIR
 NeedsCompilation: no
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Encoding: UTF-8
