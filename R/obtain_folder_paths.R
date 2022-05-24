@@ -11,7 +11,7 @@ obtain_folder_paths = function() {
     load(datalocaties)
     
     cat(paste0(rep('_',options()$width),collapse=''))
-    Q1 = menu(c("Ja", "Nee"), title=paste0("\nWil je de bestandspaden opnieuwe instellen?"))
+    Q1 = menu(c("Ja", "Nee"), title=paste0("\nWil je de bestandspaden opnieuw instellen?"))
     if (Q1 == 1) {
       # cat(paste0(rep('_',options()$width),collapse=''))
       # Q2 = menu(c("Ja", "Nee"), title=paste0("\nGebruik je gt3x data?"))

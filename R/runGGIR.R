@@ -37,7 +37,7 @@ runGGIR = function(datadir = c(), outputdir = c(), mode = c(), do.report = c(),
     nnights = 18
   }
   # activitylog = paste0(unlist(strsplit(activitylog,"[.]cs"))[1],"2.csv")
-  GGIR::g.shell.GGIR(#=======================================
+  GGIR::GGIR(#=======================================
                # INPUT NEEDED:
                #-------------------------------
                # General parameters
