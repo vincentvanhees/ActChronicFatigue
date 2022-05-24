@@ -122,6 +122,7 @@ summarise = function(outputdir, part5_summary,
       # } else {
       #   P4N[,"SB"] = P4N[,"SB"] - P4N[, "SleepDurationInSpt"]
       # }
+      P5D = P5D[order(P5D$calendar_date),]
       dates = P5D$calendar_date
       dates_theoretical = seq(min(dates), max(dates), by = 1)
       missing_dates = dates_theoretical[which(dates_theoretical %in% dates == FALSE)]
@@ -130,7 +131,6 @@ summarise = function(outputdir, part5_summary,
         P5D[newvalues,] = NA
         P5D$calendar_date[newvalues] = format(as.Date(missing_dates), "%Y-%m-%d")
         P5D$weekday[newvalues] = weekdays(missing_dates, abbreviate = FALSE)
-        P5D = P5D[order(P5D$calendar_date),]
         if (length(which(P5D$weekday %in% days == TRUE)) > 0) {
           for (ki in 1:length(days)) {
             P5D$weekday = gsub(x = P5D$weekday,
@@ -138,6 +138,7 @@ summarise = function(outputdir, part5_summary,
           }
         }
       }
+      P5D$calendar_date = format(as.Date(P5D$calendar_date), "%Y-%m-%d")
       P5D$calendar_date = format(as.Date(P5D$calendar_date), "%d")
       # Now shorten weekday
       dagen_kort = c("ma", "di", "wo", "do", "vr", "za", "zo")
@@ -175,7 +176,6 @@ summarise = function(outputdir, part5_summary,
       # Plot activity time series
       
       NBars = 3
-      
       TS = P5D$ACC_day_mg
       TS = c(TS, rep(NA, NBars))
       
@@ -219,7 +219,7 @@ summarise = function(outputdir, part5_summary,
       brpos = barplot(t(as.matrix(B)), space = rep(0, nrow(B)), ylab = "Tijd in uren", 
                       ylim = c(0, maxvalue + 6), cex.axis = 0.9,
                       names.arg = c(P5D$weekday, rep("",nrow(B) - nrow(P5D))), cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
-                       legend.text = c("Slaap", "Wakker na in slaap vallen", "Wakker voor in slaap vallen"),
+                      legend.text = c("Slaap", "Wakker na in slaap vallen", "Wakker voor in slaap vallen"),
                       main = "",
                       args.legend = list(ncol = 1, x = nrow(B), cex = 1, bty = "n"))
       mtext(title, side = 3, adj = 0, line = 1.2, cex = 0.9, font = 2); 
@@ -233,7 +233,7 @@ summarise = function(outputdir, part5_summary,
       # Niet gedragen tijd
       A = P5D[,c("nonwear_perc_day", "nonwear_perc_spt")]
       A[(nrow(A) + 1):(nrow(A) + NBars),] <- NA
-
+      
       barplot(t(as.matrix(A)),  ylab = "Percentage (%)", beside = TRUE, space = c(0, 0.2),
               names.arg = c(P5D$weekday, rep("",NBars)), cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
               main = "", legend.text = c("overdag", "nacht"),
@@ -242,7 +242,7 @@ summarise = function(outputdir, part5_summary,
       #=======================================
       # MVPA
       maxvalue = max(P4N$MVPA, na.rm = T) + 10
-      print(summary(P4N$MVPA))
+      # print(summary(P4N$MVPA))
       title = "Matig to zwaar intensief gedrag"
       PASB = P4N[,c("MVPA")]
       PASB = c(PASB, matrix(NA,3, 1))
@@ -257,7 +257,7 @@ summarise = function(outputdir, part5_summary,
       mtext(title, side = 3, adj = 0, line = 1.2, cex = 0.9, font = 2);
       text(x = length(P4N$weekday), y = 40, labels = "Beweegrichtlijn (30 min. per dag)", cex = 1, font = 1, pos = 4);
       mtext(text = paste0("Software versie: ", packageVersion("ActChronicFatigue")),
-           side = 1, col = "black", cex = 0.7, line = 2.5, font = 2, adj = 0)
+            side = 1, col = "black", cex = 0.7, line = 2.5, font = 2, adj = 0)
       mtext(text = IDtitle,
             side = 1, col = "black", cex = 0.7, line = 2.5, font = 2, adj = 1)
       
