@@ -5,6 +5,7 @@
 #' @export
 #' @importFrom stats aggregate sd quantile aggregate.data.frame
 #' @importFrom utils read.csv write.csv
+#' @importFrom methods is
 #' 
 addVariables5 = function(outputdir=c()) {
   #==========================================================
@@ -19,7 +20,7 @@ addVariables5 = function(outputdir=c()) {
   P5 = read.csv(part5_daysummary_file, stringsAsFactors = FALSE, sep=separator)
   # Change ID to numeric:
   convertID = function(idValues) {
-    if (class(idValues) == "character") {
+    if (is(idValues, "character")) {
       idValues = as.character(sapply(idValues, FUN=function(x) unlist(strsplit(x," "))[1]))
       idValues = as.integer(idValues)
     }

@@ -5,6 +5,7 @@
 #' @param model_threshold Acceleration threshold corresponding to the model, which can be derived as negative of the first coefficient divided by the second coefficient.
 #' @param referentiewaarden Mean and standard deviation ENMO_fullRecordingMean in a reference population.
 #' @param sleepwindowType See, GGIR documentation.
+#' @param MVPAdefinition MVPA variable name from the GGIR part2 daysummary output
 #' @return no object is returned, only a summary is printed to the screen
 #' @export
 #' @importFrom grDevices dev.off pdf
@@ -13,7 +14,7 @@
 #' @importFrom utils packageVersion
 summarise = function(outputdir, part5_summary, 
                      model_threshold = 75, referentiewaarden,
-                     sleepwindowType="SPT"){
+                     sleepwindowType="SPT", MVPAdefinition = "MVPA_E5S_B10M80%_T100_BFEN_0-24hr"){
   part2_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                             pattern = "part2_summary", value = T)
   part2_summary = read.csv(file=part2_summary_file, sep=",")
@@ -112,10 +113,10 @@ summarise = function(outputdir, part5_summary,
       P4N$calendar_date = as.Date(P4N$calendar_date, "%d/%m/%Y")
       # Merge time spent in two acceleration range to sleep object, to ease plotting later on
       # "X.0.40._ENMO_mg_0.24hr", "X.40.100._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr", "L5hr_ENMO_mg_0.24hr"
-      P4N = base::merge(P4N, P2D[,c("calendar_date", "MVPA_E1M_T100_ENMO_0.24hr")],
+      P4N = base::merge(P4N, P2D[,c("calendar_date", MVPAdefinition)],
                         by = c("calendar_date"), all.x = TRUE)
       # ,"X.0.40._ENMO_mg_0.24hr", "X.40.100._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr"
-      colnames(P4N)[which(colnames(P4N) %in% c("MVPA_E1M_T100_ENMO_0.24hr") == TRUE)] = c("MVPA") #"SB", "LIPA", 
+      colnames(P4N)[which(colnames(P4N) %in% MVPAdefinition == TRUE)] = c("MVPA") #"SB", "LIPA", 
       # P4N[,c("SB", "LIPA", "MVPA")] = P4N[,c("SB", "LIPA", "MVPA")] / 60 # convert minutes to hours
       # if (sleepwindowType == "TimeInBed") {
       #   P4N[,"SB"] = P4N[,"SB"] - P4N[, "guider_inbedDuration"]

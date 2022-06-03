@@ -9,7 +9,8 @@ summarise(
   part5_summary,
   model_threshold = 75,
   referentiewaarden,
-  sleepwindowType = "SPT"
+  sleepwindowType = "SPT",
+  MVPAdefinition = "MVPA_E5S_B10M80\%_T100_BFEN_0-24hr"
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ summarise(
 \item{referentiewaarden}{Mean and standard deviation ENMO_fullRecordingMean in a reference population.}
 
 \item{sleepwindowType}{See, GGIR documentation.}
+
+\item{MVPAdefinition}{MVPA variable name from the GGIR part2 daysummary output}
 }
 \value{
 no object is returned, only a summary is printed to the screen
