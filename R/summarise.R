@@ -113,6 +113,7 @@ summarise = function(outputdir, part5_summary,
       P4N$calendar_date = as.Date(P4N$calendar_date, "%d/%m/%Y")
       # Merge time spent in two acceleration range to sleep object, to ease plotting later on
       # "X.0.40._ENMO_mg_0.24hr", "X.40.100._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr", "L5hr_ENMO_mg_0.24hr"
+      # print(grep(pattern = "MVPA", x = colnames(P2D), value = TRUE))
       P4N = base::merge(P4N, P2D[,c("calendar_date", MVPAdefinition)],
                         by = c("calendar_date"), all.x = TRUE)
       # ,"X.0.40._ENMO_mg_0.24hr", "X.40.100._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr"
@@ -238,13 +239,14 @@ summarise = function(outputdir, part5_summary,
       barplot(t(as.matrix(A)),  ylab = "Percentage (%)", beside = TRUE, space = c(0, 0.2),
               names.arg = c(P5D$weekday, rep("",NBars)), cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
               main = "", legend.text = c("overdag", "nacht"),
-              args.legend = list(x = (nrow(A)*2)+1, ncol = 1, cex = 1, bty = "n"), ylim = c(0,100))
+              args.legend = list(x = (nrow(A)*2) + 1, ncol = 1, cex = 1, bty = "n"), ylim = c(0,100))
       mtext("Beweegmeter niet gedragen?", side = 3, adj = 0, line = 1.2, cex = 0.9, font = 2); 
       #=======================================
       # MVPA
-      maxvalue = max(P4N$MVPA, na.rm = T) + 10
+      maxvalue = max(c(P4N$MVPA, 30), na.rm = T) + 10
       # print(summary(P4N$MVPA))
-      title = "Matig to zwaar intensief gedrag"
+      boutdur = unlist(strsplit(unlist(strsplit(MVPAdefinition, "B"))[2], "M"))[1]
+      title = paste0("Matig to Zwaar intensief gedrag in blokken van minimaal ", boutdur, " minuten")
       PASB = P4N[,c("MVPA")]
       PASB = c(PASB, matrix(NA,3, 1))
       brpos = barplot(t(as.matrix(PASB)),
@@ -256,7 +258,7 @@ summarise = function(outputdir, part5_summary,
                       main = "", col = "grey")
       lines(x = c(0, length(P4N$weekday) + 3), y = c(30, 30), type = "l", lty = 2, lwd = 1.3)
       mtext(title, side = 3, adj = 0, line = 1.2, cex = 0.9, font = 2);
-      text(x = length(P4N$weekday), y = 40, labels = "Beweegrichtlijn (30 min. per dag)", cex = 1, font = 1, pos = 4);
+      text(x = length(P4N$weekday), y = 35, labels = "Beweegrichtlijn (30 min. per dag)", cex = 1, font = 1, pos = 4);
       mtext(text = paste0("Software versie: ", packageVersion("ActChronicFatigue")),
             side = 1, col = "black", cex = 0.7, line = 2.5, font = 2, adj = 0)
       mtext(text = IDtitle,

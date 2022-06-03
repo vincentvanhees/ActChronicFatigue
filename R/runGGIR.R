@@ -83,7 +83,7 @@ runGGIR = function(datadir = c(), outputdir = c(), mode = c(), do.report = c(),
              sleepwindowType = sleepwindowType,
              ilevels = c(0, 40, 100, 8000), #acceleration values (metric ENMO) from which a frequency distribution needs to be derived, set value at c() if you do not want quantiles
              mvpathreshold = c(100), #MVPA (moderate and vigorous physical activity threshold
-             mvpadur = c(10, 20, 30),
+             mvpadur = c(5, 10, 15),
              threshold.lig = 40,
              threshold.mod = 100,
              threshold.vig = 400,

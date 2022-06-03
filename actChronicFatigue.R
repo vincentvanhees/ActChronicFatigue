@@ -66,7 +66,7 @@ cat(paste0("\nLocatie ",length(dir(datalocaties$datadir))," csv bestanden = ",da
 cat(paste0("\nLocatie resultaten =  ",datalocaties$outputdir,"\n"))
 
 chunksize = 0.5
-MVPAdefinition = "MVPA_E5S_B30M80%_T100_BFEN_0-24hr" #"MVPA_E1M_T100_ENMO_0.24hr"
+MVPAdefinition = "MVPA_E5S_B10M80._T100_ENMO_0.24hr" #"MVPA_E1M_T100_ENMO_0.24hr"
 if (length(dir(datalocaties$datadir)) == 0) { #length(dir(datalocaties$gt3xdir)) == 0 &
   cat("\n")
   stop("\nGeen data gevonden. Controleer data folders.")
