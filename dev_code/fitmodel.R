@@ -7,8 +7,11 @@ library(ROCR)
 #=====================================================
 # Input needed:
 #=====================================================
-outputdir = "/home/vincent/Dropbox/Work/W22/DATA/output_nkcv_wrist" # GGIR output directory
-mydatadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv" # directory where the labels.csv file is stored
+# outputdir = "/home/vincent/Dropbox/Work/W22/DATA/output_nkcv_wrist" # GGIR output directory
+outputdir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/output_nkcv_wrist" # GGIR output directory
+
+# mydatadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv" # directory where the labels.csv file is stored
+mydatadir = "/media/vincent/DATA/NKCV/actometer_nkcv_data" # directory where the labels.csv file is stored
 # Specify location of file:
 part5_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),pattern = "part5_personsummary_WW_", value = T)
 # Specify location of file with the labels
@@ -54,7 +57,8 @@ labels = read.csv(filewithlabels, sep = separator, stringsAsFactors = TRUE)
 
 # labels = labels[which(labels$ID %in% c(62056, 62038, 62001) == FALSE),]
 
-labels$label[which(labels$label == "pa")] = "fa"
+pa_labels = which(labels$label == "pa")
+if (length(pa_labels) > 0) labels$label[pa_labels] = "fa"
 labels = labels[which(as.character(labels$label) %in% c("pp","fa")),] #, "pa"
 labels = droplevels(labels)
 D = read.csv(file = part5_summary_file, sep = separator)
@@ -171,10 +175,10 @@ write.csv(data2store,
 # Exploration plots
 
 # x11()
-# plot(MergedData_wrist$act9167, MergedData_wrist$pred - MergedData_wrist$label, type="p", pch=20)
+# plot(MergedData_wrist$act9167, MergedData_wrist$pred - (as.numeric(MergedData_wrist$label) - 1), type="p", pch=20)
 
-# x11()
-# boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type="p", pch=20)
+x11()
+boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type="p", pch=20)
 
 cat("\nMisclassified:\n")
 # print(MergedData_wrist[which(MergedData_wrist$ID%in% sort(output$ID[which(output$result == FALSE)]) == TRUE),])

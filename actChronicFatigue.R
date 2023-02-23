@@ -42,7 +42,7 @@ library(GGIR)
 if (development.mode == TRUE) {
   dirR = "~/GGIR/R"
   ffnames = dir(dirR) # creating list of filenames of scriptfiles to load
-  ffnames = ffnames[which(ffnames %in% c("g.cwaread.R", "read.gt3x_ggir.R") == FALSE)]
+  # ffnames = ffnames[which(ffnames %in% c("g.cwaread.R", "read.gt3x_ggir.R") == FALSE)]
   for (i in 1:length(ffnames)) {
     source(paste(dirR,"/",ffnames[i], sep = "")) #loading scripts for reading geneactiv data
   }
@@ -94,12 +94,14 @@ ActChronicFatigue::runGGIR(datadir = datadir, outputdir = outputdir, mode = c(1:
                            visualreport = FALSE, acc.metric = "BFEN", chunksize = chunksize,
                            testbatch = testbatch ,  do.parallel = TRUE, hrs.del.start = hrs.del.start,
                            hrs.del.end = hrs.del.end)
-
 part2resultsfile = paste0(outputdir,"/output_",basename(datadir),"/results/part2_summary.csv")
 
 #=============================================================================
 # If sleeplog exists convert sleeplog to expected format
 if (gebruik_slaap_dagboek == TRUE) {
+  cat("\nConverteer slaapdagboek\n")
+  # source("~/projects/ActChronicFatigue/R/convert_sleeplog.R")
+  # sleeplogfile = convert_sleeplog(sleeplog, part2resultsfile)
   sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog, part2resultsfile)
 } else {
   sleeplogfile = c()
