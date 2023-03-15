@@ -17,7 +17,7 @@ summarise = function(outputdir, part5_summary,
                      sleepwindowType="SPT", MVPAdefinition = "MVPA_E5S_B10M80%_T100_BFEN_0-24hr"){
   part2_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                             pattern = "part2_summary", value = T)
-  part2_summary = read.csv(file=part2_summary_file, sep=",")
+  part2_summary = read.csv(file = part2_summary_file, sep = ",")
   extractid = function(x) {
     tmp = unlist(strsplit(x," "))
     if (length(tmp) > 1) {
@@ -32,7 +32,7 @@ summarise = function(outputdir, part5_summary,
   }
   part2_summary = part2_summary[,c("ID", "ENMO_fullRecordingMean")] #  "BFEN_fullRecordingMean" "ENMO_fullRecordingMean"
   colnames(part2_summary) = c("ID","Activity_zscore")
-  part2_summary$Activity_zscore = round((part2_summary$Activity - referentiewaarden[1]) / referentiewaarden[2], digits=1) # - 23.64) / 15.5 for ENMO
+  part2_summary$Activity_zscore = round((part2_summary$Activity - referentiewaarden[1]) / referentiewaarden[2], digits = 1) # - 23.64) / 15.5 for ENMO
   part5_summary = merge(part5_summary, part2_summary, by.x = "ID2", by.y = "ID")
   
   # check for which IDs reports have already been generated:
@@ -103,33 +103,54 @@ summarise = function(outputdir, part5_summary,
                                         pattern = days[ki], replacement = dagen[ki]) 
     }
     for (ID in unique(recent_recording$ID)) {
+      # Get rows for this ID
       P5D = part5_daysummary[which(part5_daysummary$ID == ID),]
       P2D = part2_daysummary[which(part2_daysummary$ID == ID),]
       P4N = part4_nightsummary[which(part4_nightsummary$ID == ID),]
-      #---------------------------------------------
-      # add empty rows for missing days
+      # Put date in data format
       P5D$calendar_date = as.Date(P5D$calendar_date, "%Y-%m-%d")
       P2D$calendar_date = as.Date(P2D$calendar_date, "%Y-%m-%d")
       P4N$calendar_date = as.Date(P4N$calendar_date, "%d/%m/%Y")
       # Merge time spent in two acceleration range to sleep object, to ease plotting later on
       # "X.0.40._ENMO_mg_0.24hr", "X.40.100._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr", "L5hr_ENMO_mg_0.24hr"
       # print(grep(pattern = "MVPA", x = colnames(P2D), value = TRUE))
+      
+      # Combine P4 and P2 output to ease plotting
       P4N = base::merge(P4N, P2D[,c("calendar_date", MVPAdefinition)],
                         by = c("calendar_date"), all.x = TRUE)
       # ,"X.0.40._ENMO_mg_0.24hr", "X.40.100._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr"
       colnames(P4N)[which(colnames(P4N) %in% MVPAdefinition == TRUE)] = c("MVPA") #"SB", "LIPA", 
+      
+      # Remove problematic nights from the sleep results P4
+      missingSleeplog = which(P4N$guider != "sleeplog")
+      if (length(missingSleeplog) > 0) {
+        warning(paste0("\nSleeplog is missing in ", length(missingSleeplog),
+                       " nights for ID ", ID, " on ",
+                       paste0(P4N$calendar_date[missingSleeplog], collapse = " ")))
+        is.na(P4N[missingSleeplog, grep(pattern = "guider", x = colnames(P4N), invert = FALSE)]) = TRUE
+      }
+      sleepProblem = which(P4N$cleaningcode > 1)
+      if (length(sleepProblem) > 0) {
+        warning(paste0("\nInsufficient sensor worn in ", length(sleepProblem),
+                       " nights for ID ", ID, " on ",
+                       paste0(P4N$calendar_date[sleepProblem], collapse = " ")))
+        is.na(P4N[sleepProblem, grep(pattern = "calendar|ID|night", x = colnames(P4N), invert = TRUE)]) = TRUE
+      }
+      
       # P4N[,c("SB", "LIPA", "MVPA")] = P4N[,c("SB", "LIPA", "MVPA")] / 60 # convert minutes to hours
       # if (sleepwindowType == "TimeInBed") {
       #   P4N[,"SB"] = P4N[,"SB"] - P4N[, "guider_inbedDuration"]
       # } else {
       #   P4N[,"SB"] = P4N[,"SB"] - P4N[, "SleepDurationInSpt"]
       # }
+      #---------------------------------------------
+      # add empty rows for missing days
       P5D = P5D[order(P5D$calendar_date),]
       dates = P5D$calendar_date
       dates_theoretical = seq(min(dates), max(dates), by = 1)
       missing_dates = dates_theoretical[which(dates_theoretical %in% dates == FALSE)]
       if (length(missing_dates) > 0) {
-        newvalues = (nrow(P5D)+1):(nrow(P5D)+length(missing_dates))
+        newvalues = (nrow(P5D) + 1):(nrow(P5D) + length(missing_dates))
         P5D[newvalues,] = NA
         P5D$calendar_date[newvalues] = format(as.Date(missing_dates), "%Y-%m-%d")
         P5D$weekday[newvalues] = weekdays(missing_dates, abbreviate = FALSE)
@@ -142,6 +163,8 @@ summarise = function(outputdir, part5_summary,
       }
       P5D$calendar_date = format(as.Date(P5D$calendar_date), "%Y-%m-%d")
       P5D$calendar_date = format(as.Date(P5D$calendar_date), "%d")
+      P5D = P5D[order(P5D$calendar_date),] # order again now missing day has been added
+      
       # Now shorten weekday
       dagen_kort = c("ma", "di", "wo", "do", "vr", "za", "zo")
       # dagen = c("maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag")
@@ -152,6 +175,7 @@ summarise = function(outputdir, part5_summary,
         P4N$weekday = gsub(x = P4N$weekday,
                            pattern = dagen[ki], replacement = dagen_kort[ki]) 
       }
+
       # Extract person summary for part 5
       P5P = part5_summary[which(part5_summary$ID == ID),]
       
@@ -175,15 +199,16 @@ summarise = function(outputdir, part5_summary,
       CL = 1.0
       CXdots = 1.5
       #========================================
-      # Plot activity time series
+      # Plot activity time series (based on GGIR part  5 output)
       
       NBars = 3
       TS = P5D$ACC_day_mg
       TS = c(TS, rep(NA, NBars))
       
       plotlogo = function() {
-        grid::grid.raster(img, x=.91, y=0.98, width=.18, interpolate = FALSE) # print homer in ll conrner
-        grid::grid.text(x = 0.91, y =0.93, gp = grid::gpar(fontsize=7, col="black", font = 2),
+        grid::grid.raster(img, x = .91, y = 0.98, width = .18, interpolate = FALSE) # print homer in ll conrner
+        grid::grid.text(x = 0.91, y = 0.93,
+                        gp = grid::gpar(fontsize = 7, col = "black", font =  2),
                         label = "Afdeling Medische Psychologie, NKCV") #, xpd = NA, col ="red", cex= 1, pos = 4)
       }
       
@@ -191,13 +216,14 @@ summarise = function(outputdir, part5_summary,
            main = "", xlab = "", ylab = "Beweging per dag", bty = "l", axes = FALSE, cex.main = 1.5,
            cex.lab = CL, cex = CXdots)
       mtext(title, side = 3, adj = 0, line = 1.2, cex = 0.9, font = 2); 
-      axis(side = 1, at = 1:(length(TS)-NBars), labels = c(paste0(P5D$weekday," ",P5D$calendar_date)), #, rep("", 3)
+      axis(side = 1, at = 1:(length(TS) - NBars), labels = c(paste0(P5D$weekday, " ", P5D$calendar_date)), #, rep("", 3)
            cex.axis = CXdays)
       lines(x = c(1,length(TS)), y = rep(model_threshold, 2), col = "black", lty = 2, lwd = 1.3)
-      text(x = length(TS)-3, y = model_threshold + 10, labels = "Grenswaarde laag actief", pos = 4, cex= 1)
+      text(x = length(TS) - 3, y = model_threshold + 10, labels = "Grenswaarde laag actief", pos = 4, cex = 1)
       plotlogo()
+
       #========================================
-      # Plot sleep duration
+      # Plot sleep duration  (based on GGIR part 4 output)
       if (nrow(P4N) > nrow(P5D) & nrow(P4N) > 1) {
         P4N = P4N[2:nrow(P4N),]
       }
@@ -218,9 +244,10 @@ summarise = function(outputdir, part5_summary,
         B = A[,c(1,2)]
       }
       B[(nrow(B) + 1):(nrow(B) + NBars),] <- NA
-      brpos = barplot(t(as.matrix(B)), space = rep(0, nrow(B)), ylab = "Tijd in uren", 
+      brpos = barplot(t(as.matrix(B)), space = rep(0, nrow(B)), ylab = "Tijd in uren",  beside = FALSE, #space = c(0, 0.2),
                       ylim = c(0, maxvalue + 6), cex.axis = 0.9,
-                      names.arg = c(P5D$weekday, rep("",nrow(B) - nrow(P5D))), cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
+                      names.arg = c(P4N$weekday, rep("",nrow(B) - nrow(P4N))),
+                      cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
                       legend.text = c("Slaap", "Wakker na in slaap vallen", "Wakker voor in slaap vallen"),
                       main = "",
                       args.legend = list(ncol = 1, x = nrow(B), cex = 1, bty = "n"))
@@ -231,6 +258,7 @@ summarise = function(outputdir, part5_summary,
              cex = 0.8,
              col = "white")
       }
+
       #========================================
       # Niet gedragen tijd
       A = P5D[,c("nonwear_perc_day", "nonwear_perc_spt")]
@@ -241,6 +269,7 @@ summarise = function(outputdir, part5_summary,
               main = "", legend.text = c("overdag", "nacht"),
               args.legend = list(x = (nrow(A)*2) + 1, ncol = 1, cex = 1, bty = "n"), ylim = c(0,100))
       mtext("Beweegmeter niet gedragen?", side = 3, adj = 0, line = 1.2, cex = 0.9, font = 2); 
+      
       #=======================================
       # MVPA
       maxvalue = max(c(P4N$MVPA, 30), na.rm = T) + 10
@@ -310,8 +339,8 @@ summarise = function(outputdir, part5_summary,
       timeaxislabels = format(as.POSIXlt(timeaxis, origin = "1970-1-1"), "%H:%M")
       
       
-      waki = 1:(length(wakeup_ts) - 1)
-      onsi = 2:length(sleeponset_ts)
+      waki = 1:(max(WV) - 1)
+      onsi = 2:max(WV)
       
       COL = c("blue", "red", "black") 
       CL = 1
@@ -321,11 +350,11 @@ summarise = function(outputdir, part5_summary,
       for (ii in -24:24) {
         abline(h = as.numeric(as.POSIXlt("24:00", format = "%H:%M")) + (ii * 3600), col = "grey", lty = 3)
       }
-      axis(side = 1, at = waki, labels = P4N$weekday[onsi], cex.axis = CXdays)
+      axis(side = 1, at = 1:length(P4N$weekday), labels = P4N$weekday, cex.axis = CXdays)
       abline(v = waki, col = "grey", lty = 3 ) # vertical lines
       par(las = 1)
       axis(side = 2, at = timeaxis, labels = as.character(timeaxislabels), cex.axis = 1.0)
-      lines(WV[waki], sleeponset_ts[onsi], type = "b", lty = 1, pch = 17, cex = CXdots, col = COL[1])
+        lines(WV[waki], sleeponset_ts[onsi], type = "b", lty = 1, pch = 17, cex = CXdots, col = COL[1])
       lines(WV[waki], wakeup_log_ts[waki], type = "b", lty = 1, pch = 16, cex = CXdots, col = COL[2])
       lines(WV[waki], sleeponset_log_ts[onsi], type = "b", lty = 1, pch = 17, cex = CXdots, col = COL[2])
       CXdots = 1.3
@@ -333,6 +362,7 @@ summarise = function(outputdir, part5_summary,
                                "dagboek opstatijden", "dagboek bedtijden"), #, "meest inactieve 5 uur"),
              col = COL[c(1, 1, 2, 2)], lty = rep(1,4), pch = c(16, 17, 16, 17), ncol = 3, cex = 0.8, bg = "white")
       dev.off()
+      
       cat(paste0("\nDe PDF rapporten zijn nu opgeslagen in ",pdffile,"."))
     }
   }
