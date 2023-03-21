@@ -10,6 +10,21 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
   if (file.exists(sleeplog) == TRUE) {
     colid = 1 # hard-coded assumption that id is stored in first column of sleeplog
     D = as.data.frame(readxl::read_excel(sleeplog))
+    
+    checkempty = function(x) {
+      if (!inherits(x, "POSIXct")) {
+        check = all(is.na(x) | x == "")
+      } else {
+        check = FALSE
+      }
+      return(check)
+    }
+    empty_columns <- sapply(D, checkempty)
+    empty_columns[1:pmin(length(empty_columns), 100)] = FALSE
+    if (length(empty_columns) > 0) {
+      D = D[,!empty_columns]
+    }
+    
     coln1 = which(colnames(D) == "bed1")
     startdate = which(colnames(D) == "BEGINDAT")
     # convert dates
@@ -75,7 +90,6 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
     for (i in 3:ncol(D)) {
       D[,i] =  sapply(X = D[,i], FUN = myfun)
     }
-    
     #---------------------------------------------------------------------------
     outputfile = paste0(unlist(strsplit(sleeplog,"[.]cs"))[1],"2.csv")
     colnames(D)[1] = "ID"
@@ -117,7 +131,7 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
       }
       cnt = 1
       while (cnt > 0) { # remove rows without sleep diary
-        tmp = as.character(D[cnt,3:ncol(D)])
+        tmp = as.character(D[cnt, 3:ncol(D)])
         if (length(which(tmp != "")) == 0 |
             length(which(is.na(tmp) == FALSE)) == 0) {
           D = D[-cnt,]
@@ -126,6 +140,7 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
         }
         if (cnt > nrow(D)) cnt = cnt = -1
       }
+     
     }
     options(warn = -1)
     D$ID = as.numeric(D$ID)
