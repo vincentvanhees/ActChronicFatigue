@@ -13,7 +13,7 @@ outputdir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/output_nkcv_wrist" # G
 # mydatadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv" # directory where the labels.csv file is stored
 mydatadir = "/media/vincent/DATA/NKCV/actometer_nkcv_data" # directory where the labels.csv file is stored
 # Specify location of file:
-part5_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),pattern = "part5_personsummary_WW_", value = T)
+part5_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE), pattern = "part5_personsummary_WW_", value = T)
 # Specify location of file with the labels
 # This file needs to have the columns names: id, label, loc (loc refers to body location)
 filewithlabels = paste0(mydatadir,"/labels.csv") # specify file location
@@ -50,6 +50,7 @@ derive_threshold = function(fit, data) {
   }
   roc.perf = ROCR::performance(pred, cost.fp = 1, cost.fn = 3, measure = "tpr", x.measure = "fpr") #, ) #
   threshold = opt.cut(roc.perf, pred)[3]
+  return(threshold)
 }
 
 # load data
@@ -71,6 +72,11 @@ D = D[which(D$nonwear_perc_day_spt_pla <= 100 &
               D$nonwear_perc_day_pla <= 33 &
               D$Ndays_used >= 12),] #&  #& D$Nvaliddays > 10
 
+# Explore whether removing files with more calibration error makes a difference
+# O2 = read.csv(file = paste0(outputdir, "/results/part2_summary.csv"))
+# poorcalib = O2$ID[which(is.na(O2$calib_err) | O2$calib_err > 0.01)]
+# D = D[which(D$ID %in% poorcalib == FALSE),]
+
 # Merge data with labels
 NmatchingIDs = length(which(labels[,id_column_labels] %in% D[,id_column_part5] == TRUE))
 if (NmatchingIDs == 0) {
@@ -82,7 +88,6 @@ if (NmatchingIDs == 0) {
   D = D[!duplicated(D),]
   labels = labels[which(labels[,id_column_labels] %in% D[,id_column_part5] == TRUE),]
   D = D[which(D[,id_column_part5] %in% labels[,id_column_labels] == TRUE),]
-  
 }
 MergedData = merge(labels, D,by.x = id_column_labels,by.y = id_column_part5)
 rm(D)
@@ -103,7 +108,7 @@ for (location in c(wrist)) { #,hip
   cnt = 1
   # select subset of one sensor location
   Dloc = MergedData[which(MergedData$loc == location),]
-  for (testind in sample(nrow(Dloc))) {
+  for (testind in 1:nrow(Dloc)) { #sample(
     S = Dloc # create copy, because in the second iteration of the loop we will need the original data again
     # split into training and test set
     testset = S[testind,]
@@ -178,7 +183,9 @@ write.csv(data2store,
 # plot(MergedData_wrist$act9167, MergedData_wrist$pred - (as.numeric(MergedData_wrist$label) - 1), type="p", pch=20)
 
 x11()
-boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type = "p", pch=20)
+boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type = "p", pch = 20)
+
+
 
 cat("\nMisclassified:\n")
 # print(MergedData_wrist[which(MergedData_wrist$ID%in% sort(output$ID[which(output$result == FALSE)]) == TRUE),])
@@ -206,6 +213,4 @@ output = output[order(output$calendar_date),]
 # x11()
 # plot(as.Date(output$calendar_date), output$error,
 #      type="p", pch=20, xlab="datum", ylab="misclassificatie")
-
 # table(output[,c("year","error")])
-
