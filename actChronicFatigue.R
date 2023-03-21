@@ -27,13 +27,13 @@ if (development.mode == TRUE) {
     source(paste(locationRcode, "/", ffnames[i], sep = ""))
   }
 } else {
-  cat("\nActChronicFatigue installeren...")
-  remotes::install_github("vincentvanhees/ActChronicFatigue", dependencies = TRUE)
+  # cat("\nActChronicFatigue installeren...")
+  # remotes::install_github("vincentvanhees/ActChronicFatigue", dependencies = TRUE)
 }
 
 if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
-  cat("\nGGIR installeren...")
-  remotes::install_github("wadpac/GGIR", dependencies = TRUE)
+  # cat("\nGGIR installeren...")
+  # remotes::install_github("wadpac/GGIR", dependencies = TRUE)
 }
 
 library(ActChronicFatigue)

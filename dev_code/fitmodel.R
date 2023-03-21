@@ -178,7 +178,7 @@ write.csv(data2store,
 # plot(MergedData_wrist$act9167, MergedData_wrist$pred - (as.numeric(MergedData_wrist$label) - 1), type="p", pch=20)
 
 x11()
-boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type="p", pch=20)
+boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type = "p", pch=20)
 
 cat("\nMisclassified:\n")
 # print(MergedData_wrist[which(MergedData_wrist$ID%in% sort(output$ID[which(output$result == FALSE)]) == TRUE),])

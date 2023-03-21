@@ -7,13 +7,13 @@ library("GGIR")
 # specify file number to start and end with, fill in c() if unknown
 
 # datadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv/rawactigraph_nkcv/nkcv_wrist"
-# datadir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/rawactigraph_nkcv/nkcv_wrist"
-datadir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/issue1March2023/bestand"
+datadir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/rawactigraph_nkcv/nkcv_wrist"
+# datadir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/issue1March2023/bestand"
 # datadir = "/media/vincent/projects/issue_investigation/moska2204/filemoska"
 # datadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv/issue17Jan2022/issue_file_17jan2022"
 # outputdir = "/media/vincent/projects/issue_investigation/moska2204" #/actometer_nkcv
 # outputdir = "/media/vincent/DATA/NKCV/actometer_nkcv_data"
-outputdir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/issue1March2023"
+# outputdir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/issue1March2023"
 # studyname= "nkcv_wrist"
 
 # Let op do.cal is now FALSE
