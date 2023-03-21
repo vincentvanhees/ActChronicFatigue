@@ -7,12 +7,16 @@ library("GGIR")
 # specify file number to start and end with, fill in c() if unknown
 
 # datadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv/rawactigraph_nkcv/nkcv_wrist"
-datadir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/rawactigraph_nkcv/nkcv_wrist"
+# datadir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/rawactigraph_nkcv/nkcv_wrist"
+datadir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/issue1March2023/bestand"
 # datadir = "/media/vincent/projects/issue_investigation/moska2204/filemoska"
 # datadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv/issue17Jan2022/issue_file_17jan2022"
 # outputdir = "/media/vincent/projects/issue_investigation/moska2204" #/actometer_nkcv
-outputdir = "/media/vincent/DATA/NKCV/actometer_nkcv_data"
+# outputdir = "/media/vincent/DATA/NKCV/actometer_nkcv_data"
+outputdir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/issue1March2023"
 # studyname= "nkcv_wrist"
+
+# Let op do.cal is now FALSE
 
 f0 = c()
 f1 = c()
@@ -35,7 +39,7 @@ GGIR(mode = c(1:2), #specify above
              outputdir = outputdir, #specify above
              f0 = f0, #specify above
              f1 = f1, #specify above
-             overwrite = FALSE, #overwrite previous milestone data?
+             overwrite = TRUE, #overwrite previous milestone data?
              do.report = c(2), #for what parts does and report need to be generated? (option: 2, 4 and 5)
              do.imp = TRUE, # Do imputation? (recommended)
              idloc = 5, #id location (1 = file header, 2 = filename)
@@ -49,7 +53,7 @@ GGIR(mode = c(1:2), #specify above
              lb = 0.8,
              coln1 = 3,
              chunksize = 0.8,
-             do.cal = TRUE,
+             do.cal = FALSE,
              minloadcrit = 3 * 24,
              desiredtz = "Europe/Amsterdam",
              strategy = 1, #Strategy (see tutorial for explanation)

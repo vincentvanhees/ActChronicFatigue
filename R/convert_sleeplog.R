@@ -36,6 +36,7 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
       } else {
         if (is.character(x)) {
           x <- gsub(',', '.', x)
+          x <- gsub('[.][.]', '.', x)
           if (!is.na(x)) {
             x = paste0(unlist(strsplit(x, " |`")), collapse = "")
             x <- as.numeric(x)
@@ -74,6 +75,7 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
     for (i in 3:ncol(D)) {
       D[,i] =  sapply(X = D[,i], FUN = myfun)
     }
+    
     #---------------------------------------------------------------------------
     outputfile = paste0(unlist(strsplit(sleeplog,"[.]cs"))[1],"2.csv")
     colnames(D)[1] = "ID"
@@ -135,6 +137,7 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
     }
     outputfile = c()
   }
+  
   # options(warn=0)
   return(outputfile)
 }

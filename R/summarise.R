@@ -120,22 +120,32 @@ summarise = function(outputdir, part5_summary,
                         by = c("calendar_date"), all.x = TRUE)
       # ,"X.0.40._ENMO_mg_0.24hr", "X.40.100._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr"
       colnames(P4N)[which(colnames(P4N) %in% MVPAdefinition == TRUE)] = c("MVPA") #"SB", "LIPA", 
-      
+
       # Remove problematic nights from the sleep results P4
       missingSleeplog = which(P4N$guider != "sleeplog")
       if (length(missingSleeplog) > 0) {
-        warning(paste0("\nSleeplog is missing in ", length(missingSleeplog),
-                       " nights for ID ", ID, " on ",
-                       paste0(P4N$calendar_date[missingSleeplog], collapse = " ")))
+        # warning(paste0("\nSlaapdagboek ontbreekt in ", length(missingSleeplog),
+        #                " nachten voor ID ", ID, ": ",
+        #                paste0(P4N$calendar_date[missingSleeplog], collapse = " ")), call. = FALSE)
         is.na(P4N[missingSleeplog, grep(pattern = "guider", x = colnames(P4N), invert = FALSE)]) = TRUE
       }
-      sleepProblem = which(P4N$cleaningcode > 1)
+
+      sleepProblem = which(P4N$cleaningcode > 1 & P4N$guider == "sleeplog")
       if (length(sleepProblem) > 0) {
-        warning(paste0("\nInsufficient sensor worn in ", length(sleepProblem),
-                       " nights for ID ", ID, " on ",
-                       paste0(P4N$calendar_date[sleepProblem], collapse = " ")))
-        is.na(P4N[sleepProblem, grep(pattern = "calendar|ID|night", x = colnames(P4N), invert = TRUE)]) = TRUE
+        # warning(paste0("\nSensor onvoldoende gedragen in ", length(sleepProblem),
+        #                " nachten voor ID ", ID, ": ",
+        #                paste0(P4N$calendar_date[sleepProblem], collapse = " ")), call. = FALSE)
+        is.na(P4N[sleepProblem, grep(pattern = "calendar|ID|night|guider|weekday|page|filename|cleaningcode",
+                                     x = colnames(P4N), invert = TRUE)]) = TRUE
       }
+
+      insufficientValidData4 = which(P4N$fraction_night_invalid > 0.33)
+      if (length(insufficientValidData4) > 0) {
+        is.na(P4N[insufficientValidData4, grep(pattern = "calendar|ID|night|guider|weekday|page|filename|cleaningcode",
+                                     x = colnames(P4N), invert = TRUE)]) = TRUE
+      }
+      
+      
       
       # P4N[,c("SB", "LIPA", "MVPA")] = P4N[,c("SB", "LIPA", "MVPA")] / 60 # convert minutes to hours
       # if (sleepwindowType == "TimeInBed") {
@@ -176,6 +186,7 @@ summarise = function(outputdir, part5_summary,
                            pattern = dagen[ki], replacement = dagen_kort[ki]) 
       }
 
+
       # Extract person summary for part 5
       P5P = part5_summary[which(part5_summary$ID == ID),]
       
@@ -211,7 +222,6 @@ summarise = function(outputdir, part5_summary,
                         gp = grid::gpar(fontsize = 7, col = "black", font =  2),
                         label = "Afdeling Medische Psychologie, NKCV") #, xpd = NA, col ="red", cex= 1, pos = 4)
       }
-      
       plot(TS, type = "b", pch = 20, ylim = range(c(model_threshold * 2, P5D$ACC_day_mg), na.rm = T),
            main = "", xlab = "", ylab = "Beweging per dag", bty = "l", axes = FALSE, cex.main = 1.5,
            cex.lab = CL, cex = CXdots)
@@ -258,7 +268,7 @@ summarise = function(outputdir, part5_summary,
              cex = 0.8,
              col = "white")
       }
-
+      
       #========================================
       # Niet gedragen tijd
       A = P5D[,c("nonwear_perc_day", "nonwear_perc_spt")]
@@ -304,57 +314,62 @@ summarise = function(outputdir, part5_summary,
         sleeponset_log_ts = P4N$guider_inbedStart_ts
         wakeup_log_ts = P4N$guider_inbedEnd_ts
       }
-      WV = which(is.na(wakeup_ts) == FALSE & is.na(sleeponset_ts) == FALSE &
-                   is.na(wakeup_log_ts) == FALSE & is.na(sleeponset_log_ts) == FALSE)
-      sleeponset_ts = as.POSIXlt(sleeponset_ts[WV], format = "%H:%M")
-      wakeup_ts = as.POSIXlt(wakeup_ts[WV], format = "%H:%M")
-      sleeponset_log_ts = as.POSIXlt(sleeponset_log_ts[WV], format = "%H:%M")
-      wakeup_log_ts = as.POSIXlt(wakeup_log_ts[WV], format = "%H:%M")
-      for (j in 1:length(wakeup_ts)) {
-        if (sleeponset_ts[j] < as.POSIXlt("18:00", format = "%H:%M")) {
-          sleeponset_ts[j] = sleeponset_ts[j] + (24 * 3600)
+      WV = which((is.na(wakeup_ts) == FALSE & is.na(sleeponset_ts) == FALSE) |
+                   (is.na(wakeup_log_ts) == FALSE & is.na(sleeponset_log_ts) == FALSE))
+      # WVacc = which(is.na(wakeup_ts) == FALSE & is.na(sleeponset_ts) == FALSE)
+      # WVlog = which(is.na(wakeup_log_ts) == FALSE & is.na(sleeponset_log_ts) == FALSE)
+      sleeponset_ts = as.POSIXlt(sleeponset_ts, format = "%H:%M")
+      wakeup_ts = as.POSIXlt(wakeup_ts, format = "%H:%M")
+      sleeponset_log_ts = as.POSIXlt(sleeponset_log_ts, format = "%H:%M")
+      wakeup_log_ts = as.POSIXlt(wakeup_log_ts, format = "%H:%M")
+      for (j in 1:length(WV)) {
+        if (!is.na(sleeponset_ts[j])) {
+          if (sleeponset_ts[j] < as.POSIXlt("18:00", format = "%H:%M")) {
+            sleeponset_ts[j] = sleeponset_ts[j] + (24 * 3600)
+          }
         }
         if (!is.na(sleeponset_log_ts[j])) {
           if (sleeponset_log_ts[j] < as.POSIXlt("18:00", format = "%H:%M")) {
             sleeponset_log_ts[j] = sleeponset_log_ts[j] + (24 * 3600)
           }
         }
-        if (wakeup_ts[j] < sleeponset_ts[j] |
-            (wakeup_ts[j] > as.POSIXlt("00:00", format = "%H:%M")) &
-            (wakeup_ts[j] < as.POSIXlt("12:00", format = "%H:%M"))) {
-          wakeup_ts[j] = wakeup_ts[j] + (24 * 3600)
+        if (!is.na(wakeup_ts[j]) & !is.na(sleeponset_ts[j])) {
+          if (wakeup_ts[j] < sleeponset_ts[j] |
+              (wakeup_ts[j] > as.POSIXlt("00:00", format = "%H:%M")) &
+              (wakeup_ts[j] < as.POSIXlt("12:00", format = "%H:%M"))) {
+            wakeup_ts[j] = wakeup_ts[j] + (24 * 3600)
+          }
         }
-        if (!is.na(wakeup_log_ts[j])) {
+        if (!is.na(wakeup_log_ts[j]) & !is.na(sleeponset_log_ts[j])) {
           if (wakeup_log_ts[j] < sleeponset_log_ts[j] |
               (wakeup_log_ts[j] > as.POSIXlt("00:00", format = "%H:%M")) &
               (wakeup_log_ts[j] < as.POSIXlt("12:00", format = "%H:%M"))) {
             wakeup_log_ts[j] = wakeup_log_ts[j] + (24 * 3600)
           }
         }
-        wakeup_ts[j] = wakeup_ts[j] - (24 * 3600)
-        wakeup_log_ts[j] = wakeup_log_ts[j] - (24 * 3600)
+        if (!is.na(wakeup_ts[j])) wakeup_ts[j] = wakeup_ts[j] - (24 * 3600)
+        if (!is.na(wakeup_log_ts[j])) wakeup_log_ts[j] = wakeup_log_ts[j] - (24 * 3600)
       }
       YLIM = c(as.POSIXlt("12:00", format = "%H:%M") - 12 * 3600, (as.POSIXlt("12:00", format = "%H:%M") + 24 * 3600))
       timeaxis = c(as.numeric(YLIM[1]) + (c(0:36) * (3600)))
       timeaxislabels = format(as.POSIXlt(timeaxis, origin = "1970-1-1"), "%H:%M")
-      
-      
+
       waki = 1:(max(WV) - 1)
       onsi = 2:max(WV)
-      
       COL = c("blue", "red", "black") 
       CL = 1
       par(mfrow = c(1,1), oma = c(0,0,0,0))
+
       plot(WV[waki], wakeup_ts[waki], type = "b", pch = 16, xlab = "",  ylab = "",
            ylim = as.numeric(YLIM), axes = FALSE, main = "Opsta- en bed-tijden", cex.lab = CL, cex = CXdots, col = COL[1])
       for (ii in -24:24) {
         abline(h = as.numeric(as.POSIXlt("24:00", format = "%H:%M")) + (ii * 3600), col = "grey", lty = 3)
       }
-      axis(side = 1, at = 1:length(P4N$weekday), labels = P4N$weekday, cex.axis = CXdays)
+      axis(side = 1, at = 1:length(onsi), labels = P4N$weekday[onsi], cex.axis = CXdays)
       abline(v = waki, col = "grey", lty = 3 ) # vertical lines
       par(las = 1)
       axis(side = 2, at = timeaxis, labels = as.character(timeaxislabels), cex.axis = 1.0)
-        lines(WV[waki], sleeponset_ts[onsi], type = "b", lty = 1, pch = 17, cex = CXdots, col = COL[1])
+      lines(WV[waki], sleeponset_ts[onsi], type = "b", lty = 1, pch = 17, cex = CXdots, col = COL[1])
       lines(WV[waki], wakeup_log_ts[waki], type = "b", lty = 1, pch = 16, cex = CXdots, col = COL[2])
       lines(WV[waki], sleeponset_log_ts[onsi], type = "b", lty = 1, pch = 17, cex = CXdots, col = COL[2])
       CXdots = 1.3
