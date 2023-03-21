@@ -6,6 +6,7 @@
 #' @param referentiewaarden Mean and standard deviation ENMO_fullRecordingMean in a reference population.
 #' @param sleepwindowType See, GGIR documentation.
 #' @param MVPAdefinition MVPA variable name from the GGIR part2 daysummary output
+#' @param threshold_wrist Threshold to classify active or passive
 #' @return no object is returned, only a summary is printed to the screen
 #' @export
 #' @importFrom grDevices dev.off pdf
@@ -14,7 +15,8 @@
 #' @importFrom utils packageVersion
 summarise = function(outputdir, part5_summary, 
                      model_threshold = 75, referentiewaarden,
-                     sleepwindowType="SPT", MVPAdefinition = "MVPA_E5S_B10M80%_T100_BFEN_0-24hr"){
+                     sleepwindowType="SPT", MVPAdefinition = "MVPA_E5S_B10M80%_T100_BFEN_0-24hr",
+                     threshold_wrist = 0.5){
   part2_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                             pattern = "part2_summary", value = T)
   part2_summary = read.csv(file = part2_summary_file, sep = ",")
@@ -67,7 +69,7 @@ summarise = function(outputdir, part5_summary,
     
     recent_recording$prop_perv_passive = round(recent_recording$prop_perv_passive * 100)
     recent_recording$classification = "Actief"
-    pp = which(recent_recording$prop_perv_passive >= 50)
+    pp = which(recent_recording$prop_perv_passive >= threshold_wrist * 100)
     if (length(pp) > 0) recent_recording$classification[pp] = "Laag Actief"
     colnames(recent_recording) = c("ID", "Datum start meeting", "Kans op laag actief (%)",
                                    "Gemiddelde beweging t.o.v. referentie groep (z-score)",
