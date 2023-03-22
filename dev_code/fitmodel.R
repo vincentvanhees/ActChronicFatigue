@@ -77,6 +77,12 @@ D = D[which(D$nonwear_perc_day_spt_pla <= 100 &
 # poorcalib = O2$ID[which(is.na(O2$calib_err) | O2$calib_err > 0.01)]
 # D = D[which(D$ID %in% poorcalib == FALSE),]
 
+# Ignore recordings IDs with unreliable sleep log, selected based on large visual discrepancies between
+# sustained inactivity bouts and sleep log (visualreport.pdf from GGIR),
+# where Actometer may have made different decisions
+# in terms of distinguishing daytime from night time.
+D = D[which(D$ID %in% c(61000, 61429, 62218, 62289, 62324) == FALSE),]
+
 # Merge data with labels
 NmatchingIDs = length(which(labels[,id_column_labels] %in% D[,id_column_part5] == TRUE))
 if (NmatchingIDs == 0) {
@@ -169,7 +175,8 @@ if (derive.roc.cutoff == TRUE) {
 # you can now save and load these finalmodels with the save() and load() function
 # or inspect them with summary()
 save(final_model_wrist, threshold_wrist, file = "inst/extdata/final_model_wrist.Rdata")
-
+print(final_model_wrist)
+print(paste0("threshold_wrist: ", threshold_wrist))
 data2store = MergedData[which(MergedData$loc == "wrist"),
                         c("ID", "act9167", "nonwear_perc_day_spt_pla", "ACC_day_mg_pla")]
 colnames(data2store) = c("ID","percentile9167_acceleration","accelerometer_worn_duration_days","average_acceleration")
@@ -187,7 +194,7 @@ boxplot(MergedData_wrist$pred ~ MergedData_wrist$label, type = "p", pch = 20)
 
 
 
-cat("\nMisclassified:\n")
+# cat("\nMisclassified:\n")
 # print(MergedData_wrist[which(MergedData_wrist$ID%in% sort(output$ID[which(output$result == FALSE)]) == TRUE),])
 # print(MergedData_wrist[which(round(MergedData_wrist$pred) != MergedData_wrist$label),])
 # print(MergedData_wrist[which(round(MergedData_wrist$pred) != MergedData_wrist$label),])
