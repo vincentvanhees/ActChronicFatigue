@@ -1,3 +1,11 @@
+# Disclaimer: This script is part of the open-source licensed 
+# software repository https://github.com/vincentvanhees/ActChronicFatigue
+# The developers are not responsible for the use of this software
+
+# Disclaimer: Dit script is onderdeel van de open-source licensed 
+# software repository https://github.com/vincentvanhees/ActChronicFatigue
+# De ontwikkelaars zijn niet verantwoordelijk voor het gebruik van de software
+
 #===========
 #
 # Klik op [Source] hier rechtsboven om het programa te starten.
