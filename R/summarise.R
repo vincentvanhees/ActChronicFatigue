@@ -13,10 +13,14 @@
 #' @importFrom graphics abline axis barplot par
 #' @importFrom graphics legend lines text mtext rasterImage
 #' @importFrom utils packageVersion
-summarise = function(outputdir, part5_summary, 
-                     model_threshold = 75, referentiewaarden,
-                     sleepwindowType="SPT", MVPAdefinition = "MVPA_E5S_B10M80%_T100_BFEN_0-24hr",
-                     threshold_wrist = 0.5){
+summarise = function(outputdir,
+                     part5_summary, 
+                     model_threshold = 75, 
+                     referentiewaarden,
+                     sleepwindowType="SPT",
+                     MVPAdefinition = "MVPA_E5S_B10M80%_T100_BFEN_0-24hr",
+                     threshold_wrist = 0.5) {
+  
   part2_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                             pattern = "part2_summary", value = T)
   part2_summary = read.csv(file = part2_summary_file, sep = ",")
