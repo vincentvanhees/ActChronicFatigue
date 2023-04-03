@@ -326,12 +326,12 @@ summarise = function(outputdir, part5_summary,
       wakeup_log_ts = as.POSIXlt(wakeup_log_ts, format = "%H:%M")
       for (j in 1:length(WV)) {
         if (!is.na(sleeponset_ts[j])) {
-          if (sleeponset_ts[j] < as.POSIXlt("18:00", format = "%H:%M")) {
+          if (sleeponset_ts[j] < as.POSIXlt("12:00", format = "%H:%M")) {
             sleeponset_ts[j] = sleeponset_ts[j] + (24 * 3600)
           }
         }
         if (!is.na(sleeponset_log_ts[j])) {
-          if (sleeponset_log_ts[j] < as.POSIXlt("18:00", format = "%H:%M")) {
+          if (sleeponset_log_ts[j] < as.POSIXlt("12:00", format = "%H:%M")) {
             sleeponset_log_ts[j] = sleeponset_log_ts[j] + (24 * 3600)
           }
         }
@@ -358,6 +358,12 @@ summarise = function(outputdir, part5_summary,
 
       waki = 1:(max(WV) - 1)
       onsi = 2:max(WV)
+      # Check whether onset occurs before waking up, if yes then add 24 hour to onset
+      correctionNeeded = which(sleeponset_ts[onsi] < wakeup_ts[waki])
+      if (length(correctionNeeded) > 0) {
+        sleeponset_ts[onsi][correctionNeeded] = sleeponset_ts[onsi][correctionNeeded] + (24 * 3600)
+      }
+      
       COL = c("blue", "red", "black") 
       CL = 1
       par(mfrow = c(1,1), oma = c(0,0,0,0))
