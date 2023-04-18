@@ -17,19 +17,33 @@ addVariables5 = function(outputdir=c()) {
   # load data
   part5_daysummary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),pattern = "part5_daysummary_WW_", value = T)
   part5_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),pattern = "part5_personsummary_WW_", value = T)
-  P5 = read.csv(part5_daysummary_file, stringsAsFactors = FALSE, sep=separator)
+  P5 = read.csv(part5_daysummary_file,
+                stringsAsFactors = FALSE,
+                sep = separator)
   # Change ID to numeric:
   convertID = function(idValues) {
     if (is(idValues, "character")) {
-      idValues = as.character(sapply(idValues, FUN=function(x) unlist(strsplit(x," "))[1]))
+      idValues = as.character(sapply(
+        idValues,
+        FUN = function(x)
+          unlist(strsplit(x, " "))[1]
+      ))
       idValues = as.integer(idValues)
     }
     return(idValues)
   }
   P5$ID = convertID(P5$filename)
   # select valid days only
-  P5 = P5[which(P5$nonwear_perc_day_spt < 33.33 & P5$nonwear_perc_day < 33.33 & P5$dur_spt_min > (3*60) &
-                  P5$dur_day_spt_min < (36 * 60)),]
+  validDays = which(P5$nonwear_perc_day_spt < 33.33 & P5$nonwear_perc_day < 33.33 & P5$dur_spt_min > (3*60) &
+                      P5$dur_day_spt_min < (36 * 60))
+  
+  if (length(validDays) == 0) {
+    stop(paste0("\nThere are no valid days of data in ", unique(P5$ID), 
+                " (days with less than 33% non-wear during the night and",
+                " less than 33% during the day, and between 3 and 36 hours of sleep"))
+  }
+    
+  P5 = P5[validDays,]
 
   # select subset of potentially relevant variables:
   P5 = P5[,c("ID", "ACC_day_mg")]
@@ -37,15 +51,18 @@ addVariables5 = function(outputdir=c()) {
   missing = which(is.na(P5$act) == TRUE)
   if (length(missing) > 0) P5 = P5[-missing,]
   # Calculate the 91.67th percentile of the day level variables
+  browser()
   DL = aggregate(x = P5, by = list(P5$ID), FUN = function(x) length(x))
   DL = DL[,-2]
   colnames(DL) = c("ID","Ndays_used")
   D = aggregate(x = P5, by = list(P5$ID), FUN = function(x) {quantile(x,11/12, na.rm = TRUE) })
   D = D[,-2]
   colnames(D) = c("ID","act9167")
-  D = merge(D,DL,by="ID")
+  D = merge(D, DL, by = "ID")
   # Add the new variables to the person level output calculated by GGIR part 2:
-  P5summary = read.csv(part5_summary_file, stringsAsFactors = FALSE, sep=separator)
+  P5summary = read.csv(part5_summary_file,
+                       stringsAsFactors = FALSE,
+                       sep = separator)
   
   # Change ID to numeric
   P5summary$ID2 = convertID(P5summary$filename)
@@ -53,8 +70,8 @@ addVariables5 = function(outputdir=c()) {
   # Check whether data already has the expected variables
   existingvars = which(colnames(P5summary) %in% c("ID","act9167","Ndays_used"))
   if (length(existingvars) > 0) P5summary = P5summary[,-existingvars]
-  P5summary_updated = merge(P5summary,D,by.x="ID2",by.y="ID")
+  P5summary_updated = merge(P5summary, D, by.x = "ID2", by.y = "ID")
   # Save changes
-  write.csv(P5summary_updated,file=part5_summary_file,row.names = FALSE)
+  write.csv(P5summary_updated, file = part5_summary_file, row.names = FALSE)
   
 }
