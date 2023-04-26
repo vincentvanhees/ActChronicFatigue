@@ -51,7 +51,6 @@ addVariables5 = function(outputdir=c()) {
   missing = which(is.na(P5$act) == TRUE)
   if (length(missing) > 0) P5 = P5[-missing,]
   # Calculate the 91.67th percentile of the day level variables
-  browser()
   DL = aggregate(x = P5, by = list(P5$ID), FUN = function(x) length(x))
   DL = DL[,-2]
   colnames(DL) = c("ID","Ndays_used")
