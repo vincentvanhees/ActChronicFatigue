@@ -58,6 +58,9 @@ labels = read.csv(filewithlabels, sep = separator, stringsAsFactors = TRUE)
 
 # labels = labels[which(labels$ID %in% c(62056, 62038, 62001) == FALSE),]
 
+# corrected labels because printscreen indicated human mistake in entering:
+# 62210
+
 pa_labels = which(labels$label == "pa")
 if (length(pa_labels) > 0) labels$label[pa_labels] = "fa"
 labels = labels[which(as.character(labels$label) %in% c("pp","fa")),] #, "pa"
@@ -68,6 +71,7 @@ D = read.csv(file = part5_summary_file, sep = separator)
 D = D[,c("act9167", "ID2", "filename", "Nvaliddays","Ndays_used", # these are the number of days used by the model
          "nonwear_perc_day_spt_pla", "ACC_day_mg_pla", "nonwear_perc_day_pla", 
          "calendar_date")]
+
 D = D[which(D$nonwear_perc_day_spt_pla <= 100 &
               D$nonwear_perc_day_pla <= 33 &
               D$Ndays_used >= 12),] #&  #& D$Nvaliddays > 10
@@ -209,6 +213,8 @@ varsNotShow = c("loc", "Nvaliddays", "Ndays_used",
                 "ACC_day_mg_pla", "act9167")
 # print(output[which(output$label != output$estimate),
 #              which(colnames(output) %in% varsNotShow == FALSE) ]) # estimate are columns, label are rows
+# MergedData_wrist[which(MergedData_wrist$ID %in% c(61342, 61358, 61735, 61890, 62038,
+#                                                   62056, 62001, 62210, 62269, 62225)), ]
 # 
 # print(output[,which(colnames(output) %in% varsNotShow == FALSE) ]) # estimate are columns, label are rows
 
