@@ -177,9 +177,9 @@ summarise = function(outputdir,
           }
         }
       }
+      P5D = P5D[order(P5D$calendar_date),] # order again now missing day has been added
       P5D$calendar_date = format(as.Date(P5D$calendar_date), "%Y-%m-%d")
       P5D$calendar_date = format(as.Date(P5D$calendar_date), "%d")
-      P5D = P5D[order(P5D$calendar_date),] # order again now missing day has been added
       
       # Now shorten weekday
       dagen_kort = c("ma", "di", "wo", "do", "vr", "za", "zo")
