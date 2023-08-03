@@ -1,18 +1,20 @@
 # R script to run analyses for the Whitehall study II, by Vincent van Hees
 rm(list = ls())
 library("GGIR")
+library("read.gt3x")
 
 #==================================================================
 # INPUT NEEDED:
 # specify file number to start and end with, fill in c() if unknown
 
+path = "D:/Dropbox/Work/sharedfolder/DATA/NKCV/actometer_nkcv_data"
 # datadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv/rawactigraph_nkcv/nkcv_wrist"
-datadir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/rawactigraph_nkcv/nkcv_wrist"
+datadir = paste0(path, "/rawactigraph_nkcv/nkcv_wrist")
 # datadir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/issue1March2023/bestand"
 # datadir = "/media/vincent/projects/issue_investigation/moska2204/filemoska"
 # datadir = "/home/vincent/Dropbox/Work/W22/DATA/actometer_nkcv/issue17Jan2022/issue_file_17jan2022"
 # outputdir = "/media/vincent/projects/issue_investigation/moska2204" #/actometer_nkcv
-outputdir = "/media/vincent/DATA/NKCV/actometer_nkcv_data"
+outputdir = path
 # outputdir = "/media/vincent/DATA/NKCV/actometer_nkcv_data/issue1March2023"
 # studyname= "nkcv_wrist"
 
@@ -23,14 +25,14 @@ f1 = c()
 #=====================================================================================
 # load functions directly from local clone of the R package repository
 library(GGIR)
-dirR = "~/GGIR/R"
+dirR = "D:/Code/GGIR/R"
 ffnames = dir(dirR) # creating list of filenames of scriptfiles to load
 # ffnames = ffnames[which(ffnames %in% c("g.cwaread.R", "read.gt3x_ggir"))]
 for (i in 1:length(ffnames)) {
   source(paste(dirR, "/", ffnames[i], sep = "")) #loading scripts for reading geneactiv data
 }
 # loglocation = "~/Dropbox/Work/W22/DATA/actometer_nkcv/sleepdiary/Logboek Vincent_def.xlsx2.csv"
-loglocation = "/media/vincent/DATA/NKCV/actometer_nkcv_data/sleepdiary/Logbook_Vincent_updatefeb2023.xlsx"
+loglocation = paste0(path, "/sleepdiary/Logbook_Vincent_updatefeb2023.xlsx")
 # SLEEPLOG = read.csv(loglocation)
 # nnights = round((ncol(SLEEPLOG) - 1) / 2)
 
@@ -53,7 +55,7 @@ GGIR(mode = c(1), #specify above
              lb = 0.8,
              coln1 = 3,
              chunksize = 0.8,
-             do.cal = FALSE,
+             do.cal = FALSE, # intentionally, because calibration did not seem to benefit the data, possibly because we work with BFEN for which it does not matter
              minloadcrit = 3 * 24,
              desiredtz = "Europe/Amsterdam",
              strategy = 1, #Strategy (see tutorial for explanation)
