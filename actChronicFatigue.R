@@ -29,7 +29,7 @@ development.mode = TRUE # laat op FALSE staan, TRUE is alleen voor onderhoud
 testbatch = FALSE
 if (development.mode == TRUE) {
   roxygen2::roxygenise()
-  locationRcode = "/home/vincent/projects/ActChronicFatigue/R"
+  locationRcode = "D:/Code/ActChronicFatigue/R"
   ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
   for (i in 1:length(ffnames)) {
     source(paste(locationRcode, "/", ffnames[i], sep = ""))
@@ -46,9 +46,9 @@ if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
 
 library(ActChronicFatigue)
 library(GGIR)
-
+library(readxl)
 if (development.mode == TRUE) {
-  dirR = "~/GGIR/R"
+  dirR = "D:/Code/GGIR/R"
   ffnames = dir(dirR) # creating list of filenames of scriptfiles to load
   # ffnames = ffnames[which(ffnames %in% c("g.cwaread.R", "read.gt3x_ggir.R") == FALSE)]
   for (i in 1:length(ffnames)) {
