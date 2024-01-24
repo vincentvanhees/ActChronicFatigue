@@ -51,6 +51,8 @@ if (development.mode == TRUE) {
   dirR = "D:/Code/GGIR/R"
   ffnames = dir(dirR) # creating list of filenames of scriptfiles to load
   # ffnames = ffnames[which(ffnames %in% c("g.cwaread.R", "read.gt3x_ggir.R") == FALSE)]
+  
+  ffnames = ffnames[grep(pattern = "sysdata", x = ffnames, invert = TRUE)]
   for (i in 1:length(ffnames)) {
     source(paste(dirR,"/",ffnames[i], sep = "")) #loading scripts for reading geneactiv data
   }
@@ -70,7 +72,7 @@ sleeplog = replaceslash(datalocaties$dagboekdir)
 cat(paste0(rep('_', options()$width), collapse = ''))
 cat("\nBestand locaties:\n")
 # cat(paste0("\nLocatie ",length(dir(datalocaties$gt3xdir))," gt3x bestanden = ",datalocaties$gt3xdir))
-cat(paste0("\nLocatie ",length(dir(datalocaties$datadir))," csv bestanden = ",datalocaties$datadir))
+cat(paste0("\nLocatie ",length(dir(datalocaties$datadir))," gt3x bestanden = ",datalocaties$datadir))
 cat(paste0("\nLocatie resultaten =  ",datalocaties$outputdir,"\n"))
 
 chunksize = 0.5

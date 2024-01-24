@@ -23,7 +23,7 @@ obtain_folder_paths = function() {
       #   }
       # }
       cat(paste0(rep('_',options()$width),collapse=''))
-      Q4 = menu(c("Ja", "Nee"), title=paste0("\nIs ",datadir," nog steeds de locatie van de csv bestanden? \nZo nee, specificeer de nieuwe locatie in het volgende scherm"))
+      Q4 = menu(c("Ja", "Nee"), title=paste0("\nIs ",datadir," nog steeds de locatie van de gt3x bestanden? \nZo nee, specificeer de nieuwe locatie in het volgende scherm"))
       if (Q4 == 2) {
         datadir = easycsv::choose_dir()
       }
