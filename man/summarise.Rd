@@ -11,7 +11,8 @@ summarise(
   referentiewaarden,
   sleepwindowType = "SPT",
   MVPAdefinition = "MVPA_E5S_B10M80\%_T100_BFEN_0-24hr",
-  threshold_wrist = 0.5
+  threshold_wrist = 0.5,
+  sep = sep
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ summarise(
 \item{MVPAdefinition}{MVPA variable name from the GGIR part2 daysummary output}
 
 \item{threshold_wrist}{Threshold to classify active or passive}
+
+\item{sep}{separator used by csv files stored by GGIR}
 }
 \value{
 no object is returned, only a summary is printed to the screen

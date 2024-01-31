@@ -2,11 +2,12 @@
 #'
 #' @param sleeplog path to sleeplog (diary) file kept by the study (xlsx) assumed to have a column BEGINDAT with the date of recording and at least a column bed1 to indicate the time of going to bed on night 1.
 #' @param part2resultsfile Path to GGIR part 2 person level summary file (csv).
+#' @param sep separator used by csv files stored by GGIR
 #' @return no object is returned, only a new file is created in the same folder as the activitylog
 #' @export
 #' @importFrom utils write.csv
 #'
-convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
+convert_sleeplog = function(sleeplog = c(), part2resultsfile=c(), sep = ",") {
   if (file.exists(sleeplog) == TRUE) {
     colid = 1 # hard-coded assumption that id is stored in first column of sleeplog
     D = as.data.frame(readxl::read_excel(sleeplog))
@@ -105,7 +106,7 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c()) {
       if (length(rows2delete) > 0) D = D[-rows2delete,]
     }
     if (length(part2resultsfile) > 0) {
-      P2 = read.csv(part2resultsfile)
+      P2 = read.csv(part2resultsfile, sep = sep)
       P2$start_time
       P2$start_time = as.Date(as.POSIXlt(P2$start_time,
                                          format = "%Y-%m-%dT%H:%M:%S%z",

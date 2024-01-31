@@ -15,7 +15,7 @@ rm(list = ls())
 gebruik_slaap_dagboek = TRUE
 referentiewaarden = c(30,8) # gemiddelde en standaard deviatie
 sleeplogidnum = TRUE # TRUE als patient ID een nummer is, FALSE als het ook letters bevat
-
+sep = ","
 
 # hoeveel uren data wil je negeren aan het begin en aan het einde van de meting?
 hrs.del.start = 0 # aantal uren te negeren aan het begin
@@ -103,7 +103,8 @@ ActChronicFatigue::runGGIR(datadir = datadir, outputdir = outputdir, mode = c(1:
                            sleepwindowType = "SPT", # to prevent triggering warning
                            visualreport = FALSE, acc.metric = "BFEN", chunksize = chunksize,
                            testbatch = testbatch ,  do.parallel = TRUE, hrs.del.start = hrs.del.start,
-                           hrs.del.end = hrs.del.end)
+                           hrs.del.end = hrs.del.end,
+                           sep = sep)
 part2resultsfile = paste0(outputdir,"/output_",basename(datadir),"/results/part2_summary.csv")
 
 #=============================================================================
@@ -112,7 +113,7 @@ if (gebruik_slaap_dagboek == TRUE) {
   cat("\nConverteer slaapdagboek\n")
   # source("~/projects/ActChronicFatigue/R/convert_sleeplog.R")
   # sleeplogfile = convert_sleeplog(sleeplog, part2resultsfile)
-  sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog, part2resultsfile)
+  sleeplogfile = ActChronicFatigue::convert_sleeplog(sleeplog, part2resultsfile, sep = sep)
 } else {
   sleeplogfile = c()
 }
@@ -131,13 +132,13 @@ cat("\nKlassficeer of de persoon al dan niet laag actief is ...\n")
 tmp = unlist(strsplit(datadir,"/|\")"))
 outputdir2 = outputdir
 outputdir2 = paste0(outputdir,"/output_",tmp[length(tmp)])
-ActChronicFatigue::addVariables5(outputdir = outputdir2)
+ActChronicFatigue::addVariables5(outputdir = outputdir2, sep = sep)
 
 
 # Load the resulting part5_personsummary.csv bestand
 part5_summary_file = grep(dir(paste0(outputdir2,"/results"), full.names = TRUE),
                           pattern = "part5_personsummary_WW_", value = T)
-part5_summary = read.csv(file = part5_summary_file, sep = ",")
+part5_summary = read.csv(file = part5_summary_file, sep = sep)
 
 # If all went well this part2_summary object will have a column act90, gradient_mean, towards the end.
 
@@ -162,10 +163,11 @@ model_threshold = -CF[1]/CF[2]
 #=============================================================================
 # Summarise and show on screen
 cat("\n Samenvatting van resultaten:\n")
-# source("~/projects/ActChronicFatigue/R/summarise.R")
-ActChronicFatigue::summarise(outputdir2, part5_summary,
+source("D:/Code/ActChronicFatigue/R/summarise.R")
+# ActChronicFatigue::
+  summarise(outputdir2, part5_summary,
                                    model_threshold = model_threshold, referentiewaarden = referentiewaarden,
                                    sleepwindowType = sleepwindowType, MVPAdefinition = MVPAdefinition,
-                             threshold_wrist = threshold_wrist)
+                             threshold_wrist = threshold_wrist, sep = sep)
 
 

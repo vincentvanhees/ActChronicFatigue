@@ -7,10 +7,11 @@
 #' @param sleepwindowType See, GGIR documentation.
 #' @param MVPAdefinition MVPA variable name from the GGIR part2 daysummary output
 #' @param threshold_wrist Threshold to classify active or passive
+#' @param sep separator used by csv files stored by GGIR
 #' @return no object is returned, only a summary is printed to the screen
 #' @export
-#' @importFrom grDevices dev.off pdf
-#' @importFrom graphics abline axis barplot par
+#' @importFrom grDevices dev.off pdf adjustcolor
+#' @importFrom graphics abline axis barplot par grid
 #' @importFrom graphics legend lines text mtext rasterImage
 #' @importFrom utils packageVersion
 summarise = function(outputdir,
@@ -19,11 +20,12 @@ summarise = function(outputdir,
                      referentiewaarden,
                      sleepwindowType="SPT",
                      MVPAdefinition = "MVPA_E5S_B10M80%_T100_BFEN_0-24hr",
-                     threshold_wrist = 0.5) {
+                     threshold_wrist = 0.5,
+                     sep = sep) {
   
   part2_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                             pattern = "part2_summary", value = T)
-  part2_summary = read.csv(file = part2_summary_file, sep = ",")
+  part2_summary = read.csv(file = part2_summary_file, sep = sep)
   extractid = function(x) {
     tmp = unlist(strsplit(x," "))
     if (length(tmp) > 1) {
@@ -87,16 +89,16 @@ summarise = function(outputdir,
     cat("\n")
     part5_daysummary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                                  pattern = "part5_daysummary", value = T)
-    part5_daysummary = read.csv(file = part5_daysummary_file, sep = ",")
+    part5_daysummary = read.csv(file = part5_daysummary_file, sep = sep)
     
     
     part2_daysummary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                                  pattern = "part2_daysummary", value = T)
-    part2_daysummary = read.csv(file = part2_daysummary_file, sep = ",")
+    part2_daysummary = read.csv(file = part2_daysummary_file, sep = sep)
     # Load sleep/wake times from both GGIR and diary
     part4_nightsummaryfull_file = grep(dir(paste0(outputdir,"/results/QC"), full.names = TRUE),
                                        pattern = "part4_nightsummary_sleep_full.csv", value = T)
-    part4_nightsummary = read.csv(part4_nightsummaryfull_file)
+    part4_nightsummary = read.csv(part4_nightsummaryfull_file, sep = sep)
     
     days = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
     dagen = c("maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag")
@@ -118,29 +120,20 @@ summarise = function(outputdir,
       P2D$calendar_date = as.Date(P2D$calendar_date, "%Y-%m-%d")
       P4N$calendar_date = as.Date(P4N$calendar_date, "%d/%m/%Y")
       # Merge time spent in two acceleration range to sleep object, to ease plotting later on
-      # "X.0.40._ENMO_mg_0.24hr", "X.40.100._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr", "L5hr_ENMO_mg_0.24hr"
-      # print(grep(pattern = "MVPA", x = colnames(P2D), value = TRUE))
-      
+
       # Combine P4 and P2 output to ease plotting
-      P4N = base::merge(P4N, P2D[,c("calendar_date", MVPAdefinition)],
+      P4N = base::merge(P4N, P2D[,c("calendar_date", MVPAdefinition, "step_count_sum_0.24hr")],
                         by = c("calendar_date"), all.x = TRUE)
-      # ,"X.0.40._ENMO_mg_0.24hr", "X.40.100._ENMO_mg_0.24hr", "X.100.8e.03._ENMO_mg_0.24hr"
       colnames(P4N)[which(colnames(P4N) %in% MVPAdefinition == TRUE)] = c("MVPA") #"SB", "LIPA", 
 
       # Remove problematic nights from the sleep results P4
       missingSleeplog = which(P4N$guider != "sleeplog")
       if (length(missingSleeplog) > 0) {
-        # warning(paste0("\nSlaapdagboek ontbreekt in ", length(missingSleeplog),
-        #                " nachten voor ID ", ID, ": ",
-        #                paste0(P4N$calendar_date[missingSleeplog], collapse = " ")), call. = FALSE)
         is.na(P4N[missingSleeplog, grep(pattern = "guider", x = colnames(P4N), invert = FALSE)]) = TRUE
       }
 
       sleepProblem = which(P4N$cleaningcode > 1 & P4N$guider == "sleeplog")
       if (length(sleepProblem) > 0) {
-        # warning(paste0("\nSensor onvoldoende gedragen in ", length(sleepProblem),
-        #                " nachten voor ID ", ID, ": ",
-        #                paste0(P4N$calendar_date[sleepProblem], collapse = " ")), call. = FALSE)
         is.na(P4N[sleepProblem, grep(pattern = "calendar|ID|night|guider|weekday|page|filename|cleaningcode",
                                      x = colnames(P4N), invert = TRUE)]) = TRUE
       }
@@ -150,15 +143,7 @@ summarise = function(outputdir,
         is.na(P4N[insufficientValidData4, grep(pattern = "calendar|ID|night|guider|weekday|page|filename|cleaningcode",
                                      x = colnames(P4N), invert = TRUE)]) = TRUE
       }
-      
-      
-      
-      # P4N[,c("SB", "LIPA", "MVPA")] = P4N[,c("SB", "LIPA", "MVPA")] / 60 # convert minutes to hours
-      # if (sleepwindowType == "TimeInBed") {
-      #   P4N[,"SB"] = P4N[,"SB"] - P4N[, "guider_inbedDuration"]
-      # } else {
-      #   P4N[,"SB"] = P4N[,"SB"] - P4N[, "SleepDurationInSpt"]
-      # }
+
       #---------------------------------------------
       # add empty rows for missing days
       P5D = P5D[order(P5D$calendar_date),]
@@ -289,7 +274,6 @@ summarise = function(outputdir,
       #=======================================
       # MVPA
       maxvalue = max(c(P4N$MVPA, 30), na.rm = T) + 10
-      # print(summary(P4N$MVPA))
       boutdur = unlist(strsplit(unlist(strsplit(MVPAdefinition, "B"))[2], "M"))[1]
       title = paste0("Matig to Zwaar intensief gedrag in blokken van minimaal ", boutdur, " minuten")
       PASB = P4N[,c("MVPA")]
@@ -322,8 +306,6 @@ summarise = function(outputdir,
       }
       WV = which((is.na(wakeup_ts) == FALSE & is.na(sleeponset_ts) == FALSE) |
                    (is.na(wakeup_log_ts) == FALSE & is.na(sleeponset_log_ts) == FALSE))
-      # WVacc = which(is.na(wakeup_ts) == FALSE & is.na(sleeponset_ts) == FALSE)
-      # WVlog = which(is.na(wakeup_log_ts) == FALSE & is.na(sleeponset_log_ts) == FALSE)
       sleeponset_ts = as.POSIXlt(sleeponset_ts, format = "%H:%M")
       wakeup_ts = as.POSIXlt(wakeup_ts, format = "%H:%M")
       sleeponset_log_ts = as.POSIXlt(sleeponset_log_ts, format = "%H:%M")
@@ -388,6 +370,25 @@ summarise = function(outputdir,
       legend("top", legend = c("beweegmeter opstatijden", "beweegmeter slaaptijden",
                                "dagboek opstatijden", "dagboek bedtijden"), #, "meest inactieve 5 uur"),
              col = COL[c(1, 1, 2, 2)], lty = rep(1,4), pch = c(16, 17, 16, 17), ncol = 3, cex = 0.8, bg = "white")
+      
+      
+      par(mfrow = c(2,1), mar = c(4, 4, 3, 0.5), oma = c(0,0,0,0))  # las = 3
+      YMAX = max(P4N$step_count_sum_0.24hr, na.rm = TRUE)
+      YMAX = ceiling(YMAX / 5000) * 5000 # ifelse(test = max(P4N$step_count_sum_0.24hr) > 10000, yes = 20000, no = 15000)
+      print(YMAX)
+      brpos = barplot(t(as.matrix(P4N$step_count_sum_0.24hr)),
+                      space = rep(0, length(P4N$step_count_sum_0.24hr)),
+                      ylab = "", 
+                      ylim = c(0, YMAX), cex.axis = 0.9,
+                      names.arg = c(P4N$weekday), #, rep("", NBars)),
+                      cex.names = CXdays, cex.lab = CL, cex.main = CXmain,
+                      main = "", col = adjustcolor("lightblue", alpha.f = 0.2))
+      grid(nx = NA, ny = NULL,
+           lty = 2,      # Grid line type
+           col = "gray", # Grid line color
+           lwd = 1)      # Grid line width
+      mtext("Stappen per dag", side = 3, adj = 0, line = 1.2, cex = 0.9, font = 2);
+      
       dev.off()
       
       cat(paste0("\nDe PDF rapporten zijn nu opgeslagen in ",pdffile,"."))
