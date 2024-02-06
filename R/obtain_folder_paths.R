@@ -48,7 +48,7 @@ obtain_folder_paths = function() {
     cat(paste0(rep('_',options()$width),collapse=''))
     # readline("\nGeef aan waar de gt3x bestanden opgeslagen zijn.\n Klik eerst [enter] om verder te gaan.")  
     # gt3xdir = easycsv::choose_dir()
-    readline("\nGeef aan waar de csv bestanden opgeslagen zijn.\n Klik eerst [enter] om verder te gaan.")  
+    readline("\nGeef aan waar de gt3x bestanden opgeslagen zijn.\n Klik eerst [enter] om verder te gaan.")  
     datadir = easycsv::choose_dir()
     readline("\nGeef aan waar de resultaten opgeslagen mogen worden.\n Klik eerst [enter] om verder te gaan.")  
     outputdir = easycsv::choose_dir()
