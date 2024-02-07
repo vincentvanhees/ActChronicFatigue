@@ -72,6 +72,7 @@ addVariables5 = function(outputdir=c(), sep = ",") {
   if (length(existingvars) > 0) P5summary = P5summary[,-existingvars]
   P5summary_updated = merge(P5summary, D, by.x = "ID2", by.y = "ID")
   # Save changes
-  write.csv(P5summary_updated, file = part5_summary_file, row.names = FALSE)
+  data.table::fwrite(x = P5summary_updated,
+                     file = part5_summary_file, row.names = FALSE, sep = sep)
   
 }
