@@ -1,6 +1,8 @@
 ## Actometer behavioral scoring from wrist- or hip-worn Actigraph data
 
 
+The Dutch tutorial (handleiding) can be found [here](Handleiding_analyse_actigraph_dutch.pdf).
+
 ### To apply previously trained model on new data:
 
 1. Use ActiLife software to export the raw Actigraph data to .gt3x format. Skip this step you are an accelerometer brand that is not Actigraph.
