@@ -16,6 +16,7 @@ gebruik_slaap_dagboek = TRUE
 referentiewaarden = c(30,8) # gemiddelde en standaard deviatie
 sleeplogidnum = TRUE # TRUE als patient ID een nummer is, FALSE als het ook letters bevat
 sep = ","
+dec = "."
 
 # hoeveel uren data wil je negeren aan het begin en aan het einde van de meting?
 hrs.del.start = 0 # aantal uren te negeren aan het begin
@@ -102,7 +103,7 @@ ActChronicFatigue::runGGIR(datadir = datadir, outputdir = outputdir, mode = c(1:
                            visualreport = FALSE, acc.metric = "BFEN", chunksize = chunksize,
                            testbatch = testbatch ,  do.parallel = TRUE, hrs.del.start = hrs.del.start,
                            hrs.del.end = hrs.del.end,
-                           sep = sep)
+                           sep = sep, dec = dec)
 part2resultsfile = paste0(outputdir,"/output_",basename(datadir),"/results/part2_summary.csv")
 
 #=============================================================================

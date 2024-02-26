@@ -16,7 +16,8 @@
 #' @param hrs.del.start GGIR argument, see document R package GGIR
 #' @param hrs.del.end GGIR argument, see document R package GGIR
 #' @param sleepwindowType GGIR argument, see document R package GGIR
-#' @param sep separator used by csv files stored by GGIR
+#' @param sep column separator used by csv reports stored by GGIR
+#' @param dec decimal separator used by csv reports stored by GGIR
 #' @return no object is returned, GGIR writes all its outputs to files
 #' @importFrom stats runif var
 #' @export
@@ -26,7 +27,7 @@ runGGIR = function(datadir = c(), outputdir = c(), mode = c(), do.report = c(),
                    visualreport = FALSE, acc.metric = "BFEN", chunksize = 1,
                    loglocation = c(), do.parallel = TRUE, testbatch = FALSE,
                    sleeplogidnum = TRUE, hrs.del.start = 0, hrs.del.end = 0, sleepwindowType = "TimeInBed",
-                   sep = ",") {
+                   sep = ",", dec = ".") {
   if (testbatch == TRUE) {
     f0 = 1
     f1 = 3
@@ -212,10 +213,12 @@ runGGIR = function(datadir = c(), outputdir = c(), mode = c(), do.report = c(),
              do.bfen = TRUE,
              do.enmo = TRUE,
              do.anglez = TRUE,
+             
              acc.metric = acc.metric, # more similar original aktometer approach and reduced impact of Actigraph calibration challengee
              hb = 10,
              lb = 0.8,
              coln1 = 3,
+             dec_reports = dec,
              sep_reports = sep, #<= because this repo is used in The Netherlands
              imputeTimegaps = TRUE,
              chunksize = chunksize,

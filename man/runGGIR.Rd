@@ -21,7 +21,8 @@ runGGIR(
   hrs.del.start = 0,
   hrs.del.end = 0,
   sleepwindowType = "TimeInBed",
-  sep = ","
+  sep = ",",
+  dec = "."
 )
 }
 \arguments{
@@ -57,7 +58,9 @@ runGGIR(
 
 \item{sleepwindowType}{GGIR argument, see document R package GGIR}
 
-\item{sep}{separator used by csv files stored by GGIR}
+\item{sep}{column separator used by csv reports stored by GGIR}
+
+\item{dec}{decimal separator used by csv reports stored by GGIR}
 }
 \value{
 no object is returned, GGIR writes all its outputs to files
