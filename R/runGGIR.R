@@ -101,25 +101,21 @@ runGGIR = function(datadir = c(), outputdir = c(), mode = c(), do.report = c(),
         }
       }
       peak_info <- peak_info[is.na(peak_info[,1])!=TRUE,] # get rid of na rows
-      
-      # filter peak_info[,2] based on mag_thres
-      peak_info <- peak_info[peak_info[,2] > mag_thres,]
-      if (length(peak_info) > 10) {  # there must be at least two steps
-        num_peaks <- length(peak_info[,1])
-        
-        no_steps = FALSE
-        if (num_peaks > 2) {
-          # Calculate Features (periodicity, similarity, continuity)
-          peak_info[1:(num_peaks-1),3] <- diff(peak_info[,1]) # calculate periodicity
-          peak_info <- peak_info[peak_info[,3] > period_min,] # filter peaks based on period_min
-          peak_info <- peak_info[peak_info[,3] < period_max,]   # filter peaks based on period_max 
-        } else {
-          no_steps = TRUE
+      no_steps = TRUE
+      if (length(peak_info) > 5) {
+        # filter peak_info[,2] based on mag_thres
+        peak_info <- peak_info[peak_info[,2] > mag_thres,]
+        if (nrow(peak_info) >= 2) {  # there must be at least two steps
+          num_peaks <- length(peak_info[,1])
+          if (num_peaks > 2) {
+            # Calculate Features (periodicity, similarity, continuity)
+            peak_info[1:(num_peaks-1),3] <- diff(peak_info[,1]) # calculate periodicity
+            peak_info <- peak_info[peak_info[,3] > period_min,] # filter peaks based on period_min
+            peak_info <- peak_info[peak_info[,3] < period_max,]   # filter peaks based on period_max 
+            no_steps = FALSE
+          }
         }
-      } else {
-        no_steps = TRUE
       }
-      
       if ( length(peak_info)==0 || length(peak_info) == sum(is.na(peak_info)) || no_steps == TRUE) {
         # no steps found
         num_seconds = round(length(acc) / fs)
@@ -151,7 +147,6 @@ runGGIR = function(datadir = c(), outputdir = c(), mode = c(), do.report = c(),
         } 
         peak_info <- peak_info[peak_info[,5]==1,1] # continuity test - only keep locations after this
         peak_info <- peak_info[is.na(peak_info)!=TRUE] # previous statement can result in an NA in col-1
-        
         if (length(peak_info)==0) {
           # no steps found
           num_seconds = round(length(acc) / fs)

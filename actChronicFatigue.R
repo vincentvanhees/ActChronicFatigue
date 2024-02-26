@@ -15,7 +15,7 @@ rm(list = ls())
 gebruik_slaap_dagboek = TRUE
 referentiewaarden = c(30,8) # gemiddelde en standaard deviatie
 sleeplogidnum = TRUE # TRUE als patient ID een nummer is, FALSE als het ook letters bevat
-sep = ";"
+sep = ","
 
 # hoeveel uren data wil je negeren aan het begin en aan het einde van de meting?
 hrs.del.start = 0 # aantal uren te negeren aan het begin
@@ -29,7 +29,7 @@ development.mode = TRUE # laat op FALSE staan, TRUE is alleen voor onderhoud
 testbatch = FALSE
 if (development.mode == TRUE) {
   roxygen2::roxygenise()
-  locationRcode = "/home/vincent/projects/ActChronicFatigue/R"
+  locationRcode = "D:/Code/ActChronicFatigue/R"
   ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
   for (i in 1:length(ffnames)) {
     source(paste(locationRcode, "/", ffnames[i], sep = ""))
@@ -45,13 +45,11 @@ if ("GGIR" %in% rownames(installed.packages()) == FALSE) {
 }
 
 library(ActChronicFatigue)
-library(GGIR)
+# library(GGIR)
 library(readxl)
 if (development.mode == TRUE) {
-  dirR = "/home/vincent/GGIR/R"
+  dirR = "D:/Code/GGIR/R"
   ffnames = dir(dirR) # creating list of filenames of scriptfiles to load
-  # ffnames = ffnames[which(ffnames %in% c("g.cwaread.R", "read.gt3x_ggir.R") == FALSE)]
-  
   ffnames = ffnames[grep(pattern = "sysdata", x = ffnames, invert = TRUE)]
   for (i in 1:length(ffnames)) {
     source(paste(dirR,"/",ffnames[i], sep = "")) #loading scripts for reading geneactiv data
