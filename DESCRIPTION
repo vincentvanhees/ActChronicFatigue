@@ -10,7 +10,7 @@ Description: Process accelerometer data with GGIR and then classify acitivy leve
 URL: https://github.com/wadpac/sleepsight-analytics-pipeline
 License: Apache License version 2.0 | file LICENSE
 Suggests: remotes, roxygen2
-Imports: GGIR, methods, DescTools, Rfast, easycsv, readxl, png, grid
+Imports: GGIR, methods, easycsv, readxl, png, grid, data.table
 Depends: stats, utils, R (>= 3.5.0), grDevices, graphics
 Remotes: wadpac/GGIR
 NeedsCompilation: no

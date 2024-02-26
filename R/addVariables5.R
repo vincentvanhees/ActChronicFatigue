@@ -7,6 +7,7 @@
 #' @importFrom stats aggregate sd quantile aggregate.data.frame
 #' @importFrom utils read.csv write.csv
 #' @importFrom methods is
+#' @importFrom data.table fwrite
 #' 
 addVariables5 = function(outputdir=c(), sep = ",") {
   #==========================================================
