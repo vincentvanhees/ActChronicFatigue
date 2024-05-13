@@ -144,7 +144,6 @@ convert_sleeplog = function(sleeplog = c(), part2resultsfile=c(), sep = ",") {
      
     }
     options(warn = -1)
-    D$ID = as.numeric(D$ID)
     options(warn = 0)
     write.csv(D, file = outputfile, row.names = FALSE)
   } else {

@@ -22,7 +22,6 @@ summarise = function(outputdir,
                      MVPAdefinition = "MVPA_E5S_B10M80%_T100_BFEN_0-24hr",
                      threshold_wrist = 0.5,
                      sep = sep) {
-  
   part2_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                             pattern = "part2_summary", value = T)
   part2_summary = read.csv(file = part2_summary_file, sep = sep)
@@ -36,7 +35,7 @@ summarise = function(outputdir,
     return(tmp)
   }
   if (is.character(part2_summary$ID) == TRUE) {  
-    part2_summary$ID = as.numeric(sapply(part2_summary$ID, FUN = extractid))
+    part2_summary$ID = sapply(part2_summary$ID, FUN = extractid)
   }
   part2_summary = part2_summary[,c("ID", "ENMO_fullRecordingMean")] #  "BFEN_fullRecordingMean" "ENMO_fullRecordingMean"
   colnames(part2_summary) = c("ID","Activity_zscore")
@@ -91,7 +90,6 @@ summarise = function(outputdir,
                                  pattern = "part5_daysummary", value = T)
     part5_daysummary = read.csv(file = part5_daysummary_file, sep = sep)
     
-    
     part2_daysummary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                                  pattern = "part2_daysummary", value = T)
     part2_daysummary = read.csv(file = part2_daysummary_file, sep = sep)
@@ -120,30 +118,30 @@ summarise = function(outputdir,
       P2D$calendar_date = as.Date(P2D$calendar_date, "%Y-%m-%d")
       P4N$calendar_date = as.Date(P4N$calendar_date, "%d/%m/%Y")
       # Merge time spent in two acceleration range to sleep object, to ease plotting later on
-
+      
       # Combine P4 and P2 output to ease plotting
       P4N = base::merge(P4N, P2D[,c("calendar_date", MVPAdefinition, "step_count_sum_0.24hr")],
                         by = c("calendar_date"), all.x = TRUE)
       colnames(P4N)[which(colnames(P4N) %in% MVPAdefinition == TRUE)] = c("MVPA") #"SB", "LIPA", 
-
+      
       # Remove problematic nights from the sleep results P4
       missingSleeplog = which(P4N$guider != "sleeplog")
       if (length(missingSleeplog) > 0) {
         is.na(P4N[missingSleeplog, grep(pattern = "guider", x = colnames(P4N), invert = FALSE)]) = TRUE
       }
-
+      
       sleepProblem = which(P4N$cleaningcode > 1 & P4N$guider == "sleeplog")
       if (length(sleepProblem) > 0) {
         is.na(P4N[sleepProblem, grep(pattern = "calendar|ID|night|guider|weekday|page|filename|cleaningcode",
                                      x = colnames(P4N), invert = TRUE)]) = TRUE
       }
-
+      
       insufficientValidData4 = which(P4N$fraction_night_invalid > 0.33)
       if (length(insufficientValidData4) > 0) {
         is.na(P4N[insufficientValidData4, grep(pattern = "calendar|ID|night|guider|weekday|page|filename|cleaningcode",
-                                     x = colnames(P4N), invert = TRUE)]) = TRUE
+                                               x = colnames(P4N), invert = TRUE)]) = TRUE
       }
-
+      
       #---------------------------------------------
       # add empty rows for missing days
       P5D = P5D[order(P5D$calendar_date),]
@@ -176,8 +174,8 @@ summarise = function(outputdir,
         P4N$weekday = gsub(x = P4N$weekday,
                            pattern = dagen[ki], replacement = dagen_kort[ki]) 
       }
-
-
+      
+      
       # Extract person summary for part 5
       P5P = part5_summary[which(part5_summary$ID == ID),]
       
@@ -222,7 +220,7 @@ summarise = function(outputdir,
       lines(x = c(1,length(TS)), y = rep(model_threshold, 2), col = "black", lty = 2, lwd = 1.3)
       text(x = length(TS) - 3, y = model_threshold + 10, labels = "Grenswaarde laag actief", pos = 4, cex = 1)
       plotlogo()
-
+      
       #========================================
       # Plot sleep duration  (based on GGIR part 4 output)
       if (nrow(P4N) > nrow(P5D) & nrow(P4N) > 1) {
@@ -341,7 +339,7 @@ summarise = function(outputdir,
       YLIM = c(as.POSIXlt("12:00", format = "%H:%M") - 12 * 3600, (as.POSIXlt("12:00", format = "%H:%M") + 24 * 3600))
       timeaxis = c(as.numeric(YLIM[1]) + (c(0:36) * (3600)))
       timeaxislabels = format(as.POSIXlt(timeaxis, origin = "1970-1-1"), "%H:%M")
-
+      
       waki = 1:(max(WV) - 1)
       onsi = 2:max(WV)
       # Check whether onset occurs before waking up, if yes then add 24 hour to onset
@@ -353,7 +351,7 @@ summarise = function(outputdir,
       COL = c("blue", "red", "black") 
       CL = 1
       par(mfrow = c(1,1), oma = c(0,0,0,0))
-
+      
       plot(WV[waki], wakeup_ts[waki], type = "b", pch = 16, xlab = "",  ylab = "",
            ylim = as.numeric(YLIM), axes = FALSE, main = "Opsta- en bed-tijden", cex.lab = CL, cex = CXdots, col = COL[1])
       for (ii in -24:24) {
@@ -375,7 +373,6 @@ summarise = function(outputdir,
       par(mfrow = c(2,1), mar = c(4, 4, 3, 0.5), oma = c(0,0,0,0))  # las = 3
       YMAX = max(P4N$step_count_sum_0.24hr, na.rm = TRUE)
       YMAX = ceiling(YMAX / 5000) * 5000 # ifelse(test = max(P4N$step_count_sum_0.24hr) > 10000, yes = 20000, no = 15000)
-      print(YMAX)
       brpos = barplot(t(as.matrix(P4N$step_count_sum_0.24hr)),
                       space = rep(0, length(P4N$step_count_sum_0.24hr)),
                       ylab = "", 

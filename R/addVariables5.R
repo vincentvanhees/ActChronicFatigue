@@ -30,7 +30,6 @@ addVariables5 = function(outputdir=c(), sep = ",") {
         FUN = function(x)
           unlist(strsplit(x, " "))[1]
       ))
-      idValues = as.integer(idValues)
     }
     return(idValues)
   }
@@ -56,8 +55,7 @@ addVariables5 = function(outputdir=c(), sep = ",") {
   DL = aggregate(x = P5, by = list(P5$ID), FUN = function(x) length(x))
   DL = DL[,-2]
   colnames(DL) = c("ID","Ndays_used")
-  D = aggregate(x = P5, by = list(P5$ID), FUN = function(x) {quantile(x,11/12, na.rm = TRUE) })
-  D = D[,-2]
+  D = aggregate(x = P5$act, by = list(P5$ID), FUN = function(x) {quantile(x,11/12, na.rm = TRUE) })
   colnames(D) = c("ID","act9167")
   D = merge(D, DL, by = "ID")
   # Add the new variables to the person level output calculated by GGIR part 2:
