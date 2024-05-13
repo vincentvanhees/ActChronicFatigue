@@ -8,6 +8,7 @@
 #' @param MVPAdefinition MVPA variable name from the GGIR part2 daysummary output
 #' @param threshold_wrist Threshold to classify active or passive
 #' @param sep separator used by csv files stored by GGIR
+#' @param dec dec separator used by csv files stored by GGIR
 #' @return no object is returned, only a summary is printed to the screen
 #' @export
 #' @importFrom grDevices dev.off pdf adjustcolor
@@ -21,10 +22,10 @@ summarise = function(outputdir,
                      sleepwindowType="SPT",
                      MVPAdefinition = "MVPA_E5S_B10M80%_T100_BFEN_0-24hr",
                      threshold_wrist = 0.5,
-                     sep = sep) {
+                     sep = sep, dec = dec) {
   part2_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                             pattern = "part2_summary", value = T)
-  part2_summary = read.csv(file = part2_summary_file, sep = sep)
+  part2_summary = read.csv(file = part2_summary_file, sep = sep, dec = dec)
   extractid = function(x) {
     tmp = unlist(strsplit(x," "))
     if (length(tmp) > 1) {
@@ -88,15 +89,15 @@ summarise = function(outputdir,
     cat("\n")
     part5_daysummary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                                  pattern = "part5_daysummary", value = T)
-    part5_daysummary = read.csv(file = part5_daysummary_file, sep = sep)
+    part5_daysummary = read.csv(file = part5_daysummary_file, sep = sep, dec = dec)
     
     part2_daysummary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                                  pattern = "part2_daysummary", value = T)
-    part2_daysummary = read.csv(file = part2_daysummary_file, sep = sep)
+    part2_daysummary = read.csv(file = part2_daysummary_file, sep = sep, dec = dec)
     # Load sleep/wake times from both GGIR and diary
     part4_nightsummaryfull_file = grep(dir(paste0(outputdir,"/results/QC"), full.names = TRUE),
                                        pattern = "part4_nightsummary_sleep_full.csv", value = T)
-    part4_nightsummary = read.csv(part4_nightsummaryfull_file, sep = sep)
+    part4_nightsummary = read.csv(part4_nightsummaryfull_file, sep = sep, dec = dec)
     
     days = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
     dagen = c("maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag")

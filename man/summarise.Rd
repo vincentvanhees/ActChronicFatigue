@@ -12,7 +12,8 @@ summarise(
   sleepwindowType = "SPT",
   MVPAdefinition = "MVPA_E5S_B10M80\%_T100_BFEN_0-24hr",
   threshold_wrist = 0.5,
-  sep = sep
+  sep = sep,
+  dec = dec
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ summarise(
 \item{threshold_wrist}{Threshold to classify active or passive}
 
 \item{sep}{separator used by csv files stored by GGIR}
+
+\item{dec}{dec separator used by csv files stored by GGIR}
 }
 \value{
 no object is returned, only a summary is printed to the screen

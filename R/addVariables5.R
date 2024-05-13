@@ -9,7 +9,7 @@
 #' @importFrom methods is
 #' @importFrom data.table fwrite
 #' 
-addVariables5 = function(outputdir=c(), sep = ",") {
+addVariables5 = function(outputdir=c(), sep = ",", dec = ".") {
   #==========================================================
   # Input needed:
   # outputdir = "/media/vincent/DATA/actometer_nkcv/output_rawactigraph_nkcv" # specify output directory
@@ -21,7 +21,7 @@ addVariables5 = function(outputdir=c(), sep = ",") {
   part5_summary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),pattern = "part5_personsummary_WW_", value = T)
   P5 = read.csv(part5_daysummary_file,
                 stringsAsFactors = FALSE,
-                sep = sep)
+                sep = sep, dec = dec)
   # Change ID to numeric:
   convertID = function(idValues) {
     if (is(idValues, "character")) {
@@ -61,7 +61,7 @@ addVariables5 = function(outputdir=c(), sep = ",") {
   # Add the new variables to the person level output calculated by GGIR part 2:
   P5summary = read.csv(part5_summary_file,
                        stringsAsFactors = FALSE,
-                       sep = sep)
+                       sep = sep, dec = dec)
   
   # Change ID to numeric
   P5summary$ID2 = convertID(P5summary$filename)
@@ -72,6 +72,6 @@ addVariables5 = function(outputdir=c(), sep = ",") {
   P5summary_updated = merge(P5summary, D, by.x = "ID2", by.y = "ID")
   # Save changes
   data.table::fwrite(x = P5summary_updated,
-                     file = part5_summary_file, row.names = FALSE, sep = sep)
+                     file = part5_summary_file, row.names = FALSE, sep = sep, dec = dec)
   
 }
