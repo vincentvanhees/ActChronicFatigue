@@ -63,6 +63,9 @@ summarise = function(outputdir,
   } else {
     cat(paste0("Klassificaties voor meest recente ", length(most_recent_recordings), " metingen: "))
     part5_summary = part5_summary[order(as.Date(part5_summary$calendar_date)),]
+    if ("sleep_efficiency_after_onset_pla" %in% colnames(part5_summary)) {
+      colnames(part5_summary)[which(colnames(part5_summary) == "sleep_efficiency_after_onset_pla")] = "sleep_efficiency_pla"
+    }
     recent_recording = part5_summary[most_recent_recordings,
                                      c("ID2", "calendar_date", "prop_perv_passive", "Activity_zscore",
                                        "dur_spt_sleep_min_pla", "dur_spt_min_pla", "sleep_efficiency_pla",
