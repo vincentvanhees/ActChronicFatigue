@@ -32,15 +32,13 @@ hrs.del.end = 0 # aantal uren te negeren aan het einde
 sleepwindowType = "TimeInBed"
 # #=========================================
 # # Install code if not available:
-development.mode = TRUE # laat op FALSE staan, TRUE is alleen voor onderhoud
+development.mode = FALSE # laat op FALSE staan, TRUE is alleen voor onderhoud
 testbatch = FALSE
 if (development.mode == TRUE) {
   roxygen2::roxygenise()
-  locationRcode = "D:/Code/ActChronicFatigue/R"
-  ffnames = dir(locationRcode) # creating list of filenames of scriptfiles to load
-  for (i in 1:length(ffnames)) {
-    source(paste(locationRcode, "/", ffnames[i], sep = ""))
-  }
+  fns = dir("D:/Code/ActChronicFatigue/R", full.names = TRUE) # creating list of filenames of scriptfiles to load
+  fns = fns[grep(pattern = "sysdata", x = fns, invert = TRUE)]
+  for (i in fns) source(file = i, local = FALSE)
 } else {
   # cat("\nActChronicFatigue installeren...")
   # remotes::install_github("vincentvanhees/ActChronicFatigue", dependencies = TRUE)
