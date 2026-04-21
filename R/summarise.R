@@ -97,6 +97,12 @@ summarise = function(outputdir,
     part2_daysummary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
                                  pattern = "part2_daysummary", value = T)
     part2_daysummary = read.csv(file = part2_daysummary_file, sep = sep, dec = dec)
+    
+    # Event file
+    part2_dayeventsummary_file = grep(dir(paste0(outputdir,"/results"), full.names = TRUE),
+                                 pattern = "part2_dayeventsummary", value = T)
+    part2_dayeventsummary = read.csv(file = part2_dayeventsummary_file, sep = sep, dec = dec)
+    
     # Load sleep/wake times from both GGIR and diary
     part4_nightsummaryfull_file = grep(dir(paste0(outputdir,"/results/QC"), full.names = TRUE),
                                        pattern = "part4_nightsummary_sleep_full.csv", value = T)
@@ -109,6 +115,8 @@ summarise = function(outputdir,
                                       pattern = days[ki], replacement = dagen[ki])
       part2_daysummary$weekday = gsub(x = part2_daysummary$weekday,
                                       pattern = days[ki], replacement = dagen[ki])
+      part2_dayeventsummary$weekday = gsub(x = part2_dayeventsummary$weekday,
+                                      pattern = days[ki], replacement = dagen[ki])
       part4_nightsummary$weekday = gsub(x = part4_nightsummary$weekday,
                                         pattern = days[ki], replacement = dagen[ki]) 
     }
@@ -116,15 +124,21 @@ summarise = function(outputdir,
       # Get rows for this ID
       P5D = part5_daysummary[which(part5_daysummary$ID == ID),]
       P2D = part2_daysummary[which(part2_daysummary$ID == ID),]
+      P2DE = part2_dayeventsummary[which(part2_dayeventsummary$ID == ID),]
       P4N = part4_nightsummary[which(part4_nightsummary$ID == ID),]
       # Put date in data format
       P5D$calendar_date = as.Date(P5D$calendar_date, "%Y-%m-%d")
       P2D$calendar_date = as.Date(P2D$calendar_date, "%Y-%m-%d")
-      P4N$calendar_date = as.Date(P4N$calendar_date, "%d/%m/%Y")
+      P2DE$calendar_date = as.Date(P2DE$calendar_date, "%Y-%m-%d")
+      P4N$calendar_date = as.Date(P4N$calendar_date, "%Y-%m-%d")
+      
       # Merge time spent in two acceleration range to sleep object, to ease plotting later on
       
+      # Combine P2 and P2E output to ease plotting
+      P2D = base::merge(P2D, P2DE,
+                        by = c("calendar_date"), all.x = TRUE)
       # Combine P4 and P2 output to ease plotting
-      P4N = base::merge(P4N, P2D[,c("calendar_date", MVPAdefinition, "step_count_sum_0.24hr")],
+      P4N = base::merge(P4N, P2D[,c("calendar_date", MVPAdefinition, "tot_step_count_0.24hr")],
                         by = c("calendar_date"), all.x = TRUE)
       colnames(P4N)[which(colnames(P4N) %in% MVPAdefinition == TRUE)] = c("MVPA") #"SB", "LIPA", 
       
@@ -372,13 +386,11 @@ summarise = function(outputdir,
       legend("top", legend = c("beweegmeter opstatijden", "beweegmeter slaaptijden",
                                "dagboek opstatijden", "dagboek bedtijden"), #, "meest inactieve 5 uur"),
              col = COL[c(1, 1, 2, 2)], lty = rep(1,4), pch = c(16, 17, 16, 17), ncol = 3, cex = 0.8, bg = "white")
-      
-      
       par(mfrow = c(2,1), mar = c(4, 4, 3, 0.5), oma = c(0,0,0,0))  # las = 3
-      YMAX = max(P4N$step_count_sum_0.24hr, na.rm = TRUE)
-      YMAX = ceiling(YMAX / 5000) * 5000 # ifelse(test = max(P4N$step_count_sum_0.24hr) > 10000, yes = 20000, no = 15000)
-      brpos = barplot(t(as.matrix(P4N$step_count_sum_0.24hr)),
-                      space = rep(0, length(P4N$step_count_sum_0.24hr)),
+      YMAX = max(P4N$tot_step_count_0.24hr, na.rm = TRUE)
+      YMAX = ceiling(YMAX / 5000) * 5000 # ifelse(test = max(P4N$tot_step_count_0.24hr) > 10000, yes = 20000, no = 15000)
+      brpos = barplot(t(as.matrix(P4N$tot_step_count_0.24hr)),
+                      space = rep(0, length(P4N$tot_step_count_0.24hr)),
                       ylab = "", 
                       ylim = c(0, YMAX), cex.axis = 0.9,
                       names.arg = c(P4N$weekday), #, rep("", NBars)),

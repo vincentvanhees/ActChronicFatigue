@@ -32,7 +32,8 @@ runGGIR = function(datadir = c(), outputdir = c(), mode = c(), do.report = c(),
     f0 = 1
     f1 = 3
   } else {
-    f0 = f1 = c()
+    f0 = 1
+    f1 = 0
   }
   if (length(loglocation) > 0) {
     SLEEPLOG = read.csv(loglocation)
@@ -236,7 +237,7 @@ runGGIR = function(datadir = c(), outputdir = c(), mode = c(), do.report = c(),
              # qwindow=c(0,9,21,24), #window over which to calculate quantiles
              qwindow = c(0, 24), #activitylog,
              nnights = nnights,
-             sleeplogidnum = sleeplogidnum ,
+             # sleeplogidnum = sleeplogidnum ,
              loglocation = loglocation,
              do.visual = do.visual,
              sleepwindowType = sleepwindowType,
@@ -246,7 +247,7 @@ runGGIR = function(datadir = c(), outputdir = c(), mode = c(), do.report = c(),
              threshold.lig = 40,
              threshold.mod = 100,
              threshold.vig = 400,
-             bout.metric = 4,
+             # bout.metric = 4,
              visualreport = visualreport,
              timewindow = "WW",
              dofirstpage = FALSE, #first page of pdf-report with simple summary histograms
