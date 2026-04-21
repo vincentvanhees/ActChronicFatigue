@@ -25,12 +25,12 @@ obtain_folder_paths = function() {
       cat(paste0(rep('_',options()$width),collapse=''))
       Q4 = menu(c("Ja", "Nee"), title=paste0("\nIs ",datadir," nog steeds de locatie van de gt3x bestanden? \nZo nee, specificeer de nieuwe locatie in het volgende scherm"))
       if (Q4 == 2) {
-        datadir = easycsv::choose_dir()
+        datadir = choose.dir(default = "", caption = "Kies folder")
       }
       cat(paste0(rep('_',options()$width),collapse=''))
       Q5 = menu(c("Ja", "Nee"), title=paste0("\nIs ",outputdir," nog steeds de locatie waar je de resultaten wilt hebben? \nZo nee, specificeer de nieuwe locatie in het volgende scherm"))
       if (Q5 == 2) {
-        outputdir = easycsv::choose_dir()
+        outputdir = choose.dir(default = "", caption = "Kies folder")
       }
       
       cat(paste0(rep('_',options()$width),collapse=''))
@@ -39,7 +39,7 @@ obtain_folder_paths = function() {
         cat(paste0(rep('_',options()$width),collapse=''))
         Q7 = menu(c("Ja", "Nee"), title=paste0("\nIs ",dagboekdir," nog steeds de locatie van het slaapdagboek? \nZo nee, specificeer de nieuwe locatie in het volgende scherm"))
         if (Q7 == 2) {
-          dagboekdir = file.choose() #easycsv::choose_dir()
+          dagboekdir = file.choose()
         }
       }
       
@@ -49,9 +49,9 @@ obtain_folder_paths = function() {
     # readline("\nGeef aan waar de gt3x bestanden opgeslagen zijn.\n Klik eerst [enter] om verder te gaan.")  
     # gt3xdir = easycsv::choose_dir()
     readline("\nGeef aan waar de gt3x bestanden opgeslagen zijn.\n Klik eerst [enter] om verder te gaan.")  
-    datadir = easycsv::choose_dir()
+    datadir = choose.dir(default = "", caption = "Kies folder")
     readline("\nGeef aan waar de resultaten opgeslagen mogen worden.\n Klik eerst [enter] om verder te gaan.")  
-    outputdir = easycsv::choose_dir()
+    outputdir = choose.dir(default = "", caption = "Kies folder")
     readline("\nGeef aan in welk bestand het slaapdagboek (.xlsx) is opgeslagen.\n Klik eerst [enter] om verder te gaan.")  
     dagboekdir = file.choose()
     

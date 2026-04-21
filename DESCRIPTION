@@ -1,8 +1,8 @@
 Package: ActChronicFatigue
 Type: Package
 Title: Process accelerometer data from individuals with chronic fatigue
-Version: 0.3.0
-Date: 2024-01-31
+Version: 0.3.1
+Date: 2025-04-21
 Authors@R: c(person("Vincent T","van Hees",role=c("aut","cre"),
                   email="v.vanhees@accelting.com"))
 Maintainer: Vincent T van Hees <v.vanhees@accelting.com>
@@ -10,10 +10,9 @@ Description: Process accelerometer data with GGIR and then classify acitivy leve
 URL: https://github.com/wadpac/sleepsight-analytics-pipeline
 License: Apache License version 2.0 | file LICENSE
 Suggests: remotes, roxygen2
-Imports: GGIR, methods, easycsv, readxl, png, grid, data.table
+Imports: GGIR (>= 3.3-6), methods, readxl, png, grid, data.table
 Depends: stats, utils, R (>= 3.5.0), grDevices, graphics
-Remotes: wadpac/GGIR
 NeedsCompilation: no
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.3
 Encoding: UTF-8
