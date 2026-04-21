@@ -15,8 +15,14 @@ rm(list = ls())
 gebruik_slaap_dagboek = TRUE
 referentiewaarden = c(30,8) # gemiddelde en standaard deviatie
 sleeplogidnum = TRUE # TRUE als patient ID een nummer is, FALSE als het ook letters bevat
-sep = ";" #","
-dec = "," # "."
+
+# NL
+# sep = ";" #","
+# dec = "," # "."
+# EN/US
+sep = "," #","
+dec = "." # "."
+
 
 # hoeveel uren data wil je negeren aan het begin en aan het einde van de meting?
 hrs.del.start = 0 # aantal uren te negeren aan het begin
@@ -26,7 +32,7 @@ hrs.del.end = 0 # aantal uren te negeren aan het einde
 sleepwindowType = "TimeInBed"
 # #=========================================
 # # Install code if not available:
-development.mode = FALSE # laat op FALSE staan, TRUE is alleen voor onderhoud
+development.mode = TRUE # laat op FALSE staan, TRUE is alleen voor onderhoud
 testbatch = FALSE
 if (development.mode == TRUE) {
   roxygen2::roxygenise()
@@ -49,12 +55,9 @@ library(ActChronicFatigue)
 # library(GGIR)
 library(readxl)
 if (development.mode == TRUE) {
-  dirR = "D:/Code/GGIR/R"
-  ffnames = dir(dirR) # creating list of filenames of scriptfiles to load
-  ffnames = ffnames[grep(pattern = "sysdata", x = ffnames, invert = TRUE)]
-  for (i in 1:length(ffnames)) {
-    source(paste(dirR,"/",ffnames[i], sep = "")) #loading scripts for reading geneactiv data
-  }
+  fns = dir("D:/Code/GGIR/R", full.names = TRUE) # creating list of filenames of scriptfiles to load
+  fns = fns[grep(pattern = "sysdata", x = fns, invert = TRUE)]
+  for (i in fns) source(file = i, local = FALSE)
 }
 
 #=========================================
