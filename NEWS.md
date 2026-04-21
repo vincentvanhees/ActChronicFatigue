@@ -1,4 +1,4 @@
-# ActiGraphicFatigue 0.3.1 
+# ActChronicFatigue 0.3.1 
 
 - Remove dependency on deprecated R package easycsv and replace by utils functions
 
